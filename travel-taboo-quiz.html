@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅行禁忌猜猜看 — 别踩文化的坑</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',sans-serif;background:linear-gradient(135deg,#e8f4fd 0%,#f0faf6 100%);min-height:100vh;color:#2d3748;overflow-x:hidden}
+.screen{display:none;animation:fadeIn .5s ease}.screen.active{display:flex;flex-direction:column;align-items:center}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounceIn{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes flipIn{0%{transform:rotateY(90deg);opacity:0}100%{transform:rotateY(0);opacity:1}}
+@keyframes correctBg{0%{background:#f0fff4}50%{background:#c6f6d5}100%{background:#f0fff4}}
+@keyframes wrongBg{0%{background:#fff5f5}50%{background:#fed7d7}100%{background:#fff5f5}}
+.btn{padding:14px 40px;border:none;border-radius:50px;font-size:18px;font-weight:600;cursor:pointer;transition:all .25s ease;outline:none;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,#4ecdc4,#44b3ab);color:#fff;box-shadow:0 4px 15px rgba(78,205,196,.35)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(78,205,196,.45)}
+.btn-secondary{background:#fff;color:#4ecdc4;border:2px solid #4ecdc4}
+.btn-secondary:hover{background:#f0faf6}
+#startScreen{justify-content:flex-start;min-height:100vh;padding:36px 20px 30px;text-align:center}
+.logo{font-size:72px;margin-bottom:12px;animation:bounceIn .8s ease}
+.title{font-size:30px;font-weight:700;color:#1a7a6d;margin-bottom:6px;letter-spacing:1px}
+.subtitle{font-size:14px;color:#718096;margin-bottom:22px;line-height:1.7;max-width:340px}
+.country-section{width:100%;max-width:440px;margin:0 auto}
+.country-region-block{margin-bottom:18px}
+.country-region-title{font-size:13px;font-weight:700;color:#1a7a6d;margin-bottom:10px;padding-left:4px;display:flex;align-items:center;gap:6px;letter-spacing:.5px;text-align:left}
+.country-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.country-card{background:#fff;border-radius:12px;padding:12px 6px;text-align:center;cursor:pointer;transition:all .2s ease;border:1.5px solid transparent;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.country-card:hover{transform:translateY(-2px);border-color:#4ecdc4;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.country-card .cc-flag{font-size:28px;margin-bottom:4px;line-height:1}
+.country-card .cc-name{font-size:12px;font-weight:600;color:#2d3748;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.country-card .cc-count{font-size:10px;color:#a0aec0}
+#gameScreen{padding:20px;width:100%;max-width:480px;margin:0 auto;min-height:100vh}
+.header{display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:20px}
+.round-info{font-size:14px;color:#718096;font-weight:500}
+.correct-counter{background:#fff;padding:6px 16px;border-radius:20px;font-size:14px;font-weight:600;color:#1a7a6d;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.question-card{background:#fff;border-radius:24px;padding:36px 28px;width:100%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:24px;transition:background .4s ease}
+.question-card.correct-bg{animation:correctBg .6s ease}
+.question-card.wrong-bg{animation:wrongBg .6s ease}
+.country-flag{font-size:56px;margin-bottom:8px}
+.country-name{font-size:14px;color:#a0aec0;font-weight:500;margin-bottom:16px;letter-spacing:1px}
+.behavior-text{font-size:20px;font-weight:600;line-height:1.6;color:#2d3748;margin-bottom:8px}
+.situation-hint{background:#fffdf0;border:1.5px solid #f6e05e;border-radius:12px;padding:12px 16px;margin:12px 0 0;text-align:left;font-size:13px;color:#744210;line-height:1.5;display:flex;align-items:flex-start;gap:8px}
+.situation-hint .hint-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.answer-btns{display:flex;gap:16px;width:100%;margin-bottom:20px;justify-content:center}
+.answer-btn{flex:1;max-width:180px;padding:16px 20px;border:2.5px solid #e2e8f0;border-radius:16px;background:#fff;font-size:18px;font-weight:600;cursor:pointer;transition:all .2s ease;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+.answer-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.answer-btn.ok-btn:hover{border-color:#38a169;background:#f0fff4;color:#38a169}
+.answer-btn.no-btn:hover{border-color:#e53e3e;background:#fff5f5;color:#e53e3e}
+.answer-btn:disabled{opacity:.5;cursor:default;transform:none;box-shadow:none}
+.answer-btn.chosen-ok{border-color:#38a169;background:#f0fff4;color:#38a169}
+.answer-btn.chosen-no{border-color:#e53e3e;background:#fff5f5;color:#e53e3e}
+.explanation{width:100%;border-radius:16px;padding:20px 24px;margin-bottom:20px;animation:flipIn .4s ease;text-align:left;line-height:1.6}
+.explanation.correct{background:linear-gradient(135deg,#f0fff4,#e6ffed);border:2px solid #c6f6d5}
+.explanation.wrong{background:linear-gradient(135deg,#fff5f5,#ffe3e3);border:2px solid #feb2b2}
+.explanation .result-label{font-size:15px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.explanation .result-label .icon{font-size:20px}
+.explanation .fact{font-size:14px;color:#4a5568;margin-bottom:6px}
+.explanation .learn{font-size:13px;color:#718096;line-height:1.5;padding-top:8px;border-top:1px solid rgba(0,0,0,.06)}
+.next-btn-wrap{text-align:center;width:100%}
+.next-btn-wrap .btn{padding:12px 36px;font-size:15px}
+#finalScreen{min-height:100vh;padding:0 0 70px;text-align:center;justify-content:flex-start}
+.final-top{padding:28px 16px 20px;display:flex;flex-direction:column;align-items:center}
+.final-result{font-size:52px;font-weight:800;color:#1a7a6d;margin-bottom:4px;letter-spacing:-1px}
+.final-result .result-unit{font-size:16px;font-weight:600;color:#718096;margin-left:2px}
+.final-title{font-size:18px;font-weight:600;color:#2d3748;margin-bottom:10px}
+.final-region-tag{font-size:12px;color:#4ecdc4;background:#f0faf6;border:1px solid #4ecdc4;border-radius:12px;padding:2px 12px;display:inline-block;margin-bottom:6px}
+.final-rank{font-size:13px;color:#718096;line-height:1.4;max-width:300px}
+.culture-section{width:100%;max-width:480px;padding:0 16px;margin:0 auto;text-align:left}
+.final-btns{position:fixed;bottom:0;left:0;right:0;display:flex;gap:10px;padding:12px 16px;background:#fff;box-shadow:0 -2px 12px rgba(0,0,0,.06);z-index:100;justify-content:center}
+.final-btns .btn{flex:1;max-width:200px;padding:12px 16px;font-size:14px}
+.travel-section{width:100%;max-width:480px;margin:0 auto;padding:0 16px}
+.travel-section-title{font-size:15px;font-weight:700;color:#2d3748;text-align:center;margin:12px 0 8px;letter-spacing:.5px}
+.tab-bar-wrap{display:flex;align-items:center;background:#fff;border-radius:14px;margin:0 auto 12px;padding:8px;box-shadow:0 1px 6px rgba(0,0,0,.04);max-width:480px}
+.tab-scroll{display:flex;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;flex:1;min-width:0}
+.tab-scroll::-webkit-scrollbar{display:none}
+.tab-bar{display:flex}
+.tab-item{flex-shrink:0;padding:6px 12px;border-radius:16px;font-size:12px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;white-space:nowrap;color:#4a5568;transition:all .2s;margin-right:6px;text-align:center}
+.tab-item:hover{border-color:#4ecdc4}
+.tab-item.active{background:#4ecdc4;color:#fff;border-color:#4ecdc4;font-weight:600}
+.tab-item .tab-flag{margin-right:3px}
+.tab-filter{flex-shrink:0;padding:6px 12px;border-radius:16px;font-size:12px;font-weight:600;border:1px solid #4ecdc4;background:#f0faf6;cursor:pointer;color:#4ecdc4;transition:all .2s;margin-left:6px;white-space:nowrap}
+.tab-filter:hover{background:#e0f5f0}
+#countryModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;justify-content:center;align-items:center;padding:20px}
+#countryModal.open{display:flex}
+.cm-content{background:#fff;border-radius:20px;width:100%;max-width:400px;max-height:80vh;overflow-y:auto;padding:20px;animation:fadeIn .3s ease}
+.cm-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.cm-title{font-size:16px;font-weight:700;color:#2d3748}
+.cm-close{width:28px;height:28px;border-radius:50%;border:none;background:#f0f0f0;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#718096}
+.cm-close:hover{background:#e2e8f0}
+.cm-region{margin-bottom:14px}
+.cm-region:last-child{margin-bottom:0}
+.cm-region-title{font-size:11px;font-weight:700;color:#1a7a6d;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.cm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cm-cell{padding:10px 6px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;text-align:center;transition:all .2s}
+.cm-cell:hover{border-color:#4ecdc4;background:#f0faf6;transform:translateY(-1px)}
+.cm-cell.active{border-color:#4ecdc4;background:#f0faf6}
+.cm-cell .cm-flag{font-size:24px;display:block;margin-bottom:2px}
+.cm-cell .cm-name{font-size:11px;font-weight:500;color:#2d3748}
+#travelArea{max-width:480px;width:100%;margin:0 auto;padding:0 16px;text-align:left;box-sizing:border-box}
+#travelArea>.travel-module{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.04);box-sizing:border-box;width:100%}
+#travelArea>.travel-module:last-child{margin-bottom:0}
+.travel-module-title{font-size:12px;font-weight:700;color:#2d3748;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.travel-module ul{list-style:none;padding:0;margin:0}
+.travel-module li{font-size:12px;color:#4a5568;line-height:1.6;padding:2px 0 2px 12px;position:relative}
+.travel-module li::before{content:'·';position:absolute;left:0;color:#a0aec0}
+.travel-module .ti-b{font-weight:600;color:#2d3748}
+.travel-module p{font-size:12px;color:#4a5568;line-height:1.6;margin:0}
+</style>
+</head>
+<body>
+<div id="startScreen" class="screen active">
+  <div class="logo">🌍</div>
+  <div class="title">旅行禁忌猜猜看</div>
+  <div class="subtitle">去不同国家旅行，哪些事能做、哪些事万万不行？<br>选个国家开始挑战！每局随机 6 题。</div>
+  <div class="country-section" id="countrySection"></div>
+</div>
+<div id="gameScreen" class="screen">
+  <div class="header">
+    <span class="round-info" id="roundInfo">第 1/6 题</span>
+    <span class="correct-counter" id="correctCounter">✅ 0/0</span>
+  </div>
+  <div class="question-card" id="questionCard">
+    <div class="country-flag" id="countryFlag"></div>
+    <div class="country-name" id="countryName"></div>
+    <div class="behavior-text" id="behaviorText"></div>
+    <div class="situation-hint" id="situationHint"><span class="hint-icon">💬</span><span id="hintText"></span></div>
+  </div>
+  <div class="answer-btns" id="answerBtns">
+    <button class="answer-btn ok-btn" id="okBtn" onclick="answer(true)">✅ 可以</button>
+    <button class="answer-btn no-btn" id="noBtn" onclick="answer(false)">❌ 不可以</button>
+  </div>
+  <div id="explanationArea"></div>
+  <div class="next-btn-wrap" id="nextBtnWrap" style="display:none">
+    <button class="btn btn-primary" onclick="nextQuestion()">下一题 →</button>
+  </div>
+</div>
+<div id="finalScreen" class="screen">
+  <div class="final-top">
+    <div class="final-result" id="finalResult">0/0</div>
+    <div class="final-title">答题结束</div>
+    <div class="final-region-tag" id="finalRegionTag"></div>
+    <div class="final-rank" id="finalRank"></div>
+  </div>
+  <div class="final-btns">
+    <button class="btn btn-primary" onclick="goHome()">再玩一个国家</button>
+    <button class="btn btn-secondary" onclick="goHome()">返回首页</button>
+  </div>
+  <div class="travel-section">
+    <div class="travel-section-title">🌍 各国出行准备清单</div>
+    <div class="tab-bar-wrap" id="countryTabs"></div>
+  </div>
+  <div id="countryModal" onclick="if(event.target===this)closeCountryModal()">
+    <div class="cm-content">
+      <div class="cm-header">
+        <span class="cm-title">🌍 选择国家</span>
+        <button class="cm-close" onclick="closeCountryModal()">×</button>
+      </div>
+      <div id="cmBody"></div>
+    </div>
+  </div>
+  <div id="travelArea"></div>
+</div>
+<script>
+const QUESTIONS=[
+{country:"日本",flag:"🇯🇵",region:'asia',behavior:"吃拉面时大声吸溜",ok:true,hint:"你第一次来日本旅行，走进东京一家拉面店，发现周围日本人吃面都在发出\"嗦嗦\"的声音。",fact:"在日本，吸面条发出声音是表示\"好吃\"的方式。",learn:"日本人吃拉面、荞麦面时发声不仅不失礼，反而是对厨师的赞美。不过喝汤、吃米饭、吃寿司时还是要安静。"},
+{country:"日本",flag:"🇯🇵",region:'asia',behavior:"在餐厅给服务员小费",ok:false,hint:"你在京都享用了精致的怀石料理，服务非常周到，准备多留一些日元当作小费。",fact:"日本没有小费文化，给小费反而让人困惑。",learn:"日本服务业以\"おもてなし\"（极致待客）为荣，不收额外费用。给小费甚至可能被服务员追出来还给你。"},
+{country:"日本",flag:"🇯🇵",region:'asia',behavior:"泡温泉前不冲洗身体直接入池",ok:false,hint:"你在箱根旅馆换好浴衣，看到温泉池就想直接跳进去享受。",fact:"日本温泉是放松场所，不是洗澡场所。",learn:"进池前必须在洗浴区把全身冲洗干净，并且毛巾不能浸入温泉池。否则会被其他客人投诉。"},
+{country:"日本",flag:"🇯🇵",region:'asia',behavior:"进日本人家里时脱鞋换拖鞋",ok:true,hint:"朋友邀请你到他家做客，你看到玄关有一块抬高的地板和几双拖鞋。",fact:"日本人家里、传统旅馆、神社、部分餐厅都需要脱鞋。",learn:"玄关（げんかん）是\"外\"与\"内\"的分界。鞋头要朝外摆好，进榻榻米还要脱掉拖鞋。"},
+{country:"日本",flag:"🇯🇵",region:'asia',behavior:"在电车里大声接听电话",ok:false,hint:"你坐在山手线电车上，手机响了，想接起来跟家人说几句。",fact:"日本电车要求乘客把手机调成静音模式。",learn:"电车里通话会被认为打扰他人。博爱座附近甚至要求关闭手机。要打电话请走到车厢连接处。"},
+{country:"日本",flag:"🇯🇵",region:'asia',behavior:"用筷子互相传递食物",ok:false,hint:"你和日本朋友吃饭，朋友用他的筷子夹起一块肉想直接传给你。",fact:"筷子对筷子传食物在日本是葬礼火化捡骨的动作。",learn:"这个动作叫\"箸渡し\"，在日本是丧葬场合的禁忌。要传食物应放到对方盘子里。"},
+{country:"日本",flag:"🇯🇵",region:'asia',behavior:"用双手接过别人递来的名片",ok:true,hint:"你在东京见客户，对方递过来名片，你正想伸手去接。",fact:"日本商务礼仪中接名片用双手是基本礼节。",learn:"双手接过后要仔细看一遍，不要立刻收起来，更不要在上面写字或折叠。会议时把名片放在桌上对照称呼。"},
+{country:"日本",flag:"🇯🇵",region:'asia',behavior:"在神社参拜时拍两次手再祈祷",ok:true,hint:"你走进伏见稻荷大社，看到当地人在拜殿前先鞠躬再拍手。",fact:"日本神社的标准参拜礼是\"二礼二拍手一礼\"。",learn:"先投币、摇铃，然后两次鞠躬、两次拍手、默默祈祷、最后再一次鞠躬。出云大社等少数神社是四拍手。"},
+{country:"韩国",flag:"🇰🇷",region:'asia',behavior:"把筷子竖直插在米饭上",ok:false,hint:"你在首尔餐厅吃饭，端上一碗米饭，你随手把筷子插在了米饭里。",fact:"竖直插筷子是韩国祭祀亡者时的摆法。",learn:"和中日类似，这动作让人联想到祭祖时的香火，非常忌讳。筷子应放在筷架上或平放在碗边。"},
+{country:"韩国",flag:"🇰🇷",region:'asia',behavior:"单手给长辈倒酒",ok:false,hint:"你和韩国朋友的爷爷吃饭，你单手给他倒了一杯烧酒。",fact:"韩国给长辈倒酒必须用双手。",learn:"双手持瓶（或一手持瓶、一手扶手腕），接酒也要双手。同辈之间可以单手。给自己倒酒也不太礼貌。"},
+{country:"韩国",flag:"🇰🇷",region:'asia',behavior:"长辈没动筷自己先开吃",ok:false,hint:"菜都上齐了，你饥肠辘辘想先开动，但桌上还坐着朋友的爸爸。",fact:"韩国餐桌讲究\"长者先动筷\"。",learn:"等最年长者动筷后晚辈才能开始吃。长者放下筷子，其他人也应放下。这是韩国尊老文化的核心体现。"},
+{country:"韩国",flag:"🇰🇷",region:'asia',behavior:"用红笔写朋友的名字",ok:false,hint:"你想在便签纸上给韩国同事留言，顺手拿起红笔写下他的名字。",fact:"红色写名字在韩国与死亡相关。",learn:"传统上去世者的名字才用红色书写。给活人写红色名字被视为诅咒。要用黑色或蓝色。"},
+{country:"韩国",flag:"🇰🇷",region:'asia',behavior:"在公共浴室（찜질방）赤身泡澡",ok:true,hint:"你在汗蒸幕换完衣服，看到所有人在浴池区都没穿任何东西。",fact:"韩国汗蒸幕浴池区男女分开且需要赤裸入池。",learn:"穿泳衣进浴池反而奇怪。但出了浴池到混合休息区必须穿汗蒸幕提供的统一服装。"},
+{country:"韩国",flag:"🇰🇷",region:'asia',behavior:"端起饭碗放到嘴边吃",ok:false,hint:"你和韩国家庭吃饭，习惯性把米饭碗端起来扒饭。",fact:"韩国餐桌礼仪要求饭碗放在桌上，用勺子吃。",learn:"和中国/日本不同，韩国人吃饭用勺子（汤匙）、夹菜用筷子。端碗就口被认为像乞丐。"},
+{country:"韩国",flag:"🇰🇷",region:'asia',behavior:"在地铁上主动让座给老人",ok:true,hint:"你坐在首尔地铁普通座位，一位拄拐杖的老奶奶上车了。",fact:"韩国博爱座非常严格，普通座也强调尊老。",learn:"韩国年轻人通常主动让座给老人和孕妇。博爱座即使没人也不会随便坐。这是儒家尊老传统。"},
+{country:"韩国",flag:"🇰🇷",region:'asia',behavior:"收别人递来的礼物时单手接",ok:false,hint:"韩国朋友递来一份精美的伴手礼，你伸出一只手接过。",fact:"韩国收礼用双手是基本礼节。",learn:"和倒酒、敬茶一样，收东西也要双手。如果只能腾出一只手，要用另一只手扶住手肘，表示郑重。"},
+{country:"新加坡",flag:"🇸🇬",region:'asia',behavior:"在公共场所嚼口香糖",ok:false,hint:"你刚下飞机到樟宜机场，包里有一包没吃完的口香糖。",fact:"新加坡 1992 年起禁止进口和销售口香糖。",learn:"乱吐口香糖会被罚款。药用口香糖需要医生处方才能购买。游客带少量自用一般不查，但不能在公共场合乱扔。"},
+{country:"新加坡",flag:"🇸🇬",region:'asia',behavior:"在地铁里吃东西喝水",ok:false,hint:"你在 MRT 站等车，渴了想喝口水或吃点零食。",fact:"新加坡地铁全程禁止饮食，包括喝水。",learn:"违者罚款最高 500 新元。即使是矿泉水也不行。站台和车厢都有明显警示。"},
+{country:"新加坡",flag:"🇸🇬",region:'asia',behavior:"用纸巾在小贩中心占座",ok:true,hint:"你在牛车水熟食中心想买饭，看到很多桌子上都放着一包纸巾。",fact:"用纸巾包\"chope\"占座是新加坡独特文化。",learn:"放上纸巾包（或卡片）就代表此座有人。这种约定俗成的默契比抢座更高效，本地人会自觉避开。"},
+{country:"新加坡",flag:"🇸🇬",region:'asia',behavior:"在公共厕所用完不冲水",ok:false,hint:"你在新加坡商场上完厕所，没注意冲水就出来了。",fact:"新加坡《环境公共卫生法》要求公共厕所用后必须冲水。",learn:"违者最高罚款 150 新元。新加坡以严苛的罚款维持公共卫生，乱扔垃圾、随地吐痰也都重罚。"},
+{country:"新加坡",flag:"🇸🇬",region:'asia',behavior:"跨越马路（jaywalking）",ok:false,hint:"你站在乌节路，对面就是目的地，路上没车想直接横穿过去。",fact:"新加坡禁止行人在距离斑马线 50 米内横穿马路。",learn:"违者罚款 50 新元，再犯最高 1000 新元。要走斑马线、过街天桥或地下通道。"},
+{country:"新加坡",flag:"🇸🇬",region:'asia',behavior:"进印度庙时不脱鞋",ok:false,hint:"你想进小印度区的斯里马里安曼神庙参观，穿着球鞋走到门口。",fact:"新加坡印度教/佛教/穆斯林宗教场所都要脱鞋。",learn:"进门口都有专门放鞋的架子。穿短裤短裙的要在门口领披肩遮挡。"},
+{country:"新加坡",flag:"🇸🇬",region:'asia',behavior:"在新加坡用 Singlish 跟当地人交流",ok:true,hint:"你点餐时说\"can lah\"、\"how much ah\"，结果当地人开心地回应。",fact:"Singlish 是新加坡多元文化融合的英语方言。",learn:"政府推广标准英语，但 Singlish 在日常生活中无处不在。会几句 lah、leh、lor 会让本地人觉得你接地气。"},
+{country:"新加坡",flag:"🇸🇬",region:'asia',behavior:"在乌节路抽烟",ok:false,hint:"你在乌节路逛街抽根烟，看见路上似乎也有人抽。",fact:"乌节路从 2019 年起被划为禁烟区。",learn:"违者罚款最高 200 新元。新加坡大部分公共场所禁烟，只能在指定的\"黄盒子\"内抽烟。"},
+{country:"泰国",flag:"🇹🇭",region:'asia',behavior:"摸当地小孩的头表示友好",ok:false,hint:"你在曼谷夜市看到一个可爱的泰国小朋友，忍不住想摸摸他的头。",fact:"泰国人认为头部是身体最神圣的部位。",learn:"即使是善意的摸头也会被视为冒犯。和小孩玩耍可以击掌或微笑双手合十打招呼。"},
+{country:"泰国",flag:"🇹🇭",region:'asia',behavior:"用脚去勾远处的椅子",ok:false,hint:"你在清迈露天餐厅吃饭，椅子离你有点远，懒得起身想用脚勾过来。",fact:"脚在泰国是身体最低贱、最不洁的部位。",learn:"脚指东西、踩门槛、把脚搁在椅子上都是严重失礼，对长辈或僧侣绝对不能做。"},
+{country:"泰国",flag:"🇹🇭",region:'asia',behavior:"在寺庙里把脚朝向佛像方向坐着",ok:false,hint:"你在曼谷玉佛寺走累了直接坐下，脚不自觉伸向佛像方向。",fact:"脚底朝佛是泰国最大的不敬。",learn:"在寺庙坐着应盘腿、跪坐或\"美人鱼坐\"（双腿向一侧蜷起）。脚底不能朝向佛像、僧侣或国王画像。"},
+{country:"泰国",flag:"🇹🇭",region:'asia',behavior:"公开评论或不尊重泰国国王",ok:false,hint:"你跟泰国朋友聊天，开玩笑评论了一句国王。",fact:"泰国有严苛的《冒犯君主法》（Lèse-majesté）。",learn:"侮辱王室最高可判 15 年监禁，外国人也不例外。看电影前要起立放国王颂歌也不要拒绝起立。"},
+{country:"泰国",flag:"🇹🇭",region:'asia',behavior:"给僧侣递东西时女性直接递到僧人手上",ok:false,hint:"你（女性）想给路边化缘的僧侣供奉一瓶水，伸手递过去。",fact:"泰国僧侣戒律不能直接接触女性。",learn:"女性供奉物品要放在僧侣面前的布上或托盘里，僧侣再用一块黄布去接。男性可以直接递。"},
+{country:"泰国",flag:"🇹🇭",region:'asia',behavior:"在寺庙里穿短裤、背心",ok:false,hint:"曼谷天气很热，你穿着无袖背心和短裤准备进大皇宫参观。",fact:"泰国寺庙要求遮盖肩膀和膝盖。",learn:"大皇宫、玉佛寺等景点严格执行。门口可以租借披肩或长裤，但排队很长。建议自备一条薄长裤和披巾。"},
+{country:"泰国",flag:"🇹🇭",region:'asia',behavior:"回 Wai 礼时双手举到鼻子高度",ok:true,hint:"餐厅服务员双手合十向你问好，你也想回礼。",fact:"Wai 的手位高度根据对方身份不同。",learn:"胸口=同辈/服务业，下巴=长辈，鼻子=和尚/老师，眉毛=国王。对服务员回 Wai 一般用胸口高度即可。"},
+{country:"泰国",flag:"🇹🇭",region:'asia',behavior:"用左手把钱递给商家",ok:false,hint:"你在曼谷夜市买东西，习惯性用左手把钱递过去。",fact:"泰国受印度文化影响，左手被视为不洁。",learn:"递东西、付钱、握手都用右手。如果手里满了不得不用左手，可以用右手扶住左手手腕表示郑重。"},
+{country:"马来西亚",flag:"🇲🇾",region:'asia',behavior:"用食指指着别人说话",ok:false,hint:"你和马来同事讨论方案，激动时用食指指着他强调观点。",fact:"马来文化中用食指指人具有攻击性。",learn:"要指方向或人，应用右手大拇指（其余四指握拳）。这是马来西亚和印尼的通用礼貌指示方式。"},
+{country:"马来西亚",flag:"🇲🇾",region:'asia',behavior:"进清真寺不脱鞋、不戴头巾",ok:false,hint:"你想去吉隆坡的国家清真寺参观，穿着球鞋走到门口。",fact:"马来西亚清真寺要求脱鞋、女性遮发遮身。",learn:"很多清真寺门口提供免费长袍和头巾。男性要穿长裤，女性要遮盖头发和手脚。"},
+{country:"马来西亚",flag:"🇲🇾",region:'asia',behavior:"用左手吃饭或递东西",ok:false,hint:"你和马来朋友在 Mamak 档吃椰浆饭，习惯性用左手抓食物。",fact:"马来文化里左手用于如厕清洁，被视为不洁。",learn:"吃饭、握手、递钱都用右手。即使用刀叉，也常以右手持叉为主。在 Mamak 档用手吃饭只能用右手。"},
+{country:"马来西亚",flag:"🇲🇾",region:'asia',behavior:"斋月期间白天当着马来同事面吃东西",ok:false,hint:"斋月期间，你在公司休息区开心地吃午餐，旁边坐着正在禁食的马来同事。",fact:"斋月期间穆斯林从日出到日落禁食禁水。",learn:"非穆斯林可以吃，但请到独立的房间或避开穆斯林视线。这是基本的尊重。"},
+{country:"马来西亚",flag:"🇲🇾",region:'asia',behavior:"触碰穆斯林女性的身体（包括握手）",ok:false,hint:"你见到一位戴头巾的马来女士，伸手准备握手。",fact:"虔诚的穆斯林女性不与非家人男性肢体接触。",learn:"等对方先伸手再回应。如果她把手放在心口微笑点头，是表示问候，你也可以同样回礼。"},
+{country:"马来西亚",flag:"🇲🇾",region:'asia',behavior:"带榴莲进酒店或地铁",ok:false,hint:"你在马来西亚买了一颗榴莲，准备带回酒店房间慢慢吃。",fact:"马来西亚大部分酒店、地铁、商场禁止携带榴莲。",learn:"榴莲气味浓烈，公共场所明令禁止。买了榴莲最好在路边摊或专门档口当场吃完。"},
+{country:"马来西亚",flag:"🇲🇾",region:'asia',behavior:"用右手大拇指（握拳）指方向",ok:true,hint:"你想给朋友指出方向，但记得不能用食指。",fact:"用右手大拇指（其余四指自然握起）是马来人正确的指示方式。",learn:"这种手势既明确又礼貌。如果对方是长辈或穆斯林宗教人士，更要用这种方式。"},
+{country:"马来西亚",flag:"🇲🇾",region:'asia',behavior:"在马来人家里坐沙发把脚翘起来",ok:false,hint:"你被邀请到马来朋友家做客，习惯性把脚搭在茶几或沙发上。",fact:"脚在马来文化里同样被视为低贱部位。",learn:"脚底不能朝向人，也不能搁在家具上。坐着应双脚并拢放地上或盘腿。"},
+{country:"越南",flag:"🇻🇳",region:'asia',behavior:"过马路时伸手拦摩托车让它停下",ok:false,hint:"你站在胡志明市的街头，对面是川流不息的摩托车河。",fact:"越南摩托车流不会为行人停下，而是绕开行人。",learn:"过马路秘诀是匀速前进、保持节奏、不要停顿、不要后退。突然伸手或停下反而容易被撞。"},
+{country:"越南",flag:"🇻🇳",region:'asia',behavior:"把筷子竖直插在饭碗里",ok:false,hint:"你在河内吃 Pho，随手把筷子插在了碗里。",fact:"竖插筷子在越南象征祭祀亡者的香火。",learn:"和中日韩一致，越南也忌讳这个动作。用餐时应将筷子平放在碗边、碟边或筷架上。"},
+{country:"越南",flag:"🇻🇳",region:'asia',behavior:"摸越南人（尤其是小孩）的头",ok:false,hint:"你在会安看到可爱的越南小孩，想摸摸他的头表示喜欢。",fact:"越南受佛教文化影响，头部被视为神圣。",learn:"和东南亚多国一样，不能随意摸头。可以蹲下平视和小孩对话，更尊重。"},
+{country:"越南",flag:"🇻🇳",region:'asia',behavior:"拍摄军事设施或港口",ok:false,hint:"你看到岘港附近一片军舰停靠的港口，觉得很壮观想拍照。",fact:"越南法律禁止拍摄军事设施。",learn:"包括军营、雷达站、桥梁要塞等。即使是不经意拍到也可能被警察盘问。\"No Photography\" 的牌子要严格遵守。"},
+{country:"越南",flag:"🇻🇳",region:'asia',behavior:"进越南人家或寺庙时脱鞋",ok:true,hint:"你被邀请到越南朋友家做客，看到玄关有一堆拖鞋。",fact:"越南人家、寺庙、部分商铺都要脱鞋。",learn:"是基本礼仪。可以带双袜子备用。寺庙脱鞋后要放在门口指定位置，不要弄丢。"},
+{country:"越南",flag:"🇻🇳",region:'asia',behavior:"在咖啡馆给小费",ok:true,hint:"你在西贡老咖啡馆喝完滴漏咖啡，想留下一些零钱表示感谢。",fact:"越南近年逐渐接受小费文化（虽不强制）。",learn:"高档餐厅、按摩店、SPA、导游、酒店服务员都可以给 5-10% 小费。街边小店不需要。"},
+{country:"越南",flag:"🇻🇳",region:'asia',behavior:"用脚指东西或推开椅子",ok:false,hint:"你在餐厅吃饭，想用脚推开身边的椅子。",fact:"越南文化中用脚做指示动作非常不礼貌。",learn:"脚被视为身体最低部位。用脚指人、指物、踩门槛、把脚翘到椅子上都会让人不快。"},
+{country:"越南",flag:"🇻🇳",region:'asia',behavior:"还价时砍到对方报价的一半",ok:true,hint:"你在河内 36 街买丝绸围巾，店主开价 30 万越南盾。",fact:"越南旅游区还价是默契，初始价通常翻 2-3 倍。",learn:"可以从对方报价的 1/3 到 1/2 开始还。但还到价后买不买就要决定，反悔的话会让卖家不快。"},
+{country:"菲律宾",flag:"🇵🇭",region:'asia',behavior:"用嘴唇或下巴指方向",ok:true,hint:"你问路时，菲律宾朋友\"嘟\"起嘴往左边指。",fact:"菲律宾人习惯用嘴唇或下巴指方向，而不是用手。",learn:"这是当地特有的肢体语言，叫\"lip pointing\"。看着像撒娇但其实很自然。指人和指方向都可以用。"},
+{country:"菲律宾",flag:"🇵🇭",region:'asia',behavior:"在正式餐桌上用手抓饭吃",ok:false,hint:"你被邀请到马尼拉商务晚宴，看到桌上有米饭，想用手抓。",fact:"正式场合菲律宾人用勺叉吃饭。",learn:"传统\"kamayan\"（用手吃）在朋友聚会、海鲜烧烤时可以，但正式餐桌上要用右手持勺、左手持叉。"},
+{country:"菲律宾",flag:"🇵🇭",region:'asia',behavior:"对长辈用\"po\"和\"opo\"",ok:true,hint:"你跟菲律宾朋友爸爸说话，结尾加上\"po\"。",fact:"\"po\"和\"opo\"是菲律宾对长辈的尊敬词尾。",learn:"年轻人对父母、长辈、客户、上司说话都会加 po。\"opo\"是\"是的\"的尊敬版本。会说几句会让对方很有好感。"},
+{country:"菲律宾",flag:"🇵🇭",region:'asia',behavior:"别人递东西时先伸手\"摸\"长辈手背放到额头",ok:true,hint:"你看到菲律宾朋友的小孩用长辈的手轻碰自己额头。",fact:"这叫\"mano po\"，是菲律宾尊敬长辈的礼仪。",learn:"和长辈见面或告别时，晚辈拿起长辈右手轻触自己额头表示尊敬。客人也可以这样做来留下好印象。"},
+{country:"菲律宾",flag:"🇵🇭",region:'asia',behavior:"直接拍摄当地小孩",ok:false,hint:"你在马尼拉贫民区游览，看到一群天真活泼的小孩想拍照。",fact:"未经家长同意拍摄儿童在多数国家都不合适。",learn:"菲律宾人对儿童摄影越来越敏感。最好先和家长交流并获得同意，可以分享照片或给少量酬谢。"},
+{country:"菲律宾",flag:"🇵🇭",region:'asia',behavior:"第一次受邀就接受食物",ok:false,hint:"你刚认识菲律宾朋友，他热情地端来一盘菜让你尝。",fact:"菲律宾人有礼貌性推让的文化。",learn:"\"Bayanihan\"文化里，初次被劝吃应该先客气拒绝。主人通常会劝 2-3 次后你再接受，这才显得不贪嘴。"},
+{country:"菲律宾",flag:"🇵🇭",region:'asia',behavior:"在教堂大声说话或穿背心短裤",ok:false,hint:"你想进马尼拉大教堂参观，穿着背心短裤直接进去。",fact:"菲律宾是亚洲最大天主教国家。",learn:"90% 人口信仰天主教，教堂要求遮盖肩膀和膝盖、保持安静。即使没有弥撒也不能高声喧哗或自拍打闹。"},
+{country:"菲律宾",flag:"🇵🇭",region:'asia',behavior:"跟菲律宾人用拳头碰拳打招呼",ok:true,hint:"你跟年轻菲律宾朋友见面，他伸出拳头想 fist bump。",fact:"菲律宾年轻人喜欢用 fist bump 打招呼。",learn:"尤其疫情后流行。也有\"beso\"（贴脸）礼，但通常用于熟人朋友。男性之间多用握手或 fist bump。"},
+{country:"柬埔寨",flag:"🇰🇭",region:'asia',behavior:"穿短裤背心进吴哥窟",ok:false,hint:"你在暹粒天气炎热，穿着短裤和背心准备进吴哥窟参观。",fact:"吴哥窟严格执行着装规定。",learn:"必须遮盖肩膀和膝盖，否则会被拒绝入内。建议穿宽松透气的长裤和有袖上衣，或随身带披肩。"},
+{country:"柬埔寨",flag:"🇰🇭",region:'asia',behavior:"行合十礼时把手举到头顶（对普通人）",ok:false,hint:"你见到一位柬埔寨长者，想表达最大尊敬把手举到头顶合十。",fact:"柬埔寨合十礼（Sampeah）高度有严格等级。",learn:"胸口=同辈、嘴=长辈、鼻=老师、眉=国王、头顶=佛陀。对普通人举到头顶反而不合礼仪。"},
+{country:"柬埔寨",flag:"🇰🇭",region:'asia',behavior:"用脚指或踢佛像、佛塔",ok:false,hint:"你在巴戎寺参观，看到地上一块掉落的雕塑，想用脚拨开。",fact:"柬埔寨脚是最低贱的部位，佛是最神圣的。",learn:"脚指/踢佛像或佛教文物可能被警察直接带走。摸都不可以，要用手轻触前先双手合十致敬。"},
+{country:"柬埔寨",flag:"🇰🇭",region:'asia',behavior:"攀爬吴哥窟的遗迹或雕像合影",ok:false,hint:"你在巴肯山看日落，想爬上一个石雕拍张特别的照片。",fact:"吴哥窟禁止攀爬遗迹和触摸雕像。",learn:"这些都是 1000 多年的文物。攀爬可能损坏，被守卫看到会罚款驱逐甚至吊销景区通票。"},
+{country:"柬埔寨",flag:"🇰🇭",region:'asia',behavior:"给当地小孩糖果或钱",ok:false,hint:"景区门口有一群小孩拉着你乞讨，你想给点钱表达善意。",fact:"联合国和柬埔寨政府都倡议不要给小孩钱。",learn:"会鼓励家长让孩子辍学行乞。要帮助可以捐给当地正规 NGO，或者从他们手里买几张明信片。"},
+{country:"柬埔寨",flag:"🇰🇭",region:'asia',behavior:"女性触碰僧侣或递东西给他",ok:false,hint:"你（女性）想给路边僧侣供奉一瓶水，伸手递过去。",fact:"上座部佛教戒律禁止僧侣触碰女性。",learn:"女性要放下物品让僧侣自取，或通过男性中转。男性可以直接递。"},
+{country:"柬埔寨",flag:"🇰🇭",region:'asia',behavior:"用右手递东西、付钱",ok:true,hint:"你买东西付钱，习惯性用右手递过去。",fact:"柬埔寨右手是干净的，左手不洁。",learn:"递东西、付钱、握手都用右手。两只手一起递更礼貌，特别是面对长辈。"},
+{country:"柬埔寨",flag:"🇰🇭",region:'asia',behavior:"在吴哥窟看日出时大声说话",ok:false,hint:"你凌晨 5 点到吴哥窟看日出，兴奋地和朋友聊天讨论拍照角度。",fact:"吴哥窟看日出是当地人和游客的宁静仪式。",learn:"清晨时段大家都安静地等待日出，大声说话会被其他游客和当地人侧目。手机调静音、轻声交流。"},
+{country:"阿联酋",flag:"🇦🇪",region:'asia',behavior:"在公共场合和伴侣接吻",ok:false,hint:"你和另一半在迪拜商场逛街，情不自禁亲了一下脸。",fact:"阿联酋法律禁止公共场合的亲密行为。",learn:"包括牵手、拥抱（夫妻之间也要克制）。违者可能被警告甚至拘留。在私人空间、酒店内不受限制。"},
+{country:"阿联酋",flag:"🇦🇪",region:'asia',behavior:"斋月白天在公共场合吃喝抽烟",ok:false,hint:"斋月期间，你白天在迪拜街上口渴了想喝瓶水。",fact:"斋月白天非穆斯林也不能在公共场合饮食吸烟。",learn:"违者可能被罚款。商场食堂部分区域会用屏风遮挡供非穆斯林用餐。开斋后（日落后）一切恢复正常。"},
+{country:"阿联酋",flag:"🇦🇪",region:'asia',behavior:"未经允许拍摄当地女性",ok:false,hint:"你在迪拜老城看到一位穿着传统黑袍的女士走过，画面很美想拍下来。",fact:"阿联酋法律保护女性隐私。",learn:"未经同意拍摄当地女性属于违法行为。被发现可能被要求删照片、罚款甚至遣返。拍风景时也要注意避开人脸。"},
+{country:"阿联酋",flag:"🇦🇪",region:'asia',behavior:"穿露肩短裙、超短裤进商场",ok:false,hint:"迪拜很热，你穿着无袖背心和短裤走进 Dubai Mall。",fact:"商场和公共场所有着装要求。",learn:"肩膀、膝盖应被遮盖。海滩酒店泳池区可以穿泳衣，但出了酒店就要换衣服。清真寺更严格。"},
+{country:"阿联酋",flag:"🇦🇪",region:'asia',behavior:"在持牌酒吧/酒店里喝啤酒",ok:true,hint:"你在迪拜希尔顿酒吧点了一瓶啤酒。",fact:"阿联酋允许酒店和持牌场所售卖酒精给外国游客。",learn:"但不能在街上、海滩、商场里饮酒或醉酒。醉酒在公共场所违法。免税店买酒只能带到家里喝。"},
+{country:"阿联酋",flag:"🇦🇪",region:'asia',behavior:"用左手递东西、握手",ok:false,hint:"你和一位阿联酋商人见面，习惯用左手递名片。",fact:"阿拉伯文化里左手不洁。",learn:"吃饭、递钱、握手都用右手。即使你是左撇子也要尽量用右手做这些动作。"},
+{country:"阿联酋",flag:"🇦🇪",region:'asia',behavior:"把鞋底朝向别人",ok:false,hint:"你和阿联酋朋友坐沙发聊天，习惯性翘起二郎腿，鞋底朝向他。",fact:"阿拉伯文化中鞋底朝人是极大侮辱。",learn:"脚是身体最不洁部位。坐时双脚平放，或翘腿时确保鞋底朝下。在 majlis（议事厅）尤其讲究。"},
+{country:"阿联酋",flag:"🇦🇪",region:'asia',behavior:"在加油站不熄火加油",ok:false,hint:"你在迪拜自驾，加油时为了开空调没熄火。",fact:"阿联酋法律强制加油时必须熄火。",learn:"违者罚款 500 迪拉姆。手机也要关闭或远离油枪。阿联酋加油站基本都是服务员代加油。"},
+{country:"意大利",flag:"🇮🇹",region:'europe',behavior:"下午 3 点点一杯卡布奇诺",ok:false,hint:"你在罗马逛街走累了，下午 3 点想点一杯卡布奇诺配甜点。",fact:"意大利人只在早餐时（上午 11 点前）喝卡布奇诺。",learn:"意大利人认为牛奶咖啡影响消化，午后只喝 espresso 或 macchiato。点 cappuccino 立刻暴露你是游客。"},
+{country:"意大利",flag:"🇮🇹",region:'europe',behavior:"吃披萨用刀叉",ok:true,hint:"你在那不勒斯餐厅点了一份玛格丽塔披萨，看本地人都拿着刀叉切。",fact:"意大利人吃披萨用刀叉是常态。",learn:"那不勒斯传统披萨饼底偏软，用手抓会塌。意大利人通常先用刀叉切几块，再可以用手拿起折叠着吃。"},
+{country:"意大利",flag:"🇮🇹",region:'europe',behavior:"在罗马许愿池背对池水扔硬币（用右手过左肩）",ok:true,hint:"你来到罗马特雷维喷泉，准备扔硬币许愿。",fact:"特雷维喷泉扔硬币是世界闻名的传统。",learn:"用右手拿硬币，背对池水从左肩上方扔出。扔 1 枚=会再回罗马，2 枚=会有新恋情，3 枚=会结婚或离婚。"},
+{country:"意大利",flag:"🇮🇹",region:'europe',behavior:"进教堂穿短裤、背心",ok:false,hint:"你想进圣彼得大教堂参观，穿着背心短裤直接走过去。",fact:"意大利教堂严格执行着装规范。",learn:"肩膀和膝盖必须遮盖。圣彼得大教堂、圣母百花大教堂等都有专人检查。建议自备一条围巾。"},
+{country:"意大利",flag:"🇮🇹",region:'europe',behavior:"在意大利餐厅吃饭不点水（让服务员送免费水）",ok:false,hint:"你在罗马餐厅点完意面，对服务员说\"give me some water\"。",fact:"意大利餐厅不提供免费的 tap water。",learn:"水要点付费瓶装水，分气泡（frizzante/con gas）和静水（naturale/senza gas）。直接说\"water\"会被认为没规矩。"},
+{country:"意大利",flag:"🇮🇹",region:'europe',behavior:"吃意面用勺子辅助卷起来",ok:false,hint:"你在威尼斯吃意面，想用勺子配叉子把面卷起来更方便。",fact:"意大利人吃意面只用叉子。",learn:"把叉子插入面里直接卷起一小撮即可。用勺子被视为小孩或不会吃面的外国人。北方有些地方对长辈宽容。"},
+{country:"意大利",flag:"🇮🇹",region:'europe',behavior:"给小费 10% 左右",ok:true,hint:"你在佛罗伦萨享用了一顿美味晚餐，想留下小费表示感谢。",fact:"意大利餐厅有\"coperto\"（座位费），所以小费不是必须。",learn:"账单已包含座位费和服务费的情况下，留 5-10% 表示满意即可。打车给整数零钱也行。咖啡馆站着喝就不用给。"},
+{country:"意大利",flag:"🇮🇹",region:'europe',behavior:"站在吧台前喝完咖啡再走（比坐着便宜）",ok:true,hint:"你在罗马走累了进咖啡馆，看到当地人都站在吧台前喝完就走。",fact:"意大利咖啡馆站着喝最便宜。",learn:"站在吧台（al banco）一杯 espresso 通常 1 欧；坐下（al tavolo）要加收 50% 到一倍服务费。本地人都是站着 1 分钟喝完。"},
+{country:"法国",flag:"🇫🇷",region:'europe',behavior:"进店时先和店员说 Bonjour",ok:true,hint:"你走进巴黎一家面包店，店员看着你。",fact:"法国人进店打招呼是基本礼仪。",learn:"不说 Bonjour 直接挑商品被认为非常粗鲁。即使只是看一下也要说。离开时说 Au revoir。"},
+{country:"法国",flag:"🇫🇷",region:'europe',behavior:"在地铁里大声讲话或外放音乐",ok:false,hint:"你在巴黎地铁打开手机外放音乐听。",fact:"法国地铁倡导安静。",learn:"法国人在公共交通普遍很安静，乘客大声讲话会被侧目。听音乐请戴耳机，打电话尽量简短。"},
+{country:"法国",flag:"🇫🇷",region:'europe',behavior:"跟法国朋友见面贴脸（La bise）",ok:true,hint:"你和法国朋友见面，对方凑过来想贴脸打招呼。",fact:"La bise 是法国朋友间的标准问候。",learn:"根据地区不同，贴 2-4 下脸颊（通常 2 下）。男女、女女之间常见，男男一般握手。商务场合用握手。"},
+{country:"法国",flag:"🇫🇷",region:'europe',behavior:"在法国餐厅吃饭时把手放在膝盖上",ok:false,hint:"你按西餐礼仪把没用的手放在膝盖上。",fact:"法国餐桌礼仪要求双手都在桌面上。",learn:"手腕轻搭桌沿、手不放腿上，但也不能撑桌或用手肘。这与英美餐桌礼仪不同。"},
+{country:"法国",flag:"🇫🇷",region:'europe',behavior:"在面包店买的法棍咬一口边走边吃",ok:true,hint:"你刚出面包店，法棍香气诱人，忍不住咬了一口边走边吃。",fact:"法国人买完面包边走边吃法棍是日常。",learn:"这是巴黎日常风景。法棍刚出炉时端头特别香，本地人也这么吃。不算失礼。"},
+{country:"法国",flag:"🇫🇷",region:'europe',behavior:"在博物馆用闪光灯拍照",ok:false,hint:"你在卢浮宫看到《蒙娜丽莎》，激动地举起手机闪光灯就拍。",fact:"闪光灯会损害画作和文物的颜料。",learn:"卢浮宫、奥赛、橘园等大型博物馆全面禁止闪光灯。被工作人员发现会立刻被制止。拍《蒙娜丽莎》尤其严格。"},
+{country:"法国",flag:"🇫🇷",region:'europe',behavior:"餐厅吃完饭立即结账离开",ok:false,hint:"你吃完饭马上叫服务员\"l'addition\"，准备走人。",fact:"法国餐厅讲究慢慢享受用餐。",learn:"在法国\"吃饭\"是一种生活仪式，至少 1.5-2 小时。服务员不会主动送账单，要自己叫。如果时间紧请提前告诉服务员。"},
+{country:"法国",flag:"🇫🇷",region:'europe',behavior:"在巴黎地铁逃票",ok:false,hint:"你看到地铁闸机有点旧，想跟在前面人后面溜进去。",fact:"巴黎地铁稽查很严，逃票罚款很高。",learn:"被查到罚款 50-100 欧（看车票类型）。稽查员通常便衣，专挑早晚高峰守在出口。要买票就老实买。"},
+{country:"英国",flag:"🇬🇧",region:'europe',behavior:"比 V 字手势手背朝外",ok:false,hint:"你在伦敦塔桥前拍照，比了个 V 字但手背朝外。",fact:"手背朝外的 V 在英国等同于竖中指。",learn:"手心朝外是\"胜利/和平\"，手背朝外是侮辱。这个手势源于英法百年战争时英国弓箭手的挑衅。"},
+{country:"英国",flag:"🇬🇧",region:'europe',behavior:"排队时插队",ok:false,hint:"你在地铁站等车，看到队伍很长想从侧面挤过去。",fact:"英国人对排队有近乎宗教的尊重。",learn:"哪怕只是 2 个人等公交，也会自动形成一条无形的队。插队会引来众怒，是英国最大的失礼之一。"},
+{country:"英国",flag:"🇬🇧",region:'europe',behavior:"在酒吧请酒保喝一杯（\"and one for yourself\"）",ok:true,hint:"你在伦敦酒吧点酒，想表达感谢但不知该不该给小费。",fact:"英国酒吧不流行直接给小费，但可以请酒保喝一杯。",learn:"点酒时说\"and one for yourself\"，酒保会在账单上加一杯酒钱（或一小笔现金），由他自由处理。"},
+{country:"英国",flag:"🇬🇧",region:'europe',behavior:"在自动扶梯上靠右站",ok:true,hint:"你在伦敦地铁站扶梯上看到所有人都靠右站。",fact:"英国扶梯文化是右站左行。",learn:"与大多数欧洲国家不同（欧洲多数靠左站），英国扶梯靠右站让出左侧给赶时间的人快速通行。挡左侧会被吼。"},
+{country:"英国",flag:"🇬🇧",region:'europe',behavior:"第一次见面问对方年龄、收入",ok:false,hint:"你第一次和英国同事吃饭，礼节性问他年龄。",fact:"英国人非常重视个人隐私。",learn:"年龄、薪水、宗教、政治都属于不该问的话题。安全话题是天气、足球、宠物、休假计划。"},
+{country:"英国",flag:"🇬🇧",region:'europe',behavior:"用天气作为破冰话题",ok:true,hint:"你在公车站旁等车，想跟旁边老太太打个招呼。",fact:"天气是英国万能社交话题。",learn:"\"Lovely weather today, isn't it?\" 是英国人最常用的开场。即使天气不好，也可以说\"Awful weather, isn't it?\"。"},
+{country:"英国",flag:"🇬🇧",region:'europe',behavior:"用餐时刀叉同时拿着",ok:true,hint:"你在伦敦餐厅吃牛排，右手拿刀左手拿叉切肉，吃的时候没换手。",fact:"英式餐桌礼仪要求刀叉同时持握、不换手。",learn:"和美式（切完肉把叉子换到右手）不同，英式是\"continental style\"。叉子始终在左手、齿尖朝下。"},
+{country:"英国",flag:"🇬🇧",region:'europe',behavior:"在酒吧用现金支付",ok:true,hint:"你在乡村 pub 点了一品脱啤酒，掏出现金。",fact:"英国 pub 接受现金和卡。",learn:"传统 pub 都接受现金，但近年很多大城市酒吧主推 Apple Pay/Contactless。用现金完全 OK，但金额尽量小一些方便找零。"},
+{country:"德国",flag:"🇩🇪",region:'europe',behavior:"商务会议迟到 5 分钟",ok:false,hint:"你和德国客户约 9 点开会，9:05 才进会议室。",fact:"德国商务场合对准时近乎苛刻。",learn:"迟到 1 分钟都要道歉。最好提前 5 分钟到。私人聚会可以晚 5-15 分钟（学术一刻钟），商务绝对要准点。"},
+{country:"德国",flag:"🇩🇪",region:'europe',behavior:"周日去超市购物",ok:false,hint:"周日你发现冰箱空了，想出门买点东西。",fact:"德国《商店关门法》（Ladenschlussgesetz）规定周日大部分商店不营业。",learn:"只有火车站超市、加油站便利店、面包店周日上午有部分营业。周六晚要囤好食物。"},
+{country:"德国",flag:"🇩🇪",region:'europe',behavior:"红灯过马路（即使路上没车）",ok:false,hint:"深夜你站在斑马线前，红灯，但街上一辆车都没有。",fact:"德国人即使没车也会等绿灯。",learn:"违者最高罚款 110 欧。但更重要的是社会舆论：德国人会侧目，特别在有小孩在场时会指责你\"做坏榜样\"。"},
+{country:"德国",flag:"🇩🇪",region:'europe',behavior:"在公园裸晒（FKK 区域）",ok:true,hint:"你在柏林一个公园散步，看到一片区域有人裸晒。",fact:"德国有合法的 FKK（自由身体文化）区域。",learn:"FKK 在德国是一种合法的休闲文化，常见于公园、湖滩、桑拿。指定区域裸体完全合法，但出了区域就不行。"},
+{country:"德国",flag:"🇩🇪",region:'europe',behavior:"在餐厅大声叫服务员\"Hello!\"",ok:false,hint:"你想点单，服务员忙得没看你，你大声叫了一声。",fact:"德国餐厅服务节奏比较慢，要等服务员注意到。",learn:"礼貌方式是眼神交流或轻举手。大声叫被视为粗鲁。德国餐厅一般要等服务员主动来询问，比英美餐厅慢。"},
+{country:"德国",flag:"🇩🇪",region:'europe',behavior:"用刀切土豆",ok:false,hint:"你在巴伐利亚餐厅吃猪肘子配土豆，用刀切土豆。",fact:"德国传统认为用刀切土豆是对厨师的侮辱。",learn:"这个传统源于\"好的土豆应该熟到用叉子就能压碎\"。用刀切暗示土豆没煮好。现代德国年轻人没那么讲究，但老一辈还在意。"},
+{country:"德国",flag:"🇩🇪",region:'europe',behavior:"在啤酒节直接坐别人桌子",ok:true,hint:"你在慕尼黑啤酒节，所有长桌都坐满了，你看到一桌还有空位。",fact:"啤酒节长桌是开放式共享。",learn:"礼貌地问一句\"Ist hier noch frei?\"（这里还有空位吗），得到许可就可以坐。这是认识新朋友的好方式。"},
+{country:"德国",flag:"🇩🇪",region:'europe',behavior:"干杯（Prost）时不和每个人对视",ok:false,hint:"你和一桌德国朋友干杯，习惯性看着自己的杯子或随意一瞥。",fact:"德国干杯必须和对方眼神接触。",learn:"传说不对视会带来 7 年的厄运（也有说性生活不顺）。每个人都要一一对视，特别是长辈和女士。"},
+{country:"西班牙",flag:"🇪🇸",region:'europe',behavior:"晚上 8 点去餐厅吃晚饭",ok:false,hint:"你在马德里逛了一天，晚上 8 点想找餐厅吃晚餐。",fact:"西班牙人晚餐时间通常在 9-11 点。",learn:"8 点很多餐厅厨房还没开。9-10 点才是高峰。中午 2-4 点是午餐，下午有 Siesta（午休），整体作息晚 2 小时。"},
+{country:"西班牙",flag:"🇪🇸",region:'europe',behavior:"午休时间（下午 2-5 点）逛市中心小店",ok:false,hint:"下午 3 点你想逛塞维利亚的小商店，发现都关门了。",fact:"西班牙南部和小城市仍保留 Siesta 文化。",learn:"下午 2-5 点很多家庭式商店关门午休。大城市连锁店和马德里、巴塞罗那受影响较小。买东西最好早上或傍晚。"},
+{country:"西班牙",flag:"🇪🇸",region:'europe',behavior:"餐厅吃饭给 5-10% 小费",ok:true,hint:"你在巴塞罗那吃了顿不错的西餐，想留小费。",fact:"西班牙不强制小费，但表示满意可以给。",learn:"账单已含服务费时不必另给。觉得服务好留 5-10% 是常见做法。吧台喝杯咖啡留一两枚硬币就行。"},
+{country:"西班牙",flag:"🇪🇸",region:'europe',behavior:"在火腿盘里挑肥拣瘦",ok:false,hint:"你点了一份伊比利亚火腿，想从盘里挑出最肥的几片。",fact:"西班牙人吃火腿讲究\"按顺序取\"。",learn:"从盘子边缘开始一片一片取，不要翻动。火腿是手切的，每片的位置和厚度都有讲究。挑挑拣拣会让主人或店家不快。"},
+{country:"西班牙",flag:"🇪🇸",region:'europe',behavior:"跟陌生人贴脸打招呼（2 下）",ok:true,hint:"你被朋友介绍认识一位西班牙女士，她凑过来贴脸。",fact:"西班牙人初次见面贴脸 2 次。",learn:"左脸先开始，亲两下脸颊（实际不一定真接触，发出\"啵\"的声音即可）。男女、女女之间常见，男男一般握手。"},
+{country:"西班牙",flag:"🇪🇸",region:'europe',behavior:"在 Tapas Bar 用手吃小食",ok:true,hint:"你在西班牙小酒馆点了几样 tapas，发现没餐具。",fact:"Tapas 大多是手抓食物。",learn:"火腿、橄榄、tortilla、小三明治都可以直接用手拿。吃完把牙签或餐巾放在小盘上，老板会按这些数量算钱。"},
+{country:"西班牙",flag:"🇪🇸",region:'europe',behavior:"跟西班牙人聊 Catalonia 独立问题",ok:false,hint:"你和西班牙朋友聊政治，提到加泰罗尼亚是否应该独立。",fact:"加泰罗尼亚独立是西班牙最敏感的政治议题。",learn:"很容易引发争吵，朋友之间也可能因此翻脸。其他敏感话题：弗朗哥独裁时期、巴斯克问题、皇室。"},
+{country:"西班牙",flag:"🇪🇸",region:'europe',behavior:"在弗拉门戈表演中拍手起哄",ok:true,hint:"你在塞维利亚看弗拉门戈，舞者跳到高潮，台下有人鼓掌喊\"Olé!\"。",fact:"弗拉门戈观众参与（jaleo）是表演的一部分。",learn:"在适当时刻喊\"Olé!\"、\"Eso es!\" 或拍手助兴是表演者欢迎的反应。但不要在静默乐句中打断节奏。"},
+{country:"俄罗斯",flag:"🇷🇺",region:'europe',behavior:"在门槛上和别人握手",ok:false,hint:"你去拜访俄罗斯朋友，他开门后你站在门口直接伸手握手。",fact:"俄罗斯人认为门槛是有灵气的\"边界\"。",learn:"在门槛上握手会带来争吵和厄运。要么完全进门后再握手，要么主人先出门。这是俄罗斯最古老的迷信之一。"},
+{country:"俄罗斯",flag:"🇷🇺",region:'europe',behavior:"送花给俄罗斯人，送偶数朵",ok:false,hint:"你想送 12 朵玫瑰给俄罗斯女朋友。",fact:"俄罗斯偶数朵花用于葬礼。",learn:"送礼必须奇数朵（1、3、5、7、9...）。送给逝者才是偶数。也避免送黄色花朵，象征分手。"},
+{country:"俄罗斯",flag:"🇷🇺",region:'europe',behavior:"戴着帽子进室内（房间、餐厅、教堂）",ok:false,hint:"你戴着毛线帽进入俄罗斯餐厅。",fact:"俄罗斯文化中戴帽子进室内不礼貌。",learn:"男性进室内、教堂必须脱帽。女性进东正教堂相反要戴头巾遮发。换上拖鞋也是常见做法。"},
+{country:"俄罗斯",flag:"🇷🇺",region:'europe',behavior:"把空酒瓶留在桌子上",ok:false,hint:"你和俄罗斯朋友喝完伏特加，把空瓶随手放在桌上。",fact:"俄罗斯认为空瓶留桌上招厄运。",learn:"要把空瓶放到地上或桌下。来源说法：拿破仑战争时哥萨克喝完酒把瓶子留桌上，店家少收酒钱，于是流传\"空瓶=穷困\"。"},
+{country:"俄罗斯",flag:"🇷🇺",region:'europe',behavior:"直接坐在冷地面或冷石头上",ok:false,hint:"你在莫斯科红场旁累了，直接坐在大理石台阶上。",fact:"俄罗斯民间认为坐冷面会导致不孕和疾病。",learn:"俄罗斯妈妈和奶奶都会提醒不要坐冷的东西。可以站着或铺东西垫一下。这个习惯根深蒂固。"},
+{country:"俄罗斯",flag:"🇷🇺",region:'europe',behavior:"进俄罗斯人家换上拖鞋",ok:true,hint:"你去俄罗斯朋友家做客，进门看到一排拖鞋。",fact:"俄罗斯人家普遍要求换拖鞋。",learn:"俄罗斯冬天雪水脏，鞋子带进室内会弄脏地板。主人一般会准备\"客人专用拖鞋\"。"},
+{country:"俄罗斯",flag:"🇷🇺",region:'europe',behavior:"对陌生人微笑示好",ok:false,hint:"你在莫斯科地铁里习惯性对陌生人微笑。",fact:"俄罗斯文化中无故对陌生人笑被认为\"傻\"。",learn:"俄罗斯有句话\"笑没缘由是傻瓜的标志\"。微笑应该是真心的，对认识的人才会笑。陌生人之间保持严肃才是常态。"},
+{country:"俄罗斯",flag:"🇷🇺",region:'europe',behavior:"在长桌敬酒时跨人碰杯",ok:false,hint:"你想和坐在你斜对面的人碰杯，伸长手臂跨过中间人。",fact:"俄罗斯敬酒讲究礼仪。",learn:"要么走到对方旁边碰杯，要么让中间的人帮忙。隔着别人手臂碰杯被视为不礼貌。每次碰杯都要看对方眼睛。"},
+{country:"希腊",flag:"🇬🇷",region:'europe',behavior:"用张开手掌冲着别人脸（Moutza）",ok:false,hint:"餐厅服务员问菜好吃吗，你张开手掌冲他比了个\"OK\"姿势。",fact:"Moutza 是希腊最严重的侮辱手势。",learn:"源于拜占庭时期用灰烬涂罪犯脸的刑罚。即使想表示\"停\"或\"够了\"，也要用握拳或点头摇头。"},
+{country:"希腊",flag:"🇬🇷",region:'europe',behavior:"用 OK 手势（拇指食指圈）",ok:false,hint:"你和希腊朋友比 OK 表示\"很好\"。",fact:"OK 手势在希腊有负面含义。",learn:"在希腊（也包括巴西、土耳其等）OK 手势带有粗俗侮辱意味。表示赞同用竖大拇指或语言表达。"},
+{country:"希腊",flag:"🇬🇷",region:'europe',behavior:"摔碎盘子表示祝贺",ok:true,hint:"你在希腊婚礼上看到大家摔盘子。",fact:"摔盘子是希腊传统庆祝方式。",learn:"源于驱赶厄运的古老习俗。婚礼、生日、舞会上会扔白色石膏盘。不过现代很多餐厅用花瓣替代避免危险。"},
+{country:"希腊",flag:"🇬🇷",region:'europe',behavior:"跟希腊人聊 1453 君士坦丁堡陷落",ok:false,hint:"你和希腊朋友聊历史，提到奥斯曼攻占君士坦丁堡。",fact:"这是希腊人的\"国耻日\"。",learn:"1453 年 5 月 29 日东罗马帝国灭亡，对希腊人是巨大伤痛。马其顿命名问题、土耳其和塞浦路斯问题都很敏感。"},
+{country:"希腊",flag:"🇬🇷",region:'europe',behavior:"用左手举杯祝酒",ok:false,hint:"你拿着右手的食物，左手举杯说 Yamas（干杯）。",fact:"希腊敬酒要用右手。",learn:"左手敬酒被视为不真诚。喝酒前要和每个人对视并说 \"Yamas\"（祝健康）。希腊人很重视敬酒仪式。"},
+{country:"希腊",flag:"🇬🇷",region:'europe',behavior:"第三方付餐厅账单（\"AA\"或抢着付）",ok:false,hint:"你和希腊朋友吃饭，想表示客气抢着付账。",fact:"希腊文化里请客文化很强，主人坚持付款。",learn:"邀请你的人通常会全包。年轻人之间偶尔 AA 也可以，但抢着付被认为是看不起对方。下次你回请就好。"},
+{country:"希腊",flag:"🇬🇷",region:'europe',behavior:"进东正教堂女性穿短裤无袖",ok:false,hint:"你想进圣托里尼的蓝顶教堂，穿着无袖连衣裙和短裙。",fact:"希腊东正教堂着装规范严格。",learn:"女性要遮肩遮膝，必要时披肩。男性也要穿长裤。教堂门口常有免费披肩可借。修道院更严格。"},
+{country:"希腊",flag:"🇬🇷",region:'europe',behavior:"在希腊点饭说\"Greek salad\"",ok:true,hint:"你在雅典 taverna 点希腊沙拉。",fact:"希腊人也称之为 Greek salad 或 Horiatiki（农村沙拉）。",learn:"当地名字是 Horiatiki，番茄+黄瓜+橄榄+洋葱+羊奶酪。但说\"Greek salad\"完全 OK，餐厅都能听懂。"},
+{country:"瑞典",flag:"🇸🇪",region:'europe',behavior:"在超市/银行/邮局直接走到柜台不取号",ok:false,hint:"你在瑞典 ICA 超市排队结账，看到一个柜台没人，直接走过去。",fact:"瑞典几乎所有需要等候的场所都有取号机。",learn:"先取号（nummersystem）等叫号才是正确流程。直接走过去会被认为插队。"},
+{country:"瑞典",flag:"🇸🇪",region:'europe',behavior:"进瑞典人家不脱鞋",ok:false,hint:"你去瑞典朋友家做客，习惯性穿着鞋走进客厅。",fact:"瑞典人家几乎都要求脱鞋。",learn:"冬天雪、夏天泥土容易带进屋。门口都有鞋柜。可以带一双袜子或带室内拖鞋（slippers）。"},
+{country:"瑞典",flag:"🇸🇪",region:'europe',behavior:"每天下午 3 点和同事 Fika（喝咖啡聊天）",ok:true,hint:"你在瑞典公司实习，下午 3 点同事都端着咖啡聚到休息区。",fact:"Fika 是瑞典工作文化的核心。",learn:"每天一两次喝咖啡配甜点的休息时间，几乎所有公司都有。是社交、放松、讨论工作的好机会，参加比不参加好。"},
+{country:"瑞典",flag:"🇸🇪",region:'europe',behavior:"在午夜街上大声唱歌喧哗",ok:false,hint:"你和朋友在斯德哥尔摩深夜回家，开心地唱歌走路。",fact:"瑞典法律和文化都强调夜间安静。",learn:"晚 10 点到早 7 点是\"安静时间\"。公寓楼里更严格，邻居会投诉甚至报警。瑞典人本来就比较内敛，公共喧哗不被接受。"},
+{country:"瑞典",flag:"🇸🇪",region:'europe',behavior:"直呼上司或长辈名字",ok:true,hint:"你在瑞典公司见到 CEO，他叫 Lars，你直接说\"Hi Lars\"。",fact:"瑞典是世界上最平等的社会之一。",learn:"瑞典人不用 Mr/Ms 或职称，直呼名字最自然。即使对教授、医生也是。1960 年代的\"du-reform\"取消了敬称。"},
+{country:"瑞典",flag:"🇸🇪",region:'europe',behavior:"在公共桑拿穿泳衣",ok:false,hint:"你去瑞典桑拿，看到大家都没穿衣服，你却穿着泳衣进入。",fact:"瑞典传统桑拿要求裸体，并按性别分场次。",learn:"穿泳衣被认为不卫生（化学物质遇高温挥发）。混合桑拿用浴巾遮挡。私人或酒店桑拿则可以穿泳衣。"},
+{country:"瑞典",flag:"🇸🇪",region:'europe',behavior:"周日去超市采购",ok:true,hint:"你周日下午想去 ICA 买菜做饭。",fact:"瑞典周日大部分超市正常营业。",learn:"和德国不同，瑞典超市周日也开（一般 10-20 点）。但 Systembolaget（国营酒类专卖）周日关门，想买酒须周一到周六。"},
+{country:"瑞典",flag:"🇸🇪",region:'europe',behavior:"谈话中长时间沉默",ok:true,hint:"你和瑞典同事吃午饭，对方安静地吃了几分钟没说话。",fact:"瑞典文化接受沉默，不需要 small talk 填充。",learn:"沉默被认为是舒适的，不是尴尬的。强行找话题反而让瑞典人觉得累。等他们主动开口最好。"},
+{country:"瑞士",flag:"🇨🇭",region:'europe',behavior:"周日洗衣服或除草",ok:false,hint:"你周日下午在公寓阳台用洗衣机，或在花园用割草机。",fact:"瑞士《静音法》明确周日为休息日。",learn:"周日 + 工作日晚 22 点-早 7 点禁止噪音活动（洗衣、吸尘、电钻、割草）。邻居会投诉、物业会警告。"},
+{country:"瑞士",flag:"🇨🇭",region:'europe',behavior:"火车上吃味重食物",ok:false,hint:"你在 SBB 火车上打开一份咖喱外卖。",fact:"瑞士人在公共交通上极注重秩序和气味。",learn:"味道重的食物（咖喱、洋葱、榴莲）会被侧目。简单三明治、水果、咖啡可以。安静车厢（Ruhezone）连打电话都不行。"},
+{country:"瑞士",flag:"🇨🇭",region:'europe',behavior:"用瑞士德语问候不分清德语/法语区",ok:false,hint:"你在日内瓦说\"Grüezi\"，在苏黎世说\"Bonjour\"。",fact:"瑞士有四种官方语言，区域语言敏感。",learn:"日内瓦/洛桑用法语 Bonjour，苏黎世/伯尔尼用德语 Grüezi，提契诺用意大利语 Ciao。说错语言会显得不尊重当地文化。"},
+{country:"瑞士",flag:"🇨🇭",region:'europe',behavior:"火车提前 1-2 分钟到站",ok:true,hint:"你买了 14:03 的 SBB 火车，提前 2 分钟到月台。",fact:"瑞士火车准时率世界第一。",learn:"火车几乎都准点发车，迟到 30 秒就走。提前 2-5 分钟到月台是必需的。错过下一班可能要等 1 小时。"},
+{country:"瑞士",flag:"🇨🇭",region:'europe',behavior:"餐厅给小费",ok:true,hint:"你在苏黎世餐厅吃饭，账单 50 瑞郎，留 5 瑞郎小费。",fact:"瑞士服务费已含在账单中，但额外小费仍受欢迎。",learn:"服务费已含意味着不强制，但满意服务通常凑整或加 5-10%。直接把钱给服务员，不要留在桌上。"},
+{country:"瑞士",flag:"🇨🇭",region:'europe',behavior:"在 AlpAlmen（高山牧场）翻越围栏走捷径",ok:false,hint:"你在阿尔卑斯山徒步，看到围栏后面是近路，跨过去。",fact:"瑞士徒步道严格按标识走，围栏后通常是私人牧场或牛群区域。",learn:"牛群有保护意识，闯入可能被攻击。且破坏围栏违法。沿标记 trail 走是规则。"},
+{country:"瑞士",flag:"🇨🇭",region:'europe',behavior:"在公共场合大声说话",ok:false,hint:"你在苏黎世咖啡馆和朋友大声聊天。",fact:"瑞士人讲究低声细语和私人空间。",learn:"餐厅、火车、电梯都保持低音量。中文/意大利语母语者声调高容易被注意。压低声音是基本礼仪。"},
+{country:"瑞士",flag:"🇨🇭",region:'europe',behavior:"把垃圾分错袋子",ok:false,hint:"你把一般垃圾装在普通塑料袋里扔进社区垃圾点。",fact:"瑞士许多城市要求用专用收费垃圾袋（Züri-Sack 等）。",learn:"用错袋子会被警告甚至罚款（最高 300 瑞郎）。玻璃/纸/PET 单独分类。短住可问房东具体规则。"},
+{country:"荷兰",flag:"🇳🇱",region:'europe',behavior:"骑车走人行道",ok:false,hint:"你在阿姆斯特丹骑共享单车，看到人行道宽阔，骑上去。",fact:"荷兰有独立自行车道（fietspad），与人行道严格分开。",learn:"荷兰自行车文化全球第一，骑人行道会被荷兰人当场喊\"Hey!\"。看红色铺装路面才是自行车道。"},
+{country:"荷兰",flag:"🇳🇱",region:'europe',behavior:"当面直接拒绝或批评",ok:true,hint:"荷兰同事问你方案如何，你说\"我觉得这部分逻辑有问题\"。",fact:"荷兰文化以直接著称（Dutch directness）。",learn:"荷兰人喜欢直来直去，绕弯反而让他们困惑。说\"不\"和\"我不同意\"是高效合作的标志。"},
+{country:"荷兰",flag:"🇳🇱",region:'europe',behavior:"在红灯区拍照（拍橱窗里的工作者）",ok:false,hint:"你在 De Wallen 红灯区拿手机拍橱窗里的女性。",fact:"阿姆红灯区明令禁止对工作者拍照。",learn:"违者会被当场喊停、手机被扔进运河。拍街景可以，但镜头不可对准橱窗。整个红灯区禁止 guided tour 拍照。"},
+{country:"荷兰",flag:"🇳🇱",region:'europe',behavior:"周日大部分商店关门",ok:true,hint:"你周日想去阿姆斯特丹买衣服，发现很多店关着。",fact:"荷兰小城和郊区周日商店多数不开。",learn:"阿姆/鹿特丹/海牙市中心商店周日下午开（中午 12 点后）。小城则周日关门。提前查 Google Maps 营业时间。"},
+{country:"荷兰",flag:"🇳🇱",region:'europe',behavior:"餐厅 AA 制平摊",ok:true,hint:"你和荷兰朋友吃饭，最后说\"我们 Tikkie 一下吧\"。",fact:"荷兰是 AA 文化最强的国家之一。",learn:"Tikkie 是国民付款 App，朋友间分摊账单。\"Going Dutch\"就是源于此。请客文化少，平摊最自然。"},
+{country:"荷兰",flag:"🇳🇱",region:'europe',behavior:"拜访荷兰人不预约",ok:false,hint:"你下午突然想去荷兰朋友家串门。",fact:"荷兰人把私人时间安排得很细。",learn:"临时拜访被认为侵犯私人空间。哪怕是好朋友也要提前几天约。短信问\"周三晚有空吗\"是标准。"},
+{country:"荷兰",flag:"🇳🇱",region:'europe',behavior:"在科菲店（coffeeshop）公开吸大麻",ok:true,hint:"你在 Amsterdam 一家挂绿白招牌的 coffeeshop 里购买并吸食大麻。",fact:"荷兰 coffeeshop 合法销售软毒品，前提是在店内消费。",learn:"店内合法，街上吸食在某些城市违法（如鹿特丹有禁吸区）。游客在阿姆部分区域也被禁。注意每人每天限购 5 克。"},
+{country:"荷兰",flag:"🇳🇱",region:'europe',behavior:"给小费 5-10%",ok:true,hint:"你在阿姆餐厅吃饭，账单 40 欧，留 2-4 欧小费。",fact:"荷兰小费非强制，但凑整或 5-10% 受欢迎。",learn:"服务费已含，但好服务凑整或 10% 是礼貌。出租车凑整。咖啡馆留个 1-2 欧硬币就行。"},
+{country:"葡萄牙",flag:"🇵🇹",region:'europe',behavior:"把葡萄牙当成西班牙的一部分",ok:false,hint:"你说\"葡语和西语差不多吧\"或\"你们和西班牙人很像\"。",fact:"葡萄牙人和西班牙文化、历史、语言都不同，且历史上常有矛盾。",learn:"葡萄牙独立 1143 年比西班牙还早。葡语和西语虽相近但差异很大。当葡人面前夸西班牙是大忌。"},
+{country:"葡萄牙",flag:"🇵🇹",region:'europe',behavior:"餐厅吃面包/橄榄/奶酪不付钱",ok:false,hint:"你坐下后，服务员主动端来面包、橄榄、奶酪，你以为是免费的。",fact:"葡萄牙餐厅的 couvert（开胃小菜）是收费的。",learn:"不想要就让服务员撤走（\"Não, obrigado\"）。吃了就要付费（一般 2-5 欧/人）。游客经常上当。"},
+{country:"葡萄牙",flag:"🇵🇹",region:'europe',behavior:"在 Fado 表演时聊天拍照",ok:false,hint:"你在里斯本 Fado 餐厅听传统音乐，开心拍照配解说。",fact:"Fado 是葡萄牙国宝级民乐，演出时全场要安静。",learn:"演出前后可以拍照鼓掌，但歌声响起后绝对禁止说话、拍照、动餐具。歌手会停下来盯着你。"},
+{country:"葡萄牙",flag:"🇵🇹",region:'europe',behavior:"喝 Vinho Verde（绿酒）",ok:true,hint:"你在波尔图餐厅点一杯 Vinho Verde 配海鲜。",fact:"Vinho Verde 是葡萄牙北部年轻白葡萄酒，配海鲜绝佳。",learn:"低酒精、微气泡、清爽。和波尔图酒（甜红酒）是两种代表。游客大胆点。"},
+{country:"葡萄牙",flag:"🇵🇹",region:'europe',behavior:"把 espresso 叫\"espresso\"",ok:false,hint:"你在里斯本咖啡馆说\"One espresso, please\"。",fact:"葡萄牙人叫意式浓缩为 bica（里斯本）或 cimbalino（波尔图）。",learn:"说\"espresso\"会被认出是游客。试试当地名字。配 Pastel de Nata（葡式蛋挞）是国民组合。"},
+{country:"葡萄牙",flag:"🇵🇹",region:'europe',behavior:"进教堂穿短裤背心",ok:false,hint:"你想进里斯本主教堂，穿短裤和无袖。",fact:"葡萄牙是天主教国家，教堂着装规范。",learn:"肩膀膝盖要遮住。带件薄外套或披肩。修道院更严。"},
+{country:"葡萄牙",flag:"🇵🇹",region:'europe',behavior:"在公共场合吻别（贴脸）",ok:true,hint:"你和葡萄牙女性朋友告别，互相贴脸亲两下（左右各一次）。",fact:"葡萄牙问候和告别礼是两次贴脸吻。",learn:"女性间、男女间都可以；男性间一般握手。仅商务场合改握手。亲脸颊是常态。"},
+{country:"葡萄牙",flag:"🇵🇹",region:'europe',behavior:"周末晚 9 点才吃晚饭",ok:true,hint:"你周六晚 9 点订餐厅吃饭。",fact:"葡萄牙晚餐时间普遍较晚。",learn:"晚 8-10 点是主餐时间。8 点前餐厅都很空甚至没开。游客调整到晚 8:30 后会更融入当地节奏。"},
+{country:"冰岛",flag:"🇮🇸",region:'europe',behavior:"进游泳馆前不脱光淋浴",ok:false,hint:"你去蓝湖或冰岛公共泳池，想直接穿泳衣进池。",fact:"冰岛公共泳池要求不穿泳衣淋浴洗净后才能下水。",learn:"氯气含量低，靠所有人提前洗净维持卫生。更衣室有大叔/大妈巡查。游客违规会被严厉制止。"},
+{country:"冰岛",flag:"🇮🇸",region:'europe',behavior:"走极光路上私闯农场",ok:false,hint:"你看到围栏后视野更好，跨过去拍极光。",fact:"冰岛绝大部分土地是私人农场。",learn:"踩踏苔原会留下几十年才恢复的痕迹。私闯违法。沿公路停车点、官方观景台拍摄即可。"},
+{country:"冰岛",flag:"🇮🇸",region:'europe',behavior:"称呼冰岛人用姓",ok:false,hint:"你想称呼冰岛朋友 Jón Sigurðsson 为\"Mr. Sigurðsson\"。",fact:"冰岛没有真正的姓，名字后缀是\"X 的儿子/女儿\"。",learn:"Sigurðsson = Sigurður 的儿子。称呼用名字（Jón）即可。电话簿、名片都按名字字母排序。"},
+{country:"冰岛",flag:"🇮🇸",region:'europe',behavior:"在间歇泉边越过黄绳近距离拍",ok:false,hint:"你想拍 Strokkur 间歇泉的最佳角度，跨过警戒绳。",fact:"地热水温接近 100°C，喷发距离不固定。",learn:"每年都有游客烫伤。风向变化会把热水吹到附近。乖乖站在标识线后，等下一次喷发。"},
+{country:"冰岛",flag:"🇮🇸",region:'europe',behavior:"自驾走 F 路（高地公路）用普通轿车",ok:false,hint:"你租了一辆 Toyota Yaris，想开 F26 横穿内陆。",fact:"F 开头的高地公路只允许 4WD 越野车。",learn:"要涉水、过碎石、坡度大。保险不覆盖普通车。一旦坏车救援费上万克朗。租车前确认。"},
+{country:"冰岛",flag:"🇮🇸",region:'europe',behavior:"在 Reykjavík 周五晚酒吧通宵",ok:true,hint:"你周五晚去 Laugavegur 酒吧街，看到酒吧凌晨 3-5 点还开着。",fact:"冰岛首都周末夜生活通常持续到凌晨 4-5 点。",learn:"Rúntur（pub crawl）是国民活动。最热闹时段是午夜后。注意酒精在国营 Vínbúðin 才能买。"},
+{country:"冰岛",flag:"🇮🇸",region:'europe',behavior:"见面问\"过得怎么样\"等具体回答",ok:true,hint:"你问冰岛朋友\"How are you?\"，对方真的告诉你最近发生什么。",fact:"冰岛人不把\"How are you\"当客套话。",learn:"不像英美只回\"Fine\"，冰岛人会认真回答。如果你不想听细节，问\"Hi\"即可。"},
+{country:"冰岛",flag:"🇮🇸",region:'europe',behavior:"给小费",ok:false,hint:"你在 Reykjavík 餐厅吃完留 10% 小费。",fact:"冰岛服务费已含在账单中，普遍不需要额外小费。",learn:"留也没人拒绝，但绝对不是义务。导游或特别服务可以适当感谢。"},
+{country:"爱尔兰",flag:"🇮🇪",region:'europe',behavior:"把爱尔兰当成英国一部分",ok:false,hint:"你说\"你们爱尔兰用英镑吧\"或\"和英国差不多\"。",fact:"爱尔兰共和国 1922 年独立，用欧元，与英国是不同国家。",learn:"北爱尔兰才属于英国。把爱尔兰当英国是大忌，涉及殖民和饥荒等历史伤痛。"},
+{country:"爱尔兰",flag:"🇮🇪",region:'europe',behavior:"进 pub 主动 round（轮流买酒）",ok:true,hint:"你和爱尔兰朋友进 pub，主动说\"This round's on me\"。",fact:"爱尔兰 pub 文化核心是 round system。",learn:"每个人轮流请一轮酒。不参与会被认为抠门。如果不想喝多，就少点几人一起。"},
+{country:"爱尔兰",flag:"🇮🇪",region:'europe',behavior:"在 pub 不和邻桌聊天",ok:false,hint:"你独自在 pub 喝酒，邻座搭话你只回\"Yeah\"就低头玩手机。",fact:"爱尔兰 pub 是社交场所，陌生人聊天是常态。",learn:"爱尔兰人 chatty，喜欢和陌生人开玩笑。冷淡回应被认为不礼貌。即使简单几句也好。"},
+{country:"爱尔兰",flag:"🇮🇪",region:'europe',behavior:"倒 Guinness 黑啤一气呵成",ok:false,hint:"你点了 Guinness，bartender 倒到一半停下来。",fact:"标准 Guinness 倒法分两步，需静置 119.5 秒。",learn:"先倒 3/4，等泡沫沉淀再补满。不要催 bartender。喝法是大口喝不要小口抿。"},
+{country:"爱尔兰",flag:"🇮🇪",region:'europe',behavior:"在圣帕特里克节穿橙色",ok:false,hint:"3 月 17 日你去都柏林，穿橙色衣服。",fact:"爱尔兰国旗绿白橙，橙色代表新教徒（北爱尔兰象征）。",learn:"节日由天主教徒主导，穿橙色会被认为挑衅。穿绿色或白色最安全。三叶草图案 OK。"},
+{country:"爱尔兰",flag:"🇮🇪",region:'europe',behavior:"周日早上去 pub",ok:true,hint:"你周日上午 10 点去爱尔兰 pub。",fact:"很多 pub 周日早上开门做早餐和咖啡。",learn:"周日 pub 提供 Irish breakfast + 体育转播。但卖酒一般要到中午 12:30 后（法律规定）。"},
+{country:"爱尔兰",flag:"🇮🇪",region:'europe',behavior:"在公共场合说脏话（fuck）",ok:true,hint:"你和爱尔兰朋友聊天，对方说\"That's fucking brilliant\"，你也跟着用。",fact:"爱尔兰人日常对话 fuck 是高频词，不算冒犯。",learn:"和英国/美国不同，爱尔兰人把 fuck 当语气词用，朋友间没问题。正式场合（工作、长辈）还是要避免。"},
+{country:"爱尔兰",flag:"🇮🇪",region:'europe',behavior:"喝 Irish coffee 加奶油搅拌",ok:false,hint:"你点了 Irish coffee，把上面的奶油搅进咖啡。",fact:"Irish coffee 标准喝法是奶油浮在面上不搅。",learn:"透过冰凉奶油喝热咖啡和威士忌是精髓。搅拌会破坏层次感。爱尔兰人看到会笑。"},
+{country:"土耳其",flag:"🇹🇷",region:'europe',behavior:"进清真寺女性不戴头巾",ok:false,hint:"你想进伊斯坦布尔蓝色清真寺，没准备头巾。",fact:"土耳其清真寺对女性着装有要求。",learn:"女性须头巾、长袖、长裤/长裙；男性穿长裤。门口免费借头巾和披肩。脱鞋进入。礼拜时间游客不入。"},
+{country:"土耳其",flag:"🇹🇷",region:'europe',behavior:"把土耳其叫\"中东\"",ok:false,hint:"你和土耳其人聊天说\"你们中东国家如何如何\"。",fact:"土耳其官方定位是欧亚国家，且世俗共和国。",learn:"土耳其人多自认为欧洲人或独立文化。称\"中东\"会让他们不悦。说\"土耳其\"即可。"},
+{country:"土耳其",flag:"🇹🇷",region:'europe',behavior:"在巴扎讨价还价",ok:true,hint:"你在大巴扎看上一块地毯，问价 500 美元。",fact:"传统巴扎讨价还价是文化的一部分。",learn:"开价砍到 1/3 - 1/2 是常见。喝杯茶慢慢谈。商场超市等明码标价场所不议价。"},
+{country:"土耳其",flag:"🇹🇷",region:'europe',behavior:"用左手递东西或吃饭",ok:false,hint:"你和土耳其朋友吃饭，左手拿馕递给对方。",fact:"穆斯林文化左手用于清洁，不用于递物吃饭。",learn:"递钱、食物、礼物用右手。两手并用更礼貌。土耳其虽世俗化，老一辈仍敏感。"},
+{country:"土耳其",flag:"🇹🇷",region:'europe',behavior:"拒绝主人敬茶",ok:false,hint:"地毯商人请你喝苹果茶，你说\"不用了\"。",fact:"土耳其茶（çay）是社交核心。",learn:"拒绝茶被认为不礼貌。哪怕不想买东西，喝杯茶聊聊再走是基本礼仪。茶是免费的，不喝是大忌。"},
+{country:"土耳其",flag:"🇹🇷",region:'europe',behavior:"公开亲热（情侣接吻拥抱）",ok:false,hint:"你和伴侣在 Taksim 广场长时间亲吻。",fact:"土耳其虽世俗化，公共场合 PDA 仍保守。",learn:"手牵手、轻拥抱可以；长时间接吻会被路人侧目甚至斥责。保守地区（中东部）更严。"},
+{country:"土耳其",flag:"🇹🇷",region:'europe',behavior:"加 Lira 给好服务（小费 5-10%）",ok:true,hint:"你在伊斯坦布尔餐厅吃饭，账单 200 里拉，留 20 里拉。",fact:"土耳其餐厅小费 5-10% 是常见做法。",learn:"高档餐厅 10%，咖啡馆凑整。出租车凑整。给现金最受欢迎。"},
+{country:"土耳其",flag:"🇹🇷",region:'europe',behavior:"和老人长辈握手时亲吻其手并贴额头",ok:true,hint:"你拜访土耳其朋友家，对方爷爷伸手，你亲他的手背并贴在额头。",fact:"这是土耳其表示对长辈尊敬的传统礼仪。",learn:"el öpme（亲手）是尊老礼。对方长辈伸手时这样做最得体。年轻人之间握手或贴脸。"},
+{country:"美国",flag:"🇺🇸",region:'americas',behavior:"餐厅不给小费",ok:false,hint:"你在纽约餐厅吃饭账单 50 美元，你只付 50。",fact:"美国服务员底薪极低，靠小费生活。",learn:"餐厅 15-20%、酒吧 1-2 美元/杯、出租车/网约车 10-15%。不给小费会被追出来。账单上 service charge 已含才可不加。"},
+{country:"美国",flag:"🇺🇸",region:'americas',behavior:"直呼老板/教授名字",ok:true,hint:"你的新老板自我介绍叫 John，你说\"Hi John\"。",fact:"美国职场文化比较平等。",learn:"对方主动用名字介绍就用名字。对教授先用\"Professor Smith\"，对方说\"Call me John\"再改。"},
+{country:"美国",flag:"🇺🇸",region:'americas',behavior:"在公共场合大声打电话",ok:false,hint:"你在美国地铁、咖啡馆开外放视频或大声打电话。",fact:"美国人重视个人空间和公共安静。",learn:"免提外放被认为粗鲁。打电话压低声音或走到外面。咖啡馆开会建议戴耳机。"},
+{country:"美国",flag:"🇺🇸",region:'americas',behavior:"闯红灯过街（jaywalk）",ok:false,hint:"你在纽约马路边没车，直接斜穿过街。",fact:"jaywalking 在多数城市违法，警察可以开罚单。",learn:"纽约执行宽松，但洛杉矶等加州城市严格（罚 200 美元+）。游客建议守规走斑马线最安全。"},
+{country:"美国",flag:"🇺🇸",region:'americas',behavior:"给现金给客房服务员",ok:true,hint:"你住美国酒店，每天在床头留 2-5 美元。",fact:"housekeeping tip 是美国惯例。",learn:"每天 2-5 美元（高档酒店 5-10）。最好留信封写明\"For housekeeping\"。换班制下每天留比退房一起留更准确。"},
+{country:"美国",flag:"🇺🇸",region:'americas',behavior:"商店试穿衣服很多但不买",ok:true,hint:"你在 Macy's 试了 5 件衣服都不满意空手走。",fact:"美国零售文化鼓励试穿。",learn:"试不买完全 OK。退货政策也宽松（30 天起）。但奢侈品店和小精品店较敏感。"},
+{country:"美国",flag:"🇺🇸",region:'americas',behavior:"当面问月薪/年薪",ok:false,hint:"你刚认识的美国同事问\"How much do you make?\"",fact:"在美国问薪资被认为非常不礼貌。",learn:"钱、年龄、体重、政治、宗教都是私人话题。朋友间更不该问。例外是工会、HR 公开数据可讨论。"},
+{country:"美国",flag:"🇺🇸",region:'americas',behavior:"见到熟人主动 hug",ok:true,hint:"你见到美国朋友，张开双臂拥抱。",fact:"美国朋友间问候常用 hug。",learn:"女性间、男女间、朋友间常拥抱。男性间一般握手或拍肩。初次见面用握手，第二次见面后 hug 都自然。"},
+{country:"墨西哥",flag:"🇲🇽",region:'americas',behavior:"戴鳄梨饼图案宽边帽参加派对",ok:false,hint:"你戴着 sombrero、穿 poncho 去墨西哥朋友派对自嘲。",fact:"把传统服饰当 cosplay 道具被视为文化挪用。",learn:"在民俗节、5 月 5 日庆典戴 OK，但平常戏装化会让墨西哥人不快。当地朋友邀请你穿则没问题。"},
+{country:"墨西哥",flag:"🇲🇽",region:'americas',behavior:"喝 tequila 一口闷",ok:false,hint:"你点了一杯好 tequila，配盐+柠檬一口闷。",fact:"好 tequila（100% agave）应慢慢品。",learn:"盐+柠檬+一口闷的喝法是廉价 mixto 风格。高端 tequila 直接小口呷，配 sangrita（番茄汁+橙汁+辣椒）。"},
+{country:"墨西哥",flag:"🇲🇽",region:'americas',behavior:"给所有人小费",ok:true,hint:"你给停车员、加油工、超市装袋小弟都给 5-10 比索。",fact:"墨西哥服务业小费文化广泛。",learn:"餐厅 10-15%、加油 5-10 比索、超市装袋 3-5 比索、酒店行李员 20-50 比索。零钱备着。"},
+{country:"墨西哥",flag:"🇲🇽",region:'americas',behavior:"喝自来水",ok:false,hint:"你在墨西哥城旅馆拧开水龙头喝水。",fact:"墨西哥自来水不可直饮，连当地人都喝瓶装水。",learn:"包括刷牙都建议用瓶装水。冰块在正规餐厅是过滤水做的，街边摊则不一定。蔬菜水果要洗干净或削皮。"},
+{country:"墨西哥",flag:"🇲🇽",region:'americas',behavior:"进教堂大声拍照",ok:false,hint:"你在瓜达卢佩圣母大教堂开闪光灯拍照大声讨论。",fact:"墨西哥是天主教大国，教堂是神圣场所。",learn:"进教堂脱帽、低声、不开闪光。礼拜时不进入。游客一般静静参观即可。"},
+{country:"墨西哥",flag:"🇲🇽",region:'americas',behavior:"见面贴脸亲一下",ok:true,hint:"你和墨西哥女性朋友见面贴左脸亲一下。",fact:"墨西哥问候是单边贴脸亲。",learn:"女女、男女间贴右脸吻一次。男男间握手或抱拍背。商务场合用握手。"},
+{country:"墨西哥",flag:"🇲🇽",region:'americas',behavior:"7 点准时去吃饭聚会",ok:false,hint:"墨西哥朋友邀请你 7 点家宴，你 7 点准时到。",fact:"墨西哥社交时间观念较松。",learn:"晚 30-60 分钟到才是礼貌。准时到主人可能还在准备。商务约会则要准时。"},
+{country:"墨西哥",flag:"🇲🇽",region:'americas',behavior:"把\"Cinco de Mayo\"当墨西哥独立日",ok:false,hint:"你 5 月 5 日祝墨西哥朋友\"Happy Independence Day\"。",fact:"5 月 5 日是普埃布拉战役纪念日，独立日是 9 月 16 日。",learn:"Cinco de Mayo 在美国比墨西哥更热闹（主要是美墨商业炒作）。真正的独立日是 9/16，前夜街上喊\"¡Viva México!\"。"},
+{country:"巴西",flag:"🇧🇷",region:'americas',behavior:"把巴西归为讲西班牙语",ok:false,hint:"你对巴西人说\"Hola, ¿cómo estás?\"。",fact:"巴西讲葡萄牙语，不是西班牙语。",learn:"南美只有巴西讲葡语（历史原因）。说西语会被认为不了解。简单问候用\"Olá\"或\"Oi\"。"},
+{country:"巴西",flag:"🇧🇷",region:'americas',behavior:"用 OK 手势",ok:false,hint:"你竖起拇指食指圈表示 OK。",fact:"巴西 OK 手势相当于竖中指。",learn:"是极度粗鲁的手势。用\"thumbs up\"表达 OK 即可。前总统访问巴西因此引发外交风波。"},
+{country:"巴西",flag:"🇧🇷",region:'americas',behavior:"凌晨 1 点去酒吧",ok:true,hint:"你周六凌晨 1 点去里约 Lapa 酒吧。",fact:"巴西夜生活通常从晚 10 点才开始。",learn:"晚 9 点酒吧才慢慢有人，凌晨 1-3 点最热闹。狂欢节期间通宵。提前到反而尴尬。"},
+{country:"巴西",flag:"🇧🇷",region:'americas',behavior:"进民宅不脱鞋",ok:true,hint:"你去巴西朋友家，穿着鞋直接进客厅。",fact:"巴西家庭多数不要求脱鞋。",learn:"和亚洲不同，巴西穿鞋进屋常见。除非主人明确说脱（很少）。但雨天泥地另说。"},
+{country:"巴西",flag:"🇧🇷",region:'americas',behavior:"在贫民窟（favela）独自闲逛拍照",ok:false,hint:"你想体验里约 favela，独自走进 Rocinha 拍照。",fact:"贫民窟治安复杂，部分区域帮派控制。",learn:"必须参加官方 guided tour（有当地引导员）。镜头对人前要问，拍帮派或警察可能挨揍或抢手机。"},
+{country:"巴西",flag:"🇧🇷",region:'americas',behavior:"公共场合穿比基尼/小泳裤",ok:true,hint:"你在 Ipanema 海滩穿巴西式比基尼。",fact:"巴西海滩穿着大胆是文化。",learn:"里约/萨尔瓦多沙滩比基尼小到极致正常。但离开海滩进商店餐厅要套件衣服。圣保罗内陆较保守。"},
+{country:"巴西",flag:"🇧🇷",region:'americas',behavior:"拒绝主人的食物或饮料",ok:false,hint:"巴西朋友家请你喝咖啡或吃 brigadeiro，你说\"不用了我吃饱了\"。",fact:"巴西好客文化里拒绝食物是大忌。",learn:"至少尝一口。说\"小份\"可以。直接拒绝让主人没面子。带礼物（葡萄酒、巧克力）更受欢迎。"},
+{country:"巴西",flag:"🇧🇷",region:'americas',behavior:"和陌生人热情聊天",ok:true,hint:"你在公交上和邻座巴西人聊起足球。",fact:"巴西人 outgoing，喜欢和陌生人聊天。",learn:"足球、桑巴、狂欢节、食物都是 safe topic。避免政治和 favela 话题。葡语会几句简单的就很受欢迎。"},
+{country:"加拿大",flag:"🇨🇦",region:'americas',behavior:"把加拿大人当美国人",ok:false,hint:"你对加拿大人说\"你们美国人...\"。",fact:"加拿大人民族认同强烈，不愿被混同。",learn:"加拿大独立国家，有自己的国旗、医保、议会。把他们当美国人是 #1 触怒方式。说\"你是哪里人\"再回应最稳。"},
+{country:"加拿大",flag:"🇨🇦",region:'americas',behavior:"对法语区（魁北克）只说英语",ok:false,hint:"你在蒙特利尔商店直接用英语购物不问候 Bonjour。",fact:"魁北克对法语保护强烈。",learn:"开头说一句\"Bonjour\"再问\"Do you speak English\"就友好很多。直接英语开口被视为不尊重。"},
+{country:"加拿大",flag:"🇨🇦",region:'americas',behavior:"道歉太多（说\"Sorry\"）",ok:true,hint:"别人撞了你，你也说\"Sorry\"。",fact:"加拿大人 Sorry 频率世界领先。",learn:"Sorry 表示客气、缓解尴尬，不一定承担责任。被撞、错过电梯、问路前都用。学会用 Sorry 就像加拿大人了。"},
+{country:"加拿大",flag:"🇨🇦",region:'americas',behavior:"在冬天没穿够衣服外出",ok:false,hint:"你冬天 -25°C 穿运动鞋短大衣在多伦多街上走。",fact:"加拿大冬天极寒，户外几分钟就冻伤。",learn:"必备 down jacket、保暖靴、手套、帽子。-30°C 露皮 10 分钟可能冻伤。加拿大本地人冬天穿得最厚。"},
+{country:"加拿大",flag:"🇨🇦",region:'americas',behavior:"餐厅小费 15-20%",ok:true,hint:"你在多伦多餐厅账单 60 加元，给 12 加元小费。",fact:"加拿大餐厅小费比例和美国一样。",learn:"15% 标准，20% 表示满意。Debit/Credit 机器会提示比例。出租车 10-15%。"},
+{country:"加拿大",flag:"🇨🇦",region:'americas',behavior:"把冰球（hockey）当一般运动",ok:false,hint:"你说\"hockey 不就普通球类嘛\"。",fact:"冰球是加拿大国魂。",learn:"随便聊\"Leafs / Habs / Canucks 哪个赢了\"是 small talk 经典。诋毁冰球队比骂总理还严重。"},
+{country:"加拿大",flag:"🇨🇦",region:'americas',behavior:"越境 souvenir 带枫糖浆/未申报",ok:false,hint:"你从加拿大回国带 3 升枫糖浆没申报。",fact:"加拿大海关申报严格，特别是奶制品和肉类。",learn:"枫糖浆超过一定量须申报。肉类、奶酪、新鲜水果一律申报。罚款很重。"},
+{country:"加拿大",flag:"🇨🇦",region:'americas',behavior:"在公园喝啤酒（open container）",ok:false,hint:"你在多伦多公园野餐，开瓶啤酒。",fact:"加拿大多数省禁止公共场所喝酒精饮料（open container law）。",learn:"罚款 100-300 加元。可去酒吧 patio。最近部分省试点放宽（如魁北克允许特定公园）。"},
+{country:"阿根廷",flag:"🇦🇷",region:'americas',behavior:"把 Tango 当成快节奏拉美舞",ok:false,hint:"你期待 Tango 像 Salsa 一样欢快蹦跳。",fact:"Tango 起源于布宜诺斯艾利斯，节奏舒缓而忧郁。",learn:"Tango 讲究两人身体贴近、表情严肃、步伐精准。和加勒比海舞完全不同。看 milonga（探戈舞会）感受。"},
+{country:"阿根廷",flag:"🇦🇷",region:'americas',behavior:"把阿根廷牛肉点 well done",ok:false,hint:"你在 parrilla（烤肉店）点 ribeye 要全熟。",fact:"阿根廷牛肉以品质著称，标准吃法 medium。",learn:"well done 浪费好肉，厨师可能皱眉。点 jugoso（rare）或 a punto（medium）。当地人最爱 medium。"},
+{country:"阿根廷",flag:"🇦🇷",region:'americas',behavior:"喝 Mate（马黛茶）拒绝传给下一人",ok:false,hint:"朋友递马黛茶给你，你喝完不传只放下。",fact:"马黛茶是阿根廷社交核心，分享是仪式。",learn:"从冲茶人（cebador）开始顺时针传。喝完整杯（吸出\"咕噜\"声表示喝完）还给 cebador 续水再传下一人。\"Gracias\"是退出信号，慎用。"},
+{country:"阿根廷",flag:"🇦🇷",region:'americas',behavior:"晚 9 点准时去吃晚饭",ok:false,hint:"你订了 9 点的晚餐，准时到 parrilla。",fact:"阿根廷晚餐比欧洲还晚，普遍 10 点后。",learn:"晚 9 点餐厅刚开，10-12 点是高峰。和南欧类似。商务约会准时，社交可以晚 30-60 分钟。"},
+{country:"阿根廷",flag:"🇦🇷",region:'americas',behavior:"公开赞美马尔维纳斯（福克兰）属于英国",ok:false,hint:"你和阿根廷人聊起说\"Falkland Islands 是英国的\"。",fact:"阿根廷称之为 Islas Malvinas，主权争议涉及 1982 年战争。",learn:"极敏感话题。尤其老一辈，战争中阵亡的家属众多。避谈或称\"Malvinas\"。"},
+{country:"阿根廷",flag:"🇦🇷",region:'americas',behavior:"见面贴脸吻（同性也吻）",ok:true,hint:"你认识男性阿根廷朋友，对方主动贴右脸亲一下。",fact:"阿根廷男性间也贴脸吻问候。",learn:"男男、女女、男女间都贴右脸轻吻一次。是问候和告别礼。商务场合改握手。直男异性贴吻很普遍。"},
+{country:"阿根廷",flag:"🇦🇷",region:'americas',behavior:"在 cafe 单独坐很久点一杯咖啡",ok:true,hint:"你在布宜诺斯艾利斯 cafe 点一杯 cortado 坐了 2 小时看书。",fact:"阿根廷咖啡馆文化鼓励停留。",learn:"不像快餐式美国咖啡馆，阿根廷 cafe 让你坐多久都行。Cafe Tortoni 等历史咖啡馆专门为此存在。"},
+{country:"阿根廷",flag:"🇦🇷",region:'americas',behavior:"公共场合大谈通胀和经济",ok:true,hint:"你和阿根廷朋友聊起最近通胀和汇率。",fact:"经济话题是阿根廷国民日常。",learn:"通胀严重（年 100%+），换汇 blue dollar 是普遍话题。和当地人聊可以学到很多生存技巧。不属于禁忌。"},
+{country:"智利",flag:"🇨🇱",region:'americas',behavior:"把智利人当阿根廷人或秘鲁人",ok:false,hint:"你说\"你们智利和阿根廷差不多吧\"。",fact:"智利人和阿根廷长期\"塑料兄弟\"，文化也不同。",learn:"智利说西语口音独特（语速极快、词尾吞音），饮食以海鲜为主。和阿根廷有历史竞争。混为一谈是大忌。"},
+{country:"智利",flag:"🇨🇱",region:'americas',behavior:"Pisco 鸡尾酒说是秘鲁的",ok:false,hint:"你在智利 bar 说\"Pisco Sour 是秘鲁的发明吧\"。",fact:"智利和秘鲁都宣称 Pisco 原产地，是国家级争议。",learn:"在智利说 Pisco 属秘鲁会引战。智利 Pisco 用 Muscat 葡萄，秘鲁用多种葡萄。各点各的最安全。"},
+{country:"智利",flag:"🇨🇱",region:'americas',behavior:"用左手递东西",ok:true,hint:"你用左手把账单递给同事。",fact:"智利没有左右手禁忌。",learn:"和中东/亚洲部分国家不同，智利对手没要求。商务场合握手用右手就行。"},
+{country:"智利",flag:"🇨🇱",region:'americas',behavior:"把智利说成\"南美的瑞士/英国\"夸奖",ok:true,hint:"你说\"智利像南美的瑞士，稳定干净\"。",fact:"智利人确实自豪于经济稳定和教育水平。",learn:"是正面 stereotype，智利人接受这种评价。但避免说\"和其他南美国家不一样\"显得贬低邻国。"},
+{country:"智利",flag:"🇨🇱",region:'americas',behavior:"餐厅小费 10%",ok:true,hint:"你在圣地亚哥餐厅留 10% 小费。",fact:"智利餐厅 10% propina 是惯例。",learn:"账单会建议加 10%，可同意或拒绝。不强制。打车通常凑整不另给。咖啡馆放零钱即可。"},
+{country:"智利",flag:"🇨🇱",region:'americas',behavior:"见到陌生人保持距离",ok:false,hint:"朋友介绍智利朋友给你，你保持 1 米距离不伸手。",fact:"智利问候比阿根廷更亲密。",learn:"女性间、男女间贴右脸亲一下。男性间握手或抱肩。第二次见面就用贴脸礼。保持距离会被认为冷淡。"},
+{country:"智利",flag:"🇨🇱",region:'americas',behavior:"周日去 Mall 购物",ok:true,hint:"你周日去圣地亚哥 Costanera Center 购物。",fact:"智利大商场周日开门。",learn:"和欧洲不同，智利大型商场周日营业（10-21 点）。Mall 文化深入日常。小店周日多数关门。"},
+{country:"智利",flag:"🇨🇱",region:'americas',behavior:"谈论皮诺切特时代",ok:false,hint:"你和不熟的智利人聊起\"皮诺切特是不是经济功臣\"。",fact:"1973-1990 军政府独裁是智利极敏感话题。",learn:"很多家庭有人失踪/流亡。对外人最好不主动提。如果对方先提了再讨论。年轻人对此较开放，老一辈极敏感。"},
+{country:"古巴",flag:"🇨🇺",region:'americas',behavior:"给古巴人外币（美元/欧元）当小费",ok:true,hint:"你给酒店服务员 2 美元小费。",fact:"古巴人渴望硬通货，欧元/美元/CAD 比当地货币更受欢迎。",learn:"1-2 美元/欧元就让人感激。或拿小礼物（化妆品、衣服、文具）。注意美元在官方汇率亏。"},
+{country:"古巴",flag:"🇨🇺",region:'americas',behavior:"街上拍摄警察/军人/政府建筑",ok:false,hint:"你在哈瓦那 Revolution Square 拍摄军人和政府办公楼。",fact:"古巴对涉政府建筑和军警拍照敏感。",learn:"可能被询问甚至删除照片。拍 Capitolio 等景点 OK，拍军警和政府部门避免。机场也不要拍。"},
+{country:"古巴",flag:"🇨🇺",region:'americas',behavior:"公开批评政府/卡斯特罗",ok:false,hint:"你和不熟的古巴人在咖啡馆批评政府。",fact:"古巴政治环境敏感，公开批评有风险。",learn:"当地人可能不敢回应，或被举报。私下熟人间可以谈，公共场合避免。游客也可能被怀疑。"},
+{country:"古巴",flag:"🇨🇺",region:'americas',behavior:"用 CUC（已废止货币）",ok:false,hint:"你在 2021 年后的古巴拿出 CUC 买东西。",fact:"CUC（兑换比索）2021 年已废止，只剩 CUP（古巴比索）。",learn:"现在只用 CUP 和外币。机场/酒店换汇。蓝鲸黑市汇率更好但风险。带欧元比美元划算（美元换汇有 10% 罚金）。"},
+{country:"古巴",flag:"🇨🇺",region:'americas',behavior:"在 Casa Particular 和房东聊天",ok:true,hint:"你住古巴民宿，和房东喝咖啡聊天。",fact:"Casa Particular 是国营外的合法民宿。",learn:"房东多数热情，聊家庭和生活很享受。但避免引导他们批评政府。带点小礼物（咖啡、调料）很受欢迎。"},
+{country:"古巴",flag:"🇨🇺",region:'americas',behavior:"跳 Salsa 时不主动找舞伴",ok:false,hint:"你在 Casa de la Música 看到大家在跳，自己站旁边。",fact:"古巴 Salsa 文化要求主动。",learn:"男女都可以邀请。不会跳直接说\"Soy principiante\"（我是新手），当地人乐意教。不主动会错过最美好的体验。"},
+{country:"古巴",flag:"🇨🇺",region:'americas',behavior:"路边便利店买不到东西就生气",ok:false,hint:"你想买水，连续 3 家店都说\"No hay\"（没有）。",fact:"古巴长期物资短缺。",learn:"基本物资经常缺货是常态。当地人都 acostumbrado（习惯了）。带情绪给店员没用。准备好备用计划。"},
+{country:"古巴",flag:"🇨🇺",region:'americas',behavior:"看到 Che Guevara 头像就以为他是古巴人",ok:false,hint:"你说\"切·格瓦拉是古巴的英雄/国父\"。",fact:"切·格瓦拉是阿根廷人，参与古巴革命。",learn:"他是革命象征，但卡斯特罗才是古巴国父。古巴人虽崇拜切，会纠正你的错误。"},
+{country:"秘鲁",flag:"🇵🇪",region:'americas',behavior:"把 Pisco 说成智利的",ok:false,hint:"你和秘鲁朋友说\"Pisco 是智利的吧\"。",fact:"秘鲁认为 Pisco 起源于秘鲁的 Pisco 镇。",learn:"和智利长期争议。在秘鲁说 Pisco 必须强调\"秘鲁 Pisco\"。Pisco Sour 是国饮，11 月第一个周六是国饮日。"},
+{country:"秘鲁",flag:"🇵🇪",region:'americas',behavior:"吃 ceviche 在晚餐时间点",ok:false,hint:"你晚 8 点在 cevicheria 点 ceviche。",fact:"秘鲁人认为 ceviche 只有中午吃才新鲜。",learn:"早市买的海鲜中午前做最鲜。下午 4 点后专门做 ceviche 的店都关门。晚上吃被认为是次货。"},
+{country:"秘鲁",flag:"🇵🇪",region:'americas',behavior:"把 cuy（豚鼠）当宠物谈论",ok:false,hint:"你在 Cusco 餐厅说\"豚鼠这么可爱怎么能吃\"。",fact:"cuy 是秘鲁山区传统食物，已有上千年历史。",learn:"豚鼠是高蛋白家畜，全国吃。把它当宠物的视角会冒犯当地人。试试或不试无所谓，但别贬低。"},
+{country:"秘鲁",flag:"🇵🇪",region:'americas',behavior:"在 Machu Picchu 跳跃拍照/带食物",ok:false,hint:"你想在 Machu Picchu 跳跃拍 IG 照，再带午餐进去吃。",fact:"Machu Picchu 严禁跳跃、奔跑、饮食。",learn:"违反者可能被罚甚至驱逐。原因是保护遗迹和安全（曾有游客跌落）。出口外有指定野餐区。"},
+{country:"秘鲁",flag:"🇵🇪",region:'americas',behavior:"在 Cusco 见到游客被高反，喝 coca tea",ok:true,hint:"你刚到 Cusco（3400m）头晕，旅馆主人给你古柯叶茶。",fact:"coca tea 是秘鲁高原传统药茶，缓解高反。",learn:"合法、有效、当地人天天喝。注意回国前不要带古柯叶（多数国家违法）。茶含微量生物碱，可能影响药检。"},
+{country:"秘鲁",flag:"🇵🇪",region:'americas',behavior:"给所有人小费",ok:true,hint:"你给餐厅服务员、向导、酒店行李员都给小费。",fact:"秘鲁旅游业小费习惯日益普遍。",learn:"餐厅 10%，向导 20-50 索尔/天，行李员 5-10 索尔/件。出租车凑整即可。"},
+{country:"秘鲁",flag:"🇵🇪",region:'americas',behavior:"在 Lima 街头打开手机",ok:false,hint:"你在 Lima 老城 Miraflores 外的区域，街上看手机。",fact:"利马偷抢手机普遍。",learn:"摩托车飞车党专门抢手机。少在街上拿手机，导航前找咖啡馆。Miraflores、San Isidro 较安全。其他区域谨慎。"},
+{country:"秘鲁",flag:"🇵🇪",region:'americas',behavior:"周日去 Mercado de Surquillo 等市场",ok:true,hint:"你周日去 Lima 大市场看食材。",fact:"秘鲁市场周日通常开门。",learn:"周日是当地人采购日，更热闹。Surquillo 是利马最大市场，可以尝水果、看古柯叶、和大厨观摩。"},
+{country:"哥斯达黎加",flag:"🇨🇷",region:'americas',behavior:"把哥斯达黎加当中美洲普通国家",ok:false,hint:"你说\"你们中美洲国家是不是都差不多\"。",fact:"哥斯达黎加是中美洲最稳定富裕的国家，1948 年废除军队。",learn:"被誉为\"中美洲的瑞士\"。注重和平、环保、教育。和邻国（尼加拉瓜/洪都拉斯）差异很大。"},
+{country:"哥斯达黎加",flag:"🇨🇷",region:'americas',behavior:"用\"Pura Vida\"作问候和回应",ok:true,hint:"早安、感谢、再见你都说 Pura Vida。",fact:"Pura Vida（纯粹的生活）是哥斯达黎加国民口头禅。",learn:"可以是 Hi/Thanks/How are you/Cool 全部含义。学会一句就足够融入。当地人称自己 Ticos。"},
+{country:"哥斯达黎加",flag:"🇨🇷",region:'americas',behavior:"进国家公园带塑料一次性瓶",ok:false,hint:"你去 Manuel Antonio 国家公园带一次性矿泉水瓶。",fact:"哥斯达黎加 25% 国土是保护区，环保意识极强。",learn:"部分公园禁带一次性塑料。带可重复使用水壶+防晒霜（要 reef-safe）。喂猴子动物违法重罚。"},
+{country:"哥斯达黎加",flag:"🇨🇷",region:'americas',behavior:"凌晨开车去偏远海滩",ok:false,hint:"你为看日出凌晨 3 点开租车去 Nicoya 海滩。",fact:"哥斯达黎加道路狭窄、动物穿行、雨季泥泞。",learn:"白天开都难，夜里更危险。野生动物（树懒、貘）和摩托车都难看。安排日出建议前一晚住附近。"},
+{country:"哥斯达黎加",flag:"🇨🇷",region:'americas',behavior:"餐厅小费 10%",ok:true,hint:"你给账单加 10% 小费。",fact:"哥斯达黎加餐厅账单已自动加 10% servicio。",learn:"不强制再加。觉得服务好，可再 5%。Soda（小餐馆）可放零钱。"},
+{country:"哥斯达黎加",flag:"🇨🇷",region:'americas',behavior:"见到野生动物喂食物",ok:false,hint:"你看到猴子可爱，扔香蕉给它。",fact:"哥斯达黎加严禁喂野生动物。",learn:"导致依赖人类、消化问题、攻击人。猴子吃多糖会糖尿病。罚款 + 损害生态。"},
+{country:"哥斯达黎加",flag:"🇨🇷",region:'americas',behavior:"在国家公园游泳/在瀑布跳水",ok:false,hint:"你想跳进 La Fortuna 瀑布游泳。",fact:"部分瀑布水流急、水下有岩石、藏有鳄鱼。",learn:"La Fortuna 主瀑布禁止跳水，下游池可游。Tortuguero/Carara 河有鳄鱼。听导游和告示。"},
+{country:"哥斯达黎加",flag:"🇨🇷",region:'americas',behavior:"习惯当地时间慢节奏（hora tica）",ok:true,hint:"朋友说 7 点来，结果 8 点才到。",fact:"哥斯达黎加生活节奏慢，时间观念灵活。",learn:"社交场合 30-60 分钟延迟正常。商务和官方约要准时。游客学会 Pura Vida 心态，不催才能享受。"},
+{country:"埃及",flag:"🇪🇬",region:'africa',behavior:"进清真寺女性不戴头巾",ok:false,hint:"你想参观 Cairo Al-Azhar 清真寺，穿无袖短裤无头巾。",fact:"埃及清真寺要求女性遮头颈和肩膝。",learn:"门口免费借披肩。男性也须长裤、不穿背心。脱鞋进入。礼拜时间游客不入。"},
+{country:"埃及",flag:"🇪🇬",region:'africa',behavior:"用左手吃饭递东西",ok:false,hint:"你用左手抓 koshari 或递馕给同伴。",fact:"埃及穆斯林传统左手用于清洁。",learn:"吃饭用右手，递物品给人也用右手。左手撕饼或拿杯子 OK。"},
+{country:"埃及",flag:"🇪🇬",region:'africa',behavior:"在金字塔/神庙买\"古文物\"纪念品",ok:false,hint:"摊贩跟你说\"这是真法老时期文物，便宜卖\"。",fact:"99% 是仿品，且真品出境是国际刑事。",learn:"99% 仿品当真品卖宰你。万一是真品被海关查会被监禁。买 Khan el-Khalili 市场的小工艺品就行。"},
+{country:"埃及",flag:"🇪🇬",region:'africa',behavior:"拍人物前先问",ok:true,hint:"你想拍开罗市场的小贩，先问\"Mumkin sura?\"（能拍吗）。",fact:"埃及人对拍照态度因人而异。",learn:"问了对方点头再拍，礼貌很重要。拍儿童先问家长。摊贩拍完可能要小费（1-2 镑）。拍军警和政府建筑禁止。"},
+{country:"埃及",flag:"🇪🇬",region:'africa',behavior:"路边喂导游和司机不给小费（baksheesh）",ok:false,hint:"你跟团一整天，下车不给司机和导游小费。",fact:"埃及 baksheesh（小费）文化无处不在。",learn:"导游 100-200 镑/天，司机 50-100 镑/天，开门看景的工作人员 5-10 镑。准备零钱。"},
+{country:"埃及",flag:"🇪🇬",region:'africa',behavior:"公开亲热（情侣接吻拥抱）",ok:false,hint:"你和伴侣在 Cairo 街上亲吻。",fact:"埃及保守穆斯林文化，公共 PDA 不被接受。",learn:"手牵手可以（甚至同性朋友间）。亲吻和长时间拥抱避免。情侣在度假村酒店内 OK。"},
+{country:"埃及",flag:"🇪🇬",region:'africa',behavior:"喝 Karkadeh（洛神花茶）和 Hibiscus",ok:true,hint:"你在 Aswan 餐厅点一杯红色的茶。",fact:"Karkadeh 是埃及国民饮料。",learn:"冰热都行，酸甜口，传说降血压。可以放糖。和 shai bil naana（薄荷茶）都是必尝。"},
+{country:"埃及",flag:"🇪🇬",region:'africa',behavior:"摄入街边榨橙汁/甘蔗汁",ok:true,hint:"你在 Cairo 街边摊喝 1 镑的现榨橙汁。",fact:"埃及街头鲜榨汁普遍。",learn:"人多生意好的摊点流转快较安全。注意杯子洗水可能不干净（要塑料杯）。冰块尽量避免。"},
+{country:"摩洛哥",flag:"🇲🇦",region:'africa',behavior:"用左手吃 tagine 或抓食物",ok:false,hint:"你和摩洛哥家庭吃 tagine，用左手抓馕沾汁。",fact:"摩洛哥伊斯兰文化左手不用于吃饭。",learn:"用右手三指（拇指、食指、中指）撕馕。共享 tagine 时只能拿自己面前那块。"},
+{country:"摩洛哥",flag:"🇲🇦",region:'africa',behavior:"进 Medina（老城）拒绝向导后被强行带路",ok:false,hint:"fes 老城你迷路，有\"好心人\"主动带你走。",fact:"摩洛哥老城多有非官方\"假向导\"。",learn:"会要小费（50-200 迪拉姆）。明确说\"No, thank you\"并走开。要请向导找官方持证（faux guide 是诈骗）。"},
+{country:"摩洛哥",flag:"🇲🇦",region:'africa',behavior:"在 souk（市集）讨价还价",ok:true,hint:"你在 Marrakech 看上一块地毯标价 2000 迪拉姆，砍到 700。",fact:"摩洛哥 souk 议价是文化。",learn:"开价砍到 1/3-1/2。被请喝薄荷茶慢慢谈是正常流程。最后不买也可以礼貌走。"},
+{country:"摩洛哥",flag:"🇲🇦",region:'africa',behavior:"进 Chefchaouen 蓝色小镇随意拍居民家门",ok:false,hint:"你想拍蓝门，按下门铃问\"能不能拍\"。",fact:"Chefchaouen 旅游热门导致居民被打扰严重。",learn:"远景拍门 OK。近距离按门铃打扰会被骂。拍人物前一定要问。"},
+{country:"摩洛哥",flag:"🇲🇦",region:'africa',behavior:"进清真寺（非穆斯林）",ok:false,hint:"你想参观卡萨布兰卡 Hassan II 清真寺，直接走进礼拜大厅。",fact:"摩洛哥多数清真寺禁止非穆斯林进入。",learn:"Hassan II 是少数对游客开放的（须买票+导游）。其他清真寺（Koutoubia）只能外观。"},
+{country:"摩洛哥",flag:"🇲🇦",region:'africa',behavior:"喝薄荷茶配糖",ok:true,hint:"你在沙漠营地被请喝甜得发腻的薄荷茶。",fact:"摩洛哥薄荷茶（Atay）传统极甜。",learn:"糖多是好客表现。你可以说\"少糖\"（chwiya skar）。但被请喝就喝完，拒绝是失礼。"},
+{country:"摩洛哥",flag:"🇲🇦",region:'africa',behavior:"沙漠骑骆驼穿短裤短袖",ok:false,hint:"你想在 Merzouga 沙漠骑骆驼穿短袖短裤拍照。",fact:"撒哈拉日晒强烈，骑骆驼数小时易晒伤。",learn:"穿长袖长裤、围巾包头（berber-style）、太阳镜。夜里沙漠急剧降温（10°C 以下），带 fleece。"},
+{country:"摩洛哥",flag:"🇲🇦",region:'africa',behavior:"公共场合喝酒",ok:false,hint:"你在 Marrakech 广场拿一瓶啤酒。",fact:"摩洛哥伊斯兰国家，街头喝酒违法。",learn:"酒店、licensed 餐厅、酒吧内可以买可以喝。街上、清真寺附近、Ramadan 期间公共喝酒都违规。"},
+{country:"南非",flag:"🇿🇦",region:'africa',behavior:"把所有南非人当一个种族",ok:false,hint:"你说\"南非人都是黑人\"或\"都是白人后代\"。",fact:"南非有黑人、白人、有色人种（mixed）、印度裔、亚裔。",learn:"被称\"彩虹国\"。语言 11 种官方。提到种族话题须敏感，避免简化。Apartheid 历史仍是社会底色。"},
+{country:"南非",flag:"🇿🇦",region:'africa',behavior:"自驾夜间穿越 Johannesburg 偏远区",ok:false,hint:"你晚上开车从 Joburg 机场到郊区民宿走小路。",fact:"约翰内斯堡治安问题严重，夜间犯罪率高。",learn:"尤其 Hillbrow、Yeoville 不去。租车走主干道。Uber 比租车更安全。开车红灯锁门关窗。"},
+{country:"南非",flag:"🇿🇦",region:'africa',behavior:"Braai（南非烧烤）由女主人主厨",ok:false,hint:"你在南非家庭做客，女主人在烤肉。",fact:"Braai 文化里男性主厨是传统。",learn:"女性准备 salad、bread，男性烤肉。男人围着烤架社交（Braaivleis）是核心仪式。客人带酒或肉就够。"},
+{country:"南非",flag:"🇿🇦",region:'africa',behavior:"在 township（贫民区）独自走",ok:false,hint:"你想体验 Soweto 文化，独自坐公交去逛。",fact:"Township 治安复杂。",learn:"参加官方 township tour（黑人引导员、合作社区项目）。直接去能被抢。Soweto 部分区域已商业化但仍需引导。"},
+{country:"南非",flag:"🇿🇦",region:'africa',behavior:"在 Kruger 国家公园下车看动物",ok:false,hint:"你看到狮子很近，想下车拍特写。",fact:"自驾 safari 严禁下车（除非指定休息点）。",learn:"每年有游客被狮子/水牛/大象袭击。开窗都要注意。营地内外才能下车。"},
+{country:"南非",flag:"🇿🇦",region:'africa',behavior:"喝 Rooibos 茶",ok:true,hint:"你在开普敦咖啡馆点一杯红色无咖啡因茶。",fact:"Rooibos（路易波士茶）是南非特产。",learn:"无咖啡因、富含抗氧化。可加奶（red cappuccino）。游客必买当 souvenir。"},
+{country:"南非",flag:"🇿🇦",region:'africa',behavior:"Tip 给加油站工作人员",ok:true,hint:"南非加油站有人给你加油+擦窗，你给 5-10 兰特小费。",fact:"南非加油站标配人工服务。",learn:"擦窗、查油、加油都是标配。给 5-10 兰特小费。停车场也有 car guard（看车人）给 2-5 兰特。"},
+{country:"南非",flag:"🇿🇦",region:'africa',behavior:"谈论 Apartheid 时代",ok:true,hint:"你和南非朋友聊 Mandela 和 Apartheid。",fact:"是开放话题，但需尊重多角度。",learn:"南非人愿意聊，但避免轻率判断。参观 Apartheid Museum、Robben Island 是好的切入。"},
+{country:"肯尼亚",flag:"🇰🇪",region:'africa',behavior:"用 Swahili 问候\"Jambo!\"",ok:true,hint:"你和肯尼亚向导见面说\"Jambo\"。",fact:"Jambo 是常见游客版问候。",learn:"更地道是\"Habari?\"（你好吗）或\"Hujambo\"。学几句 Swahili 当地人很开心。Asante = 谢谢，Karibu = 欢迎。"},
+{country:"肯尼亚",flag:"🇰🇪",region:'africa',behavior:"Safari 时大声说话/穿鲜艳衣服",ok:false,hint:"你穿红色 T 恤大声讨论拍到的狮子。",fact:"野生动物对颜色和声音敏感。",learn:"穿卡其、米色、墨绿（融入环境）。声音放低。蓝黑色吸引采采蝇。带帽子防晒。"},
+{country:"肯尼亚",flag:"🇰🇪",region:'africa',behavior:"给 Maasai 村庄孩子糖果",ok:false,hint:"你想给 Maasai 村孩子带糖果讨好。",fact:"导致孩子蛀牙、依赖、不上学讨要。",learn:"买村里的工艺品支持。或带学习用品交给老师统一分配。直接发糖反作用。"},
+{country:"肯尼亚",flag:"🇰🇪",region:'africa',behavior:"拍 Maasai 人不付钱",ok:false,hint:"你看到 Maasai 战士传统跳舞，拍照不付。",fact:"游客经济下，被拍是 Maasai 收入来源。",learn:"拍前问，付 100-500 先令/张。或买他们的手镯/项链作为交换。在村里 tour 一起拍可能费用已含。"},
+{country:"肯尼亚",flag:"🇰🇪",region:'africa',behavior:"公共场合穿短裤短裙（女性）",ok:false,hint:"你在 Nairobi/Mombasa 老城穿短裙逛。",fact:"肯尼亚多数地区保守，沿海更受伊斯兰影响。",learn:"游客区（safari 营地、Diani 海滩）穿什么都行。Mombasa 老城、Lamu 必须遮膝肩。Nairobi 城里短裙短裤也不被推荐。"},
+{country:"肯尼亚",flag:"🇰🇪",region:'africa',behavior:"吃 Nyama Choma（烤肉）用手抓",ok:true,hint:"你在 Nairobi 烤肉店用手抓羊肉配 ugali。",fact:"Nyama Choma 是肯尼亚国菜，传统用手吃。",learn:"右手抓 ugali 蘸肉汁。羊肉、牛肉为主。配 sukuma wiki（炒羽衣甘蓝）。手洗水会端上来。"},
+{country:"肯尼亚",flag:"🇰🇪",region:'africa',behavior:"在 Nairobi 街头打开手机/钱包",ok:false,hint:"你在 Nairobi CBD 街头看手机找路。",fact:"Nairobi 飞车党、 pickpocket 普遍。",learn:"手机放胸前口袋。CBD 白天可以走，夜里不要。River Road、Eastleigh 谨慎。Uber 比走路安全。"},
+{country:"肯尼亚",flag:"🇰🇪",region:'africa',behavior:"在 safari 给小费给向导和厨师",ok:true,hint:"你 3 天 safari 结束，给向导、司机、厨师各 100-500 先令小费。",fact:"Safari 小费是行业惯例。",learn:"标准建议：向导 20 美元/天/客，司机 10 美元/天，厨师 10 美元/天。共用罐子收的话也行。用美元或先令都接受。"},
+{country:"澳大利亚",flag:"🇦🇺",region:'oceania',behavior:"把袋鼠当宠物或想 cuddle 考拉",ok:false,hint:"你看到野外袋鼠想去摸或抱。",fact:"袋鼠脚力极强，野外可能踢人致伤；考拉抱着会受应激。",learn:"野生动物保持 5 米以上。要抱考拉只在持牌动物园（昆士兰允许、新州禁止）。喂食野生袋鼠也有禁区。"},
+{country:"澳大利亚",flag:"🇦🇺",region:'oceania',behavior:"见到澳人主动 small talk",ok:true,hint:"你在悉尼咖啡馆和 barista 聊天气、周末计划。",fact:"澳洲人 friendly 喜欢闲聊。",learn:"餐厅、出租车、便利店都可以聊几句。说\"G'day mate\"、\"How ya going?\"很地道。澳人 chill 不爱装。"},
+{country:"澳大利亚",flag:"🇦🇺",region:'oceania',behavior:"在 BBQ 派对说\"我空手来\"",ok:false,hint:"澳洲朋友邀请 backyard BBQ，你空手到。",fact:"澳洲 BBQ 文化是\"BYO\"（Bring Your Own）。",learn:"自带啤酒、葡萄酒，或带肉/沙拉。主人不会帮所有人买酒。空手去显得不懂规矩。"},
+{country:"澳大利亚",flag:"🇦🇺",region:'oceania',behavior:"海滩在 flags 范围外游泳",ok:false,hint:"你看到 Bondi 海滩有 flags，觉得人多走远点游。",fact:"澳洲海滩黄红 flag 之间是 lifeguard 守护区。",learn:"rip current（离岸流）每年溺死数十人。flag 外没救援。鲨鱼、水母季节性出现。flag 内最安全。"},
+{country:"澳大利亚",flag:"🇦🇺",region:'oceania',behavior:"见到原住民艺术大量拍照不付费",ok:false,hint:"你看到 Uluru 周边的原住民壁画，连续拍 30 张。",fact:"澳洲原住民艺术有版权和文化禁忌，部分图案神圣。",learn:"Uluru 部分区域明令禁止拍照（神圣区）。买艺术品支持原住民艺术家。攀登 Uluru 已 2019 年禁止。"},
+{country:"澳大利亚",flag:"🇦🇺",region:'oceania',behavior:"在 pub round 制度（轮流买酒）",ok:true,hint:"你和澳洲同事 5 人去 pub，第一轮你买。",fact:"澳洲 pub 文化和爱尔兰类似，轮流买酒。",learn:"每个人轮一轮。\"shout\"= 这轮我请。\"What's your poison?\"= 喝什么。不参与会被认为抠门。"},
+{country:"澳大利亚",flag:"🇦🇺",region:'oceania',behavior:"餐厅小费 15-20%",ok:false,hint:"你在悉尼餐厅按美国习惯留 20% 小费。",fact:"澳洲服务员有最低工资保障，小费非义务。",learn:"好服务凑整或 10% 是上限。咖啡馆放零钱可以。出租车凑整。"},
+{country:"澳大利亚",flag:"🇦🇺",region:'oceania',behavior:"在公共交通上吃味重食物",ok:false,hint:"你在悉尼火车上吃 Maccas 大餐外加印度咖喱。",fact:"澳洲公共交通禁食或不建议食用气味食物。",learn:"很多线路明令禁食（如悉尼 train）。咖啡可以。气味食物（咖喱、洋葱、榴莲）一定避免。罚款约 200 澳元。"}
+];
+const REGIONS={
+  asia:{name:"亚洲",icon:"🌏",flags:"🇯🇵🇰🇷🇸🇬🇹🇭🇲🇾🇻🇳🇵🇭🇰🇭🇦🇪"},
+  europe:{name:"欧洲",icon:"🏰",flags:"🇮🇹🇫🇷🇬🇧🇩🇪🇪🇸🇷🇺🇬🇷🇸🇪🇨🇭🇳🇱🇵🇹🇮🇸🇮🇪🇹🇷"},
+  americas:{name:"美洲",icon:"🌎",flags:"🇺🇸🇲🇽🇧🇷🇨🇦🇦🇷🇨🇱🇨🇺🇵🇪🇨🇷"},
+  africa:{name:"非洲",icon:"🌍",flags:"🇪🇬🇲🇦🇿🇦🇰🇪"},
+  oceania:{name:"大洋洲",icon:"🌊",flags:"🇦🇺"}
+};
+
+const TRAVEL={
+  "日本":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需大于6个月，建议复印两份备份，一份随身带、一份放行李箱。", "签证：单次签证有效期90天停留15天，已实施电子签，打印出来备用；多次签是贴纸签，检查是否在有效期内。全日制大专或以上学历、或有欧美出入境记录、或有房产车辆等可满足条件。", "VJW二维码：提前72小时内在Visit Japan Web填写入境信息，截图保存，海关会查看。", "身份证：备用。"]},
+{icon:"💰",title:"资金与支付",list:["日元现金：人均准备2-5万日元（约每人每天5000-10000日元），很多小店和自动贩卖机只收现金。", "信用卡：优先带VISA或万事达卡，部分餐厅和商店不支持银联。", "银联卡：可在711、罗森等便利店ATM取现（工行银联卡除外）。", "零钱包：日本硬币使用频率极高，大容量零钱包非常必要。"]},
+{icon:"🚄",title:"交通出行",list:["Suica交通卡：iPhone用户可直接在钱包添加Suica西瓜卡，随用随充；安卓用户需办实体ICoca卡。", "新干线：建议提前预约指定席，高峰期自由席可能无座。京都到东京约2.5小时，票价约700元，E座是富士山侧但要看天气。", "Google Maps：查路线比苹果地图好用，换乘案内查电车。"]},
+{icon:"📱",title:"通讯与APP",list:["流量卡：提前在飞猪买境外流量包或网购日本上网卡（如SoftBank、KDDI），10天15GB约66元，落地插卡即可用。", "国际漫游：开通免费接收国内短信，但上网较贵，建议配合流量卡使用。", "必备APP：Google Maps查路线、换乘案内查电车、翻译APP沟通。"]},
+{icon:"🔌",title:"电子设备",list:["充电宝：容量≤100Wh，必须有3C标志，否则不能带上飞机。", "转换插头：日本是两孔扁口插座，三孔设备需要转换头（大部分充电器支持100V-220V宽电压）。", "数据线/耳机：多备一根线更安心。"]},
+{icon:"👕",title:"衣物与防晒",list:["日常衣物：根据季节搭配，日系简约风格更好出片。关东比关西稍冷，5月东京可能有人穿薄羽绒服，建议多层穿搭。", "舒适鞋子：每天步数轻松过万，一定要穿好走的鞋。", "折叠雨伞：天气多变，随身携带更安心。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["一次性内裤/浴巾：日本酒店较小，晾晒不便，一次性的很实用。", "保温杯：餐厅只提供冰水，想喝热水需自备杯子接酒店热水。", "洗漱用品：酒店一般提供基础款，习惯用自己的可带上牙刷牙膏、洗脸巾等。", "纸巾：日本纸巾质量一般，湿手容易烂，自带更方便。", "垃圾袋：户外垃圾桶少，逛街时可用小垃圾袋暂存。", "指甲刀/梳子：部分酒店不提供，个人习惯的可自带。", "自拍杆/三脚架：独自旅行拍照神器。"]},
+{icon:"💊",title:"药品",list:["肠胃药：蒙脱石散、肠炎宁片等，应对水土不服或生冷食物不适。", "感冒药/退烧药：如999感冒灵、布洛芬等。", "过敏药/止痛药：根据个人体质携带。", "创可贴/碘伏棉棒：应急处理小伤口。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["宿泊税：大阪2025年12月起征收宿泊税，住宿时需额外支付。", "垃圾分类：日本街头垃圾桶少，建议随身带垃圾袋，垃圾带回酒店或便利店丢弃。", "温泉礼仪：公共澡堂需全裸入浴，毛巾不能浸入池中，有纹身者需使用遮盖贴或选私人温泉。", "购物免税：百货公司消费满5000日元可办免税，需带护照，部分商品免税后不能在日本境内拆开使用。"]}
+]},
+  "韩国":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需剩余6个月以上，务必随身带好不要托运。", "签证：提前办理并打印纸质版，济州岛免签但其他区域需要有效签证。", "入境卡（Q-code）：出发前3天内在线填写，入境时海关会检查。", "机票酒店确认单：存入手机备用，入境可能抽查。"]},
+{icon:"💰",title:"资金与支付",list:["现金：建议换30-60万韩元+500元人民币零钱，街边小店和便利店用现金更方便。", "银行卡：带银联信用卡或Visa卡，大部分商场和免税店可刷卡，部分支持支付宝/微信。", "T-money交通卡：韩国地铁、公交、便利店都能刷，落地后在CU超市或机场购买充值。"]},
+{icon:"🚄",title:"交通出行",list:["打车：Uber或Kakao T，机场到市区打车约6.5万韩元起。", "地铁礼仪：黄色座位是老人优先，粉色爱心座给孕妇，不要坐。", "交通规则：韩国不能闯红灯，过马路严格按信号灯走。"]},
+{icon:"📱",title:"通讯与APP",list:["流量卡：提前网购或到机场柜台领取，推荐KT/SKT运营商，比租WiFi更轻便。", "导航类：Naver Map或Google Map，高德地图在韩国准确度较差。", "翻译类：PAPAGO或iPhone自带翻译，点餐逛街拍照就能翻译。", "购物类：新罗、乐天、新世界免税店APP，线上比价后线下提货更划算。", "外卖类：foodpanda，支持支付宝/微信支付，不需要韩国手机号。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：韩国是德标两孔圆插座（欧标），国内扁头插不进去，一定要带！", "充电宝：必须带3C认证标识，容量不超过20000mAh，韩国共享充电宝很少且贵。", "充电器+数据线：建议多备一套，酒店房间较小充电位可能不够用。", "取卡针：换流量卡时需要，买卡一般会送但自己备一个更保险。"]},
+{icon:"👕",title:"衣物与防晒",list:["根据季节准备：韩国四季分明，冬季寒冷需厚外套，夏季带防晒衣。", "室内保暖：韩国地暖很足，睡衣带薄款即可，睡觉穿短袖够用。", "舒适鞋子：每天步数较多，运动鞋最实用，裙子鞋子少带占行李额。", "配饰：墨镜、发夹、发圈等小物件出片又实用，韩国很好买也可到了再购。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：牙刷牙膏、一次性毛巾、洗脸巾（韩国酒店基本不提供）。", "折叠伞：韩国天气多变，便利店透明伞也适合拍照。", "黑色签字笔：填写入境单或退税单据时用。", "一次性用品：内裤、床单、马桶垫，酒店较小晾晒不便可备一些。"]},
+{icon:"💊",title:"药品",list:["常用药品：肠胃药、感冒药、晕车药、眼药水等，部分药品成分在韩国受限注意申报。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["退税：购物时主动问能否退税，部分小店不会主动提醒，保留好小票到机场办理。", "插座情况：很多酒店会提供插线板，订房时可先看评价确认。"]}
+]},
+  "新加坡":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期必须大于6个月（从回程日算起）。", "电子入境卡：提前3天内填写SG Arrival Card，通过MyICA Mobile APP或官网免费填写，填完截图保存二维码，不要填早了会失效。", "返程机票+酒店预订单：入境时可能抽查，建议手机存好电子版即可，不用打印。", "身份证：国内段航班或备用可能需要。"]},
+{icon:"💰",title:"资金与支付",list:["Visa/Master信用卡：新加坡大部分地方都能刷卡，建议带芯片+闪付功能的卡。", "银联卡：部分ATM可直接取现，汇率较划算。", "现金：人均200-500新币够用，小摊贩、食阁可能只收现金，建议国内银行提前换好。", "支付宝/微信：90%商家支持，但小店可能不行，作为补充支付方式。"]},
+{icon:"🚄",title:"交通出行",list:["EZ-Link交通卡：公交地铁都能用，工本费5新币不可退；或直接刷Visa卡乘车（每日有手续费）。", "必备APP：Citymapper查路线、Grab打车、Google Maps导航。", "交通规则：靠左行走，过红绿灯要按按钮才有绿灯。", "地铁礼仪：不能吃东西、不能带榴莲，违者罚款。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前在飞猪买好落地卡（如Singtel、StarHub），或到樟宜机场取；也可开国际漫游（适合短期）。", "MyICA Mobile：填入境卡专用。"]},
+{icon:"🔌",title:"电子设备",list:["英标转换插头：三孔方形插座，酒店可能有但最好自备，带个多插孔的更实用。", "充电宝：必须带3C认证标志，容量不超过10000mAh可随身带上飞机。", "数据线+充电线：手机、相机等设备都要充。"]},
+{icon:"👕",title:"衣物与防晒",list:["夏季服装：短袖、短裤、裙子等轻薄透气的衣服，一天一套。", "薄外套/防晒衣：室内空调很冷，地铁商场都要穿。", "防晒用品：防晒霜、墨镜、遮阳帽，紫外线很强。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["雨伞/雨衣：热带气候说下雨就下雨，晴雨两用更划算。", "拖鞋：多数酒店不提供浴室拖鞋，建议自备。", "水杯：酒店不提供矿泉水但可接直饮水，公共场所也有接水点，能省不少钱。"]},
+{icon:"💊",title:"药品",list:["防暑药：藿香正气水、清凉油。", "感冒药+止泻药：肠胃不适或着凉时用。", "创可贴+碘酒棉棒：小伤口处理。", "驱蚊液：去植物园、动物园可能需要。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["禁止携带：口香糖（查到罚款）、生鲜水果、卤味熟食、腊肉鸭脖等肉制品。", "不建议带：香烟（超量巨额罚款）、散装无包装药品。", "小费文化：不需要给小费。"]}
+]},
+  "泰国":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期必须保证6个月以上，出发前仔细检查是否有破损。", "泰国电子入境卡（TDAC）：需在抵达泰国前3天内在线填写提交，截图保存二维码，现场填写较耗时。", "机票酒店订单：返程机票和住宿预订单建议电子版保存在手机，部分情况需出示。", "身份证：如有国内段行程需携带。"]},
+{icon:"💰",title:"资金与支付",list:["泰铢现金：建议每人准备至少10000泰铢（约2000元人民币），夜市、小店、打车等小额支付更便利。", "信用卡/银行卡：带一张VISA或MasterCard备用，大型商场和酒店可用，但很多地方仍偏好现金。"]},
+{icon:"🚄",title:"交通出行",list:["Grab：东南亚打车软件，可绑支付宝点外卖。", "Bolt：与Grab比价，哪个便宜用哪个。", "时差：泰国比国内慢1小时，国内8点=泰国7点。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：建议提前网购Happy卡或AIS卡，落地插卡即用，比机场便宜。", "Google Maps：导航、查路线、看餐厅评分较准。", "Google翻译：支持语音和拍照翻译，苹果自带翻译也可用。", "Kulikuli：菜单翻译、景点建筑介绍。", "Agoda/飞猪：酒店预订信息查看。"]},
+{icon:"🔌",title:"电子设备",list:["充电宝：容量不超过20000mAh或100Wh，必须随身携带不可托运。", "转换插头：泰国两孔插座与国内相同，三孔设备需准备转换器。", "相机/运动相机：出海浮潜可用GoPro，记得带备用存储卡。"]},
+{icon:"👕",title:"衣物与防晒",list:["夏装：短袖、短裤、裙子、背心等轻薄易干衣物，按天数准备。", "薄外套/披肩：飞机、商场、车上空调较冷，必备。", "长裤/过膝长裙：至少1套，参观大皇宫、真理寺等寺庙需遮盖肩膀和膝盖。", "泳装/泳镜：建议带1套，方便出海日替换。", "鞋子：凉拖/人字拖（海滩和日常）、舒适运动鞋（暴走）。", "防晒配饰：太阳镜、遮阳帽、防晒衣/冰袖。", "背包：双肩包日常出行，沙滩包/防水包用于出海日。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["高倍防晒霜：SPF50+ PA++++，脸部和身体分开最好，泰国紫外线强。", "晒后修复：芦荟胶等，万一晒伤可紧急修复。", "驱蚊液/防蚊贴：夜市和植被多地方蚊虫较多，必备。", "基础洗漱用品：部分酒店不提供牙刷、拖鞋，或品质一般，建议自带旅行装。", "浴巾：出海一日游可能不提供或不干净，可自带快干毛巾。", "纸巾/湿巾：泰国很多餐厅不提供免费纸巾，且当地纸巾较薄。"]},
+{icon:"💊",title:"药品",list:["肠胃药：应对水土不服或饮食不适。", "感冒药：空调房温差大时备用。", "创可贴：日常小伤口处理。", "晕车药：坐船出海或长途车程时可用。", "防蚊药膏：当地711也可购买，但自带更安心。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["酒店押金：部分酒店需押金或只收现金，预订前确认。", "行李额度：廉航行李尺寸和重量提前查看，避免超重。", "重要物品分开放：护照、现金、信用卡不要全放在一个包里，建议分开存放。", "旅游意外险：建议购买，每次出国旅行都建议配置。", "711购物：洗漱用品、化妆品、转换插头等当地711都能买到，不用全带。", "实用工具：手机防水袋（出海必备）、折叠伞/雨衣、笔（填入境卡）、U型枕/眼罩/耳塞、折叠包。"]}
+]},
+  "马来西亚":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期必须6个月以上，至少2页空白页，不能有破损。", "MDAC电子入境卡：出发前3天内填写（官网免费），填写后保存PDF或截图，不填无法值机和入境。", "机酒订单：往返机票行程单、酒店预订单截图保存，国内出境可能抽查。", "身份证：国内转机时使用。"]},
+{icon:"💰",title:"资金与支付",list:["现金：携带500~1000马币现金备用，大部分商家支持支付宝/刷卡。", "银行卡：建议带Visa信用卡和银联卡，机场ATM可取马币。", "小费文化：公园景区厕所可能收费0.5马币，部分餐厅收10%服务费+6%游客税。"]},
+{icon:"🚄",title:"交通出行",list:["Grab：打车/外卖软件，中文界面，绑定支付宝即可使用。", "Google Maps：离线地图导航，国外必备。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡/流量：提前飞猪买好流量卡（7天约55元），或落地机场购买；同时开通国内手机号漫游功能，方便接收验证码。", "Klook/KKday：景点门票预订。", "Agoda/Booking：酒店预订。", "谷歌翻译：当地英语普及度高，但翻译软件更保险。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：马来西亚是英标插口（三孔扁头），务必提前购买。", "充电宝：容量≤2万毫安，需有3C认证，每人限带1个登机。", "充电器&数据线：建议多备一根。"]},
+{icon:"👕",title:"衣物与防晒",list:["夏季衣物：短袖、短裤、裙子等多备几套，湿热易出汗。", "薄外套：空调房、坐车、早晚温差时需要。", "泳衣&浮潜装备：无边泳池拍照必备，浮潜建议自带面镜呼吸管更卫生。", "防晒装备：防晒衣、遮阳帽、墨镜、防晒伞（晴雨两用）。", "鞋子：运动鞋（city walk）、拖鞋（酒店/海滩）、防滑鞋（潜水）。", "长裤长袖：进清真寺需衣不露肩腰，头发需遮盖。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["防晒霜：SPF50+以上，海边建议选珊瑚友好型（无羟苯甲酮）。", "护肤品分装：洗面奶、爽肤水、精华面霜等旅行装。", "洗漱用品：牙刷牙膏、洗发水沐浴露（部分酒店不提供或不卫生）。", "一次性用品：床单四件套、马桶垫、浴巾、内裤（提升住宿安全感）。", "过滤花洒：马来西亚水质较差，敏感肌可考虑自备。"]},
+{icon:"💊",title:"药品",list:["肠胃药：蒙脱石散、整肠丸（应对水土不服、海鲜不适）。", "感冒发烧药：退烧药、感冒药、电子温度计（水银针不能上飞机）。", "晕车晕船药：出海跳岛必备。", "创口贴&碘伏棉签：防磕碰擦伤。", "驱蚊液：含DEET成分，雨林/红树林地区必带。", "个人慢性病用药：足量携带，保留原厂包装，处方药需英文医疗处方。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["违禁物品：严禁携带电子烟、猪肉制品、新鲜果蔬、种子、燕窝等入境；无人机沙巴全境禁止私人携带。", "水果规定：榴莲和山竹禁止带入酒店，否则罚款500~1000马币。", "现金申报：随身携带外币+现金总额超过10000美元需主动申报。", "旅行保险：建议购买含医疗、航班延误、行李丢失的保险覆盖全程。"]}
+]},
+  "越南":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期必须超过6个月，建议准备2页以上空白页。", "签证：优先办理另纸签（最方便，直接贴在护照上），或电子签（官网申请，5工作日出签）。富国岛可免签停留30天，但转机去其他城市仍需提前办签。", "证件照：准备2张白底纸质证件照备用。", "机票酒店单：打印或保存电子版，入境可能被抽查。"]},
+{icon:"💰",title:"资金与支付",list:["现金：带人民币或美元到当地换越南盾，机场先少换点备用，市区金店汇率更好。", "银行卡：银联卡可在BIDV、Vietinbank等ATM取现，另备一张Visa/Master信用卡用于绑定Grab支付。", "货币换算：越南盾面额大，去掉末尾3个零再除以3≈人民币金额，付款时数清再给。", "支付方式：微信支付宝不能用，街边小吃市集只收现金，大额消费可刷卡但可能收手续费。"]},
+{icon:"🚄",title:"交通出行",list:["打车软件：用Grab叫车并绑定信用卡，避免被宰客，司机不会英语靠定位。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前网购或落地买Viettel/Vinaphone流量卡，网速好性价比高。", "Google Maps：导航。", "Grab：打车/外卖。", "Google翻译：拍照菜单。"]},
+{icon:"🔌",title:"电子设备",list:["充电宝：必带！当地没有共享充电宝，注意不超过2万毫安。", "转换插头：两孔通用型（美标/平插），三孔需额外准备。"]},
+{icon:"👕",title:"衣物与防晒",list:["日常穿搭：短袖T恤、薄长裤/长裙、拖鞋/凉鞋为主，全年夏季。", "外套：备一件薄外套，酒店空调和长途车可能较冷；10-3月北部需加长袖+保暖衣。", "寺庙着装：长裤、有领上衣，不露肩不露膝，避免违规。", "防晒装备：SPF50+防晒霜、墨镜、遮阳帽、防晒衣，东南亚紫外线超强。", "鞋子：轻便运动鞋+拖鞋，拒绝新鞋磨脚。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["个人用品：牙刷牙膏毛巾（酒店大多不提供）、一次性马桶垫、湿巾纸巾。"]},
+{icon:"💊",title:"药品",list:["肠胃药：防腹泻、肠胃不适，路边摊卫生需谨慎。", "驱蚊液：含DEET成分，蚊虫多。", "常用药：感冒药、创可贴、消炎药、晕车药、防暑药。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["小费文化：过关不用给小费，海关索要装听不懂即可坚持排队通关。", "安全提示：飞车党猖獗，手机装防盗挂绳、包背胸前，贵重物品锁酒店保险箱。", "禁带物品：电子烟、肉制品、生鲜果蔬、无人机严禁携带，查到罚款没收。"]}
+]},
+  "菲律宾":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需≥6个月（从离境日算起），至少2页空白签证页，建议复印2份+手机存电子版，分开放置。", "eTravel电子申报：出发前72小时内填写（官网etravel.gov.ph），生成二维码截图+打印，入境/出境都要扫。", "往返机票：14天内返程机票确认单（英文版），入境必查。", "酒店预订单：全程英文酒店订单，覆盖所有停留城市。", "签证政策：2026年1月16日起试行免签至2027年1月，中国普通护照旅游/商务可免签14天（不可延期、不可转签），仅限马尼拉NAIA、宿务MCIA机场入境。"]},
+{icon:"💰",title:"资金与支付",list:["现金：建议每人携带≥500美元等值现金入境抽查。", "比索兑换：国内换少量美元→到菲律宾市区/机场正规兑换点换比索（1人民币≈8.5PHP）。", "信用卡：Visa/Mastercard通用，银联ATM可取比索（有手续费）。", "小钱包：分开放现金和证件，不建议带贵重首饰。"]},
+{icon:"🚄",title:"交通出行",list:["Grab：打车软件。", "Google Maps：导航。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：主要运营商Globe/Smart，可提前网购或落地在机场/便利店购买（7天无限流量约200-300PHP）。", "国际漫游：出发当天开通一日国际漫游避免无网络意外。", "翻译软件：备用。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：美标两脚扁插（220V），国内电器可直接用，三孔电器需带转换器。", "充电宝：≤2万毫安，带一根备用充电线防丢失。", "多孔插座：当地充电口可能不够用，带一个插排更方便。"]},
+{icon:"👕",title:"衣物与防晒",list:["夏装为主：T恤、短裤、裙子、背心等轻薄透气衣物。", "防晒装备：高倍防晒霜（SPF50+ PA+++）、墨镜、遮阳帽、防晒衣/面罩。", "泳衣装备：至少2套泳衣、水母衣（潜水防晒）、沙滩鞋/溯溪鞋（保护脚不被珊瑚贝壳扎伤）。", "薄外套：空调房/早晚温差用，进入教堂需长裤/长裙、不露肩。", "鞋子：拖鞋、洞洞鞋、运动鞋各一双。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：牙刷牙膏、洗发水沐浴露小样、湿巾纸巾、洗衣液。", "生活用品：压缩盆、晾衣绳、水杯/烧水杯、雨伞（晴雨两用）、耳塞眼罩（噪音污染较严重）。", "女生用品：建议从国内带足卫生巾/安睡裤（当地质量较差）。", "零食：辣条、辣椒粉等（当地食物偏咸，超过一周可能想吃家乡味）。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药、肠胃药、布洛芬、藿香正气水、晕船药、过敏药。", "外用药品：创可贴、碘伏棉签、止痒药膏、驱蚊液、花露水。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["安全第一：妥善保管财物，避免前往人少偏僻地区，不轻信陌生网友邀约。", "海关申报：携带超1万美金现金需申报，严禁逾期停留（每日罚款约63元）。", "紧急联系：中国驻菲使馆电话+63-917-8972695。", "最佳季节：11-4月为旱季，3-5月较热，海边注意补水防晒。", "旅行保险：建议购买承保浮潜等高风险运动的境外旅行险。", "浮潜装备：面镜、呼吸管、防水手机袋、一次性潜水咬嘴（当地也可租，但自己的更舒服）；潜水袜、速干小毛巾、晒后修复霜；水上活动一定要穿救生衣。", "证件备份：护照、签证、机票、酒店单全部电子+纸质备份，分开放置。"]}
+]},
+  "柬埔寨":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需剩余6个月以上，至少预留2页空白签证页。", "电子入境卡：虽免签但仍需提前在Cambodia e-Arrival官网或APP填写，生成二维码截图保存，建议出发前3天内完成。", "往返机票+酒店预订单：海关可能随机抽查，建议打印或存电子版。", "保险单：境外旅游险必备，把保单编号发给家人备用。", "免签政策：2026年6月15日-10月15日限时免签，单次最多停留14天，不可延期。"]},
+{icon:"💰",title:"资金与支付",list:["美元现金：当地通用美元，建议换300-500美元，多备1/5/10美元小额钞（100美元难找零）。", "银行卡：Visa/Master卡部分商家可用，银联卡可在ATM取美元，但微信支付宝仅限华人店。", "找零提示：消费时可能收到柬埔寨瑞尔找零（1美元≈4000瑞尔），可用于付小费或买水。"]},
+{icon:"🚄",title:"交通出行",list:["Grab：打车。", "Google Maps：地图。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：机场可买Smart、Cellcard、Metfone等运营商卡，$5-8约30-40G流量用7-15天。", "Google翻译：离线包。", "Agoda：订房。", "Klook：订团。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：电压220V/50Hz，插座多为两扁插(A型)或两圆插(C型)，中国三角插头需用转换器。", "充电宝：容量≤100Wh，出门一天未必有地方充电。", "其他：相机、充电线、耳机等按需携带。"]},
+{icon:"👕",title:"衣物与防晒",list:["日常穿搭：轻薄速干材质为主，短袖T恤、速干裤、运动鞋必备，每晚手洗易干。", "寺庙着装：进入吴哥窟等寺庙需遮肩过膝，避免暴露，可带薄长袖外套或丝巾遮挡。", "防晒装备：高倍防晒霜（SPF50+）、遮阳帽、墨镜、冰袖、晴雨伞（雨季必备）。", "鞋子：舒适运动鞋（日均2万步）、折叠拖鞋（可外穿），雨季带防水鞋。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：牙刷、牙膏、小瓶沐浴露（当地可买但质量一般）。", "纸巾湿巾：很多厕所只有喷水枪，少卫生纸。", "U形枕+充气腰垫：飞机或大巴长途乘坐很实用。", "密码锁：青旅储物柜或行李箱使用。", "防水袋：雨季保护证件手机。"]},
+{icon:"💊",title:"药品",list:["防蚊用品：驱蚊液(DEET>10%)、止痒膏、薄荷油，当地蚊虫较多。", "肠胃药：蒙脱石散、肠炎宁、益生菌，应对水土不服。", "常用药：布洛芬、感冒药、创可贴、碘伏棉片、芦荟胶(晒后修复)。", "个人药品：如有特殊疾病请带处方（英文最好）。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["禁忌礼仪：不摸别人头（包括小孩），递物给钱用右手，公共场合不大声喧哗或不亲密举动。", "安全提醒：金边、西港注意防盗，不走偏僻小巷，贵重物品随身或锁好，远离泰柬边境战区。", "小费文化：过海关无需给任何额外费用，遇到索要小费可直接拒绝。"]}
+]},
+  "阿联酋":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：确保护照有效期在回国日期后至少还有6个月，阿联酋对中国免签，180天内可停留90天。", "身份证：国内往返机场可能用到，建议携带。", "往返机票行程单：电子版即可，入境时可能会查验。", "酒店预订信息：最好打印纸质版备用，同时手机保存电子版。", "旅行保险单：阿联酋医疗费用昂贵，建议提前购买境外旅行意外保险和医疗保险。"]},
+{icon:"💰",title:"资金与支付",list:["银行卡：Visa卡或MasterCard在阿联酋使用广泛，商场、酒店、餐厅大多可刷卡。", "少量现金：可准备一些美元或兑换迪拉姆，人均带不超过150迪拉姆即可，小商店、传统市场、水上巴士等可能只收现金。"]},
+{icon:"🚄",title:"交通出行",list:["打车出行：Careem类似滴滴，Uber也可用，Careem有较便宜的Hala Taxi选项。", "公共交通：RTA Dubai查询迪拜地铁、公交等信息。"]},
+{icon:"📱",title:"通讯与APP",list:["流量卡：提前网购当地流量卡或开通国际漫游，落地就能上网查攻略、导航。", "地图导航：Google Maps功能最强大。", "美食查找：Zomato类似大众点评，可查看餐厅评价和菜品推荐。", "翻译工具：有道翻译官或Google Translate，支持离线语言包。", "旅游预订：猫途鹰（TripAdvisor）查看景点评价，飞猪可订酒店机票。"]},
+{icon:"🔌",title:"电子设备",list:["英标转换插头：阿联酋使用英标三相（Type G）插头，酒店通常不提供，务必自带。", "充电宝：必须有3C标志，不能托运需随身携带。", "手机及充电器：确保手机支持当地网络频段，国行苹果手机需注意eSIM支持情况。"]},
+{icon:"👕",title:"衣物与防晒",list:["轻薄透气衣物：夏季（5-9月）气温可达45℃以上，需带短袖、薄长袖。", "薄外套：冬季（11-4月）早晚温差大，室内空调也很冷，必备薄外套。", "长裙/长裤：参观清真寺等场所要求着装保守，女士需带头巾和长袍。", "泳衣：前往海滩或酒店泳池时穿着。", "舒适运动鞋：方便城市行走、参观景点。", "高倍数防晒霜：紫外线辐射高，需随身携带补涂。", "太阳镜：中东地区阳光刺眼，墨镜是必备单品。", "遮阳帽/防晒伞：宽边帽能为脸部、颈部提供大面积防晒保护。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["纸巾/湿巾：餐厅普遍不主动提供纸巾，随身带一小包幸福感很高。", "洗漱用品：部分酒店不提供牙刷牙膏，建议自备。", "一次性用品：一次性内裤、浴巾、马桶垫等可根据习惯选择。"]},
+{icon:"💊",title:"药品",list:["肠胃药：当地饮食偏油腻，备上以防水土不服。", "感冒药：空调房温差大容易感冒。", "晕车药：沙漠冲沙等项目可能需要。", "创可贴：应对轻微擦伤。", "防中暑药：高温天气出行必备。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["尊重当地文化：不要穿过于暴露的衣服，公共场合避免亲密行为。", "拍照禁忌：穆斯林国家对拍照敏感，不要随便拍当地人。", "禁酒规定：阿联酋禁酒精，不要携带酒类入境。", "猪肉制品：禁止携带猪肉制品入境。", "小费文化：部分服务需要给小费，备好零钱。", "紧急电话：阿联酋急救电话998，交警999，火警997。"]}
+]},
+  "意大利":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期6个月以上，建议准备2份复印件或电子版备份。", "申根签证：签证页复印两份（纸质+电子版各存一份）。", "机票酒店确认单：往返机票、酒店预订单，入境可能查验。", "旅游保险单：申根旅行险，建议打印备用。", "证件备份：护照、签证、保险单的电子版存在手机和云端，以防丢失补办。"]},
+{icon:"💰",title:"资金与支付",list:["信用卡：Visa/MasterCard信用卡（银联使用较少）。", "欧元现金：少量欧元现金（200-300欧元零钱即可，部分小店/厕所/小费需现金）。", "防盗措施：RFID防盗卡套、行李箱密码锁、手机防盗绳（罗马、米兰等热门城市需注意财物安全）。"]},
+{icon:"🚄",title:"交通出行",list:["火车票APP：Trenitalia/Italo（火车票）、Uber/当地打车软件。", "预约提醒：热门景点提前订票（罗马斗兽场、梵蒂冈博物馆、乌菲兹美术馆等）。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前购买欧洲通用电话卡（Vodafone/WindTre等），或开通国际漫游，落地即可使用。", "Google Maps：导航必备。", "翻译软件：英语普及度一般，翻译APP备用。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：意标三孔插头（两圆孔+接地），建议带2个或多口转换插座，欧洲酒店插座较少。", "充电宝：10000mAh足够。", "多合一数据线：相机充电器按需携带。"]},
+{icon:"👕",title:"衣物与防晒",list:["分层穿搭：应对温差（早晚凉、中午晒）。", "教堂着装：长袖衬衫/薄开衫（教堂要求着装得体，不能露肩露腿）。", "舒适步行鞋：日行两万步常态。", "防晒：防晒衣、墨镜、帽子。", "季节调整：夏季带薄款衣物+防晒霜，冬季需羽绒服+围巾手套，春秋备一件毛衣开衫。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：牙刷、牙膏、毛巾（部分民宿不提供）、洗发水沐浴露旅行装。", "护肤重点：高倍防晒霜（欧洲阳光较毒辣）、保湿霜（气候干燥）、润唇膏、面膜。", "卫生用品：湿巾、纸巾、免洗洗手液、女性护理用品、一次性马桶垫（公共厕所可能无马桶盖）。", "拖鞋：酒店通常不提供洗澡拖鞋。", "一次性内裤袜子：减轻行李负担。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药、布洛芬（止痛退烧）、肠胃药（肠炎宁/蒙脱石散）、抗过敏药（氯雷他定）。", "外用药品：创可贴、碘伏消毒棒、晒后修复膏。", "个人特需：晕车药、眼药水（戴美瞳必备）、驱蚊液（夏季户外）。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["免税额度：非欧盟旅客携带消费品总值不超过175欧元可免税。", "违禁物品：肉类制品、奶制品禁止携带入境，新鲜水果蔬菜也需注意。", "现金申报：携带超过10000欧元现金需申报。", "饮食相关：便携水杯（景区有免费直饮水）、折叠碗筷（可选，适应中国胃）、小勺子（买酸奶用）。", "出行便利：晴雨伞（天气多变）、保温杯（肠胃弱可喝热水）、折叠衣架（民宿可能需要）、洗衣液小样。"]}
+]},
+  "法国":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期≥6个月，空白页≥2页，签证页复印两份（纸质+电子版各存一份）。", "身份证件：身份证（回国用）、申根保险单打印件、酒店预订单、往返机票行程单。", "证件备份：护照、签证、保险单的电子版存在手机和云端，以防丢失补办。"]},
+{icon:"💰",title:"资金与支付",list:["信用卡：Visa/Mastercard芯片卡至少2张，建议带防盗刷卡套，国内磁条卡可能无法使用。", "现金：200-500欧元现金即可（小额纸币和零钱备用），大部分消费可刷卡。"]},
+{icon:"🚄",title:"交通出行",list:["Uber：打车比现场拦车便宜一半。", "Trainline：预订欧洲火车票。"]},
+{icon:"📱",title:"通讯与APP",list:["Google Maps：离线地图提前下载好。", "Google翻译：离线语言包下好。", "TripAdvisor：找餐厅参考。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：欧标两圆孔插头（德标/法标通用），建议带USB+Type-C通用款，至少带两个。", "充电宝：≤20000mAh符合航空规定，欧洲公共充电设施较少。", "充电线：多备一根，手机、相机等设备的充电器。", "相机配件：相机、存储卡、电池、读卡器（如需拍照）。", "手机防丢绳：手腕绳+挂脖绳双重保护，地铁景区必备。"]},
+{icon:"👕",title:"衣物与防晒",list:["舒适鞋子：一双好走路的运动鞋或休闲鞋，法国适合步行，石板路很多。", "外套：薄外套或风衣，早晚温差大，根据季节调整。", "内搭衣物：按行程天数准备，建议1天1套分装好。", "雨具：晴雨两用伞或便携雨衣，欧洲天气多变。", "配饰：墨镜、防晒霜、帽子（紫外线较强）。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["牙刷+牙膏：欧洲酒店基本不提供，需自备。", "拖鞋：折叠防水拖鞋或一次性拖鞋，酒店通常不提供。", "护肤品小样：旅行装或分装瓶，酒店沐浴露可能用不惯。", "毛巾+洗脸巾：一次性洗脸巾更卫生，毛巾部分民宿不提供。", "卫生用品：女生备足卫生巾/安睡裤，部分酒店可能没有。"]},
+{icon:"💊",title:"药品",list:["感冒药：999感冒灵、板蓝根等。", "肠胃药：蒙脱石散、健胃消食片（防止水土不服）。", "创可贴：防水创可贴更实用。", "止痛药：布洛芬等常备止痛药。", "过敏药：氯雷他定（如有过敏史）。", "眼药水：缓解长途飞行疲劳。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["安全防盗重点：斜挎包（能背在身前或藏在衣服里的包）、八字扣（锁住背包拉链）、行李锁（坐火车时把行李箱固定在行李架上）、财物分散放、避免露富（少戴名牌首饰、手表）。", "便携烧水壶：折叠款更省空间，欧洲水质偏硬且不提供热水。", "一次性用品：马桶垫、内裤、浴巾（酒店卫生条件参差不齐）。", "U型枕+眼罩：长途飞行必备，选充气款更轻便。", "收纳袋：分装袋、脏衣袋、零钱包。", "笔：黑色笔一支（填入境表用）。", "小零食：辣条、豆干等家乡味道（泡面记得带筷子，国外桶面无叉子）。"]}
+]},
+  "英国":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需大于6个月，签证提前1个月办理，建议打印纸质版并手机备份电子版。", "机票酒店单：往返机票确认单、酒店预订单，过海关时可能用到。", "证件照：准备1寸和2寸白底证件照各2张，备用。"]},
+{icon:"💰",title:"资金与支付",list:["银行卡：带一张Visa或Mastercard芯片卡（需有wifi标志），支持Apple Pay更方便。", "现金：换100-500英镑小面额即可，大部分地方都能刷卡。"]},
+{icon:"🚄",title:"交通出行",list:["Trainline/TrainPal：买火车票、查班次，提前买能省钱。", "Uber：打车用，但价格较贵，优先选公交。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡/流量：提前在国内买好英国电话卡或开通国际漫游，落地就能用。", "Google Maps：查路线、公交、步行导航必备。", "Tripadvisor：查餐厅评价、避雷指南。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：英标三孔插头，建议带2-3个，英国插座是方形的。", "充电宝：2万毫安以内可随身带上飞机，记得带数据线。"]},
+{icon:"👕",title:"衣物与防晒",list:["防水外套：英国天气多变，一年约133天降雨，冲锋衣或防水风衣必备。", "折叠伞：选抗风性好的弹簧钢骨伞，普通伞容易被风吹坏。", "舒适鞋子：走路多，带一双防水舒适的运动鞋或徒步鞋。", "防晒用品：阴天也要防晒，英国紫外线指数有时很高。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：酒店一般不提供牙刷牙膏拖鞋，建议自备旅行装。", "保温杯：英国餐馆和酒店通常有热水，带个保温杯很方便。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药、肠胃药、止痛药、创可贴、抗过敏药等，国外买药麻烦。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["防盗用品：手机挂绳、防盗卡套、行李锁，景点和地铁上注意保管贵重物品。", "插座电压：英国电压230V，国内电器一般可用，但需转换插头。", "小费文化：餐厅一般收10-12.5%服务费，不用额外给小费。", "垃圾分类：英国垃圾分类较严格，酒店和公共场所注意区分。", "紧急电话：英国紧急电话是999，非紧急报警是101。"]}
+]},
+  "德国":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需比计划停留时间至少长6个月，随身携带勿托运。", "签证：申根签证打印件，建议提前1-2个月办理。", "机票酒店预订单：打印版+电子版备份，入境可能抽查。", "保险单：申根区要求旅行保险保额不低于3万欧元，含紧急救援电话。", "证件照：白底多带几张，各种尺寸备用。", "其他证明：学历/职业证书公证件、驾照及德文翻译件（如自驾）、租房合同等。"]},
+{icon:"💰",title:"资金与支付",list:["欧元现金：建议兑换500-1000欧元小面额，部分小店/公厕只收现金。", "国际信用卡：Visa/Mastercard芯片卡，德国接受度广。", "银联卡：可在部分ATM取现，但手续费较高。", "零钱袋：德国日常使用硬币频率高（1-2欧硬币常用）。"]},
+{icon:"🚄",title:"交通出行",list:["公共交通：德国公共交通可能晚点或取消，预留弹性时间。"]},
+{icon:"📱",title:"通讯与APP",list:["手机卡：可飞猪买境外流量卡或落地买当地卡（Vodafone/O2）。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：德标Type C/F（双圆孔），建议带2个以上。", "充电宝：容量≤100Wh（约20000mAh），必须随身带。", "数据线/充电头：德国配件价格高且款式少。", "其他：耳机、移动硬盘、插线板（带USB口更方便）。"]},
+{icon:"👕",title:"衣物与防晒",list:["外套：防风防水冲锋衣必备，德国多雨且风大。", "分层穿衣：夏季也需薄外套应对温差，冬季需保暖内衣、围巾、手套。", "鞋子：舒适运动鞋或徒步鞋，适合长时间步行。", "内衣裤：建议多带，德国尺码偏大、款式较朴素。", "注意：雨伞在德国大风天容易坏，冲锋衣更实用。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗护用品：酒店不一定提供牙刷牙膏拖鞋，建议自带或到当地DM超市购买。", "护肤品：亚洲品牌选择少，建议带小样过渡。", "隐形眼镜：德国配镜需处方且价格是国内3倍左右。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药、退烧药（布洛芬）、肠胃药、创可贴、抗过敏药。", "处方药：需带英文说明书，慢性病患者备足量。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["烧水杯：中国胃必备，德国酒店一般不提供热水壶。", "折叠伞/雨衣：德国天气多变。", "收纳袋/真空压缩袋：节省行李空间。", "指甲刀套装：德国小工具价格贵。", "环保购物袋：德国超市购物需自备袋子。", "锁具：青旅或宿舍用。", "安全：公共场所包不离手，警惕陌生人搭讪。", "隐私：拍人需经同意，公众场合降低音量。", "周日营业：周天大部分店铺不关门，餐馆最好提前预约。", "退税：单笔消费超50欧可开退税单，机场退税时保留包装备用抽查。", "可选物品：中式调料（少量即可，亚超基本都有但价格高1.5倍左右）、小礼物（中国结、熊猫周边等，送德国同事朋友很受欢迎）、旗袍/汉服（德国派对文化有\"民族服装\"时刻）、旧毛巾（第一天打扫用后可直接扔）。"]}
+]},
+  "西班牙":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：原件+复印件各2份，分开放置，建议手机也存电子版。", "签证：申根签证页打印件，需覆盖整个行程日期。", "机票酒店单：往返机票、酒店预订单（英文版），入境可能查验。", "保险单：申根旅行险，保额≥3万欧元，覆盖全部旅程。"]},
+{icon:"💰",title:"资金与支付",list:["现金：200-300欧元零钱，小面额更实用，超过1万欧元需申报。", "信用卡：Visa/Mastercard必备，银联部分地方可用。"]},
+{icon:"🚄",title:"交通出行",list:["Google Maps：导航。", "翻译软件：提前下好离线包。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡/随身WiFi：提前买好或机场租，Orange/Vodafone信号较稳。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：欧标两圆孔，建议带多口USB插排。", "充电宝：容量不超20000mAh，不可托运。"]},
+{icon:"👕",title:"衣物与防晒",list:["昼夜温差大：教堂等宗教场所需遮肩遮膝。", "夏季：短袖+薄长裤/长裙+防晒衣，备薄外套应对空调和傍晚凉意。", "春秋：长袖+薄毛衣+风衣，带折叠雨伞。", "冬季：保暖内衣+毛衣+厚外套，马德里内陆更冷，北部多雨多风。", "鞋子：舒适平底鞋/运动鞋为主，城市多为石板路。", "其他：泳衣、遮阳帽、薄围巾（防晒+教堂遮身两用）。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["基础洗漱：牙刷、牙膏、洗面奶、洗发水、沐浴露（欧洲酒店大多不提供一次性洗漱用品）。", "护肤品：SPF50+高倍防晒霜、润唇膏、身体乳、面膜。", "卫生用品：一次性浴巾、毛巾、马桶垫、洗衣片。", "其他：折叠拖鞋、梳子、化妆品。"]},
+{icon:"💊",title:"药品",list:["肠胃药：应对饮食油腻、生冷引起的水土不服。", "感冒退烧：感冒药、退烧药、止痛药。", "过敏药：氯雷他定等抗组胺药物。", "外用药品：创可贴、消毒棉片、碘酒棉签。", "个人处方药：带足量并保留原包装+英文说明。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["防盗安全装备：防盗包（斜挎包优先）、手机挂绳（长款解放双手）、行李锁（行李箱密码锁+八字扣）、贴身腰包（放护照、现金、银行卡，穿在衣服里面）、定位器（类似AirTag）。", "水杯：景点多处有直饮水，可重复使用。", "纸巾湿巾：公共厕所可能收费，备少量零钱。", "U型枕+眼罩+耳塞：长途飞机/大巴提升舒适度。", "小背包：单日出行用，轻便为主。", "密封袋：分类收纳小物件很实用。", "禁止携带物品：生鲜食品（肉类、水果、蔬菜、种子等动植物产品）、大量药品（不明成分药品、刀具、易燃易爆品）、烟草限制（电子烟和香烟有限量规定，不建议超量携带）。"]}
+]},
+  "俄罗斯":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需剩余6个月以上，建议复印2份并存电子版到云盘，原件贴身携带，复印件锁酒店保险箱。", "签证：目前俄罗斯对中国公民实行免签政策，单次入境可停留30天，但出发前务必确认最新政策。", "机票行程单：往返机票需一起购买，国内值机时会查验回程票号，建议截图保存购买记录。", "酒店预订单：部分酒店可能要求出示，入住时记得让前台开具居住证明（停留超7天可能用到）。", "旅游保险单：含俄罗斯境内医疗coverage，打印一份随身携带。", "证件照：2寸白底2张，以备补办证件等紧急情况。", "重要提醒：入境时海关给的小白条一定保管好，出境时需交还，否则会很麻烦。"]},
+{icon:"💰",title:"资金与支付",list:["卢布现金：国内银行提前兑换少量（5000₽起步），当地消费高且很多场所不支持信用卡。注意带新钞，旧钞可能不收。", "YooMoney卡：类似香港八达通，可刷地铁公交、门票、餐饮等。落地后在机场柜台领卡并充值，日均消费约400元。", "银联卡：部分ATM可取现，但并非所有银行卡都支持，建议多带几张备用。", "零钱包：卢布硬币使用频繁，小面值零钱用于打车、公共厕所（约20₽）等场景。"]},
+{icon:"🚄",title:"交通出行",list:["Yandex Go：打车软件，界面有中文，绑定YooMoney卡可直接在线支付。", "Yandex Metro：莫斯科、圣彼得堡地铁线路图，规划换乘路线。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：推荐MTC运营商，15天不限流量约176元。建议提前在国内买好，下飞机插卡即用。", "国际漫游：可开通中国移动\"无忧行\"欧洲多国流量包作为备用，信号更稳定。", "注意事项：莫斯科红场周边因安全原因会不定时屏蔽信号；入境后24小时内不要立刻激活流量卡，避免触发漫游限制。", "Yandex Maps：俄版谷歌地图，公交信息极准，支持离线地图。", "Yandex Translate：支持离线俄语翻译和图片取词翻译，英语普及率低必备。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：欧标/德标两孔圆脚插头，酒店前台可能借不到，建议带2个以上。", "充电宝：容量≤20000mAh，需有3C认证，室外低温耗电快。", "数据线：长短各一，方便不同场景使用。", "相机及存储卡：胶卷相机需注意胶卷不能托运，需随身携带过安检。"]},
+{icon:"👕",title:"衣物与防晒",list:["保暖装备：冬季需羽绒服、加绒裤、毛线帽、防水手套、围巾、耳罩。室内暖气很足，建议采用多层穿搭法，方便穿脱。", "鞋子：防水雪地靴，冰爪（雪多地区如摩尔曼斯克推荐），羊毛袜。", "护肤用品：厚面霜、身体乳、润唇膏（气候干燥）、防晒霜（夏季紫外线强）。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：牙刷、牙膏、毛巾（酒店基本不提供一次性用品）。", "其他便利品：保温水杯、折叠衣架、一次性内裤、湿巾、便携纸巾、小锁头（锁行李箱或青旅储物柜）。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药、肠胃药、创可贴、溃疡贴、眼药水。", "个人药品：如有特殊疾病请自带足量处方药。", "消毒用品：小瓶消毒喷雾、湿厕纸。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["紧急联系人卡片：中俄文对照，包含中国驻俄大使馆电话、俄罗斯急救电话（103）等。", "防盗装备：防盗手机挂绳、RFID屏蔽卡夹、酒店门阻器。"]}
+]},
+  "希腊":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：确保护照有效期大于离境日期6个月以上，至少预留2页空白签证页。", "签证：提前2个月办理申根签证。", "机票酒店：打印往返机票预订单、全程酒店预订确认单，入境时海关可能随机抽查。", "证件备份：护照、签证、机票、酒店单建议复印2份并手机备份电子版，与原件分开放。"]},
+{icon:"💰",title:"资金与支付",list:["现金：通用欧元（€），建议每人每日准备40-50欧元现金（两人同行可降至每人每日40欧）。", "信用卡：VISA/Mastercard为主，大部分场所可刷卡。"]},
+{icon:"🚄",title:"交通出行",list:["Google Maps：导航。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前购买欧洲电话卡（Vodafone、Cosmote等）或开通国际漫游；偏远岛屿信号可能较弱。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：希腊使用欧标两圆孔插头（Type C/F），电压220V/50Hz，国内电器需带转换插头。", "充电设备：充电宝、多合一充电器必带，拍照耗电快。"]},
+{icon:"👕",title:"衣物与防晒",list:["夏季（5-9月）：短袖、短裤、裙子、防晒霜、遮阳帽、墨镜、泳衣；早晚有凉意备薄外套。", "冬季（10-4月）：厚羽绒服、保暖内衣、毛衣、防风围巾帽子；希腊冬暖但海边风大。", "鞋履选择：必须穿好走路的防滑运动鞋，雅典卫城、圣托里尼台阶多且路面不平，大理石路光滑易滑倒；不要穿太好的鞋，尘土大难清理。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["防晒保湿：地中海气候干燥少雨，紫外线极强，即使阴天也要涂防晒霜（SPF50+）；带润唇膏、保湿面膜。", "洗漱用品：欧洲酒店不提供一次性毛巾、牙刷、牙膏、拖鞋等，需自行携带。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药、肠胃药、过敏药、止痛药、创可贴、晕车药。", "个人处方药：慢性病患者带足备用药并保留原包装或医生证明。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["防盗腰包：圣托里尼等热门景点扒手较多，贵重物品贴身存放。", "退税材料：购物时索要退税申请单，离境时在机场统一办理。", "环保注意：禁止在海滩乱扔垃圾，部分海岛禁止带走贝壳、石头。", "紧急联系方式：报警电话100、急救电话112、中国驻希腊使馆领保电话+30-210-6723282。"]}
+]},
+  "瑞典":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期至少6个月，建议复印2份并存电子版，与原件分开存放。", "签证：申根签证，建议提前半年办理。", "行程材料：打印往返机票订单、全程住宿证明、旅行行程单，海关可能抽查。", "保险单：申根旅游医疗保险单（建议中英文版），电子版同步云端备份。"]},
+{icon:"💰",title:"资金与支付",list:["信用卡：带一张VISA或Mastercard芯片卡，北欧基本全境刷卡，连上厕所都能刷。", "现金：可换少量欧元（5欧零钱和硬币）备用，瑞典克朗当地兑换或刷卡即可。", "申报线：携带≥10,000欧元等值现金需向瑞典海关申报。"]},
+{icon:"🚄",title:"交通出行",list:["Google Maps：导航必备。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前买欧洲流量包或落地购本地卡（沃达丰等信号较好）。", "国际漫游：开通个人手机漫游，预留紧急联系使用。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：欧标Type C/F型（两孔圆插），电压220V–230V，国内电器可直接用。", "充电宝：需3C认证，容量≤20000mAh，必须随身携带不可托运。", "数据线：多备一根USB-TypeC或USB-Lightning线，酒店插座可能不够用。", "相机/无人机：电池拆开放背包过安检，飞无人机前查禁飞区并购买保险。"]},
+{icon:"👕",title:"衣物与防晒",list:["穿衣原则：洋葱式穿法，防风防水比厚度更重要。", "外层：防风防水冲锋衣（Gore-Tex面料）+冲锋裤，北欧天气多变。", "中间层：轻薄羽绒服/抓绒衣/羊毛衫，保暖核心层。", "内层：快干排汗内衣/T恤，夏季短袖+长裤即可，冬季加保暖内衣。", "鞋类：防水徒步鞋（防滑）+拖鞋（民宿不提供），冬季需雪地靴。", "配件：帽子、手套、围巾（风大体感更冷）、墨镜（雪地防紫外线）。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：牙刷、牙膏、毛巾（部分民宿不提供），护肤品精简到日常一套。", "保温杯：北欧自来水可直饮但偏凉，喜欢喝热水的自带保温杯。", "折叠烧水壶：北欧基本不提供热水，想泡面必备（确认住宿允许用电）。", "防晒保湿：防晒霜、润唇膏、保湿面膜（室内干燥）。", "其他：一次性内裤、压缩袋、行李锁、阻门器（女生独行安全）。"]},
+{icon:"💊",title:"药品",list:["基础药：感冒药、退烧药、止泻药、创可贴、肠胃药。", "个人药：过敏药、皮炎药、嗓子消炎药（根据自身情况调整）。", "处方药：含麻醉/镇静成分的药建议不带，必需则备医生处方+英文说明书。", "注意：喷剂类药物容量≤150ml，否则可能被安检扣下。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["时差：瑞典比北京慢6小时（夏令时5小时）。", "夏季（6-8月）：气温15-25℃，白天极长甚至极昼，适合户外徒步、露营、乘船。", "冬季（12-2月）：气温-5-5℃，日照短，适合追极光、滑雪，需厚重保暖装备。", "食品携带：可带方便面、辣条、咸菜酱料（照顾中国胃，北欧物价高）；禁止携带肉类、奶制品、蛋类、新鲜果蔬、种子土壤（非欧盟入境严查，可能罚款）。", "限量：香烟200支；烈酒1升或葡萄酒4升或啤酒16升。", "紧急电话：瑞典急救/匪警/火警统一拨打112。", "防盗防骗：不露富、不走偏僻路、贵重物品不离身，护照复印件与原件分开放。"]}
+]},
+  "荷兰":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：确保护照有效期≥6个月且至少有2页空白页，申根签证需与出行目的一致。", "行程材料：往返机票订单、全程酒店预订单、旅行保险（保额≥3万欧元）、旅游行程单，建议原件和电子版都准备好。", "证件备份：将护照、签证、身份证等证件复印或扫描，与原件分开存放，手机里也存一份电子版。", "资金证明：边检可能抽查，确保有足够支付能力的证明（银行流水/信用卡）。"]},
+{icon:"💰",title:"资金与支付",list:["现金：建议换300-500欧元小额钞票，很多厕所投币才用。", "信用卡：Visa或Mastercard芯片卡基本通用，可绑定OV pay APP查询交通刷卡记录。"]},
+{icon:"🚄",title:"交通出行",list:["NS：查火车车次、站台信息，配合银行卡刷码乘车。", "OV pay：绑定银行卡后查看公共交通消费记录，忘刷卡可在APP申诉。"]},
+{icon:"📱",title:"通讯与APP",list:["Google Map：地图导航必备，欧洲谷歌地图很准确。", "Booking/Agoda：预订住宿，Agoda支持国内支付。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：欧标Type F（两个圆孔），建议带2-3个。", "充电宝：大容量必备，外出一天拍照导航很耗电。", "插线板：酒店插座少，带一个多孔插线板很实用。", "相机/三脚架：根据拍摄需求携带，手机拍照也完全够用。"]},
+{icon:"👕",title:"衣物与防晒",list:["冲锋衣/防风外套：荷兰风大天气多变，早晚温差明显，即使夏季也建议带一件。", "雨具：雨伞+雨衣必备，荷兰几乎天天下雨。", "舒适步行鞋：城市探索全靠走路，防水鞋更实用。", "日常穿搭：短袖T恤+长袖T恤+卫衣+裤子若干，正装1-2套备用即可。", "配饰：帽子、围巾、手套（秋冬必备），墨镜（夏天紫外线强）。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["保温杯：酒店通常只有咖啡机接热水，爱喝热水的必带。", "便携烧水壶：对热水需求高的可以带一个，体积小不占空间。", "洗漱用品：部分酒店不提供牙刷毛巾，纸巾也多备一包。", "小锁头：青旅储物柜或自行车上锁都用得上。"]},
+{icon:"💊",title:"药品",list:["常用药品：感冒药、肠胃药、创可贴、眼药水等OTC药物，处方药需英文处方。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["禁忌物品：肉类制品（牛肉干、火腿肠、腊肉等一律没收+罚款，曾有人被罚500欧元）、新鲜果蔬（苹果、橙子、草莓等水果蔬菜严禁入境）、植物种子（未经检疫的绿植、花种、盆栽会被销毁）、违禁药品（含管制成分的中药需医生处方+英文翻译件，否则可能面临刑事风险）、超额现金（携带≥10000欧元必须申报，否则最高罚21750欧）。"]}
+]},
+  "葡萄牙":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：确保护照有效期超过6个月，申根签证至少提前2个月申请，旺季（夏季、狂欢节）号源紧张需更早预约。", "证件备份：护照个人页、签证页、机票行程单、酒店订单、保险单都拍照存手机，另准备2份彩色复印件分开放。", "驾照：如计划自驾，中国驾照可临时使用6个月，建议办国际驾照公证件或翻译公证。"]},
+{icon:"💰",title:"资金与支付",list:["信用卡：带两张以上不同组织的芯片信用卡（Visa/MasterCard最通用），部分商户支持银联/支付宝但覆盖有限。", "现金：换300-500欧元零钱即可（多备5/10/20欧小面额），小店、厕所、自动售货机可能只收现金。"]},
+{icon:"🚄",title:"交通出行",list:["Google Maps：导航。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前网购本地卡（MEO/Vodafone/NOS信号稳定）或到机场购买，游客套餐约15€得10GB。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：欧洲标准Type C/F（双圆孔），建议带2个，酒店插座可能不够用。", "充电宝：≤20000mAh，需有3C认证，日行两万步必备。", "充电线：推荐带2条2米长的快充线，老酒店插头离床可能很远。"]},
+{icon:"👕",title:"衣物与防晒",list:["鞋子：舒适平底鞋是必需品！里斯本全是坡道、楼梯和鹅卵石路，高跟鞋会坏且走路痛苦。", "防晒装备：墨镜、帽子、防晒霜（即使冬季阳光也很强），5-9月观景台几乎无遮阴。", "外套：薄外套必带，白天35°C晚上可能骤凉；波尔图多雨，秋冬需防水外套。", "袜子：多带几双，突然下雨后干袜子会让你比买到纪念品还开心。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["基础护肤：洗面奶、水乳、精华、面膜，南方气候干燥注意保湿。", "洗漱用品：牙刷、牙膏、梳子、拖鞋（很多酒店不提供）、一次性洗脸巾。", "防晒修复：高倍防晒霜、晒后修复凝胶（夏天真的会晒伤）。", "化妆用品：精简携带，吸油纸、润唇膏、口红即可。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药、肠胃药（蒙脱石散/藿香正气）、消炎药、过敏药、创可贴。", "个人特需：晕车贴（28路电车弯道多）、止痛药、维生素胶囊。", "防护物品：消毒湿巾、纸巾、防蚊液（夏季户外多用）。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["防盗与安全：防盗包（不起眼的帆布包或斜挎包最好，贵重物品分开放，避免背明显logo的奢侈品包）、手机绳（斜挎手机绳很实用，路上导航时既方便又防抢）、防盗锁（行李锁、八字扣锁，住青旅或民宿时可用）。", "紧急电话：记住欧盟通用急救电话112（警察/医疗/消防）。", "折叠伞/雨衣：葡萄牙北部和西部秋冬雨水多，天气变化快。", "水杯：可重复使用的瓶子，城里偶尔有免费饮水点。", "折叠购物袋：回程时装葡萄酒、沙丁鱼罐头和纪念品，行李箱会留空位给购物。", "防磨脚贴：走完阿尔法玛第一天你就会懂它的价值。"]}
+]},
+  "冰岛":{sections:[
+{icon:"🛂",title:"证件与签证",list:["证件类：护照（有效期6个月以上）、签证、机票行程单、酒店预订单；建议复印2份并与原件分开存放，同时存电子版在手机。", "保险：强烈建议购买人身安全和医疗旅游险，冰岛医药费用极高，有保险更安心。"]},
+{icon:"💰",title:"资金与支付",list:["银行卡：带Visa或Mastercard信用卡，冰岛99%地方都能刷卡，连公共厕所都可以刷。", "现金：几乎用不到，如需备用可换少量欧元（人民币不能在冰岛直接兑换）。"]},
+{icon:"🚄",title:"交通出行",list:["自驾特别提示：需准备国际驾照（可在支付宝申请），冰岛和中国一样是左侧驾驶舱；出行前查看road.is了解路况，en.vedur.is看天气预报；严禁驶入公路以外的野地（罚款巨额且保险不赔），偏远地区山路需四驱车，冬季必须配冬季轮胎。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前买好当地流量卡或开通国际漫游，酒店Wi-Fi不稳定。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：欧标双圆孔插头（Type C/F），建议带个插线板更方便。", "充电宝：低温环境下手机耗电快，选20000毫安以内可上飞机的。", "相机装备：多备电池（低温掉电快）、三脚架（拍极光/星空必备）、防水手机袋（瀑布温泉拍照用）。"]},
+{icon:"👕",title:"衣物与防晒",list:["外层：Gore-Tex面料的防水防风冲锋衣和冲锋裤（必带！瀑布、冰川项目天天要用）。", "中层：抓绒衣或轻薄羽绒内胆（方便随时穿脱调节温度）。", "内层：速干保暖内衣（推荐美利奴羊毛材质，排汗保暖）。", "鞋袜：高帮防水防滑登山鞋+加厚羊毛袜×2-3双。", "配件：毛线帽/护耳帽、防水手套（备2副）、围巾/Buff脖套、墨镜（防雪盲和强光反射）。", "避雷提醒：牛仔裤（湿了巨冷干不了）、普通运动鞋（不防滑不防水）、雨伞（风大到直接报废）。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["护肤：高倍防晒霜、润唇膏（必带！多人反馈嘴唇会裂开）、身体乳、补水面膜。", "洗漱用品：牙刷、牙膏、拖鞋（北欧酒店基本不提供一次性用品）。", "其他：保温杯（很多公共场所提供热水）、便携晾衣绳（民宿晾晒用）、湿巾。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药、肠胃药、创可贴、晕船药（出海观鲸可能用到）。", "中国胃救星：辣椒酱、榨菜、泡面等小零食（北欧甜食多且物价高，后期容易想吃咸口）。", "注意：入境欧盟不能携带肉类、新鲜水果蔬菜及奶制品。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["暖宝宝：贴手机和腰腹，低温救星（但有人反馈实际用得少，视季节和个人怕冷程度决定）。", "泳衣：蓝湖温泉等必泡。", "降噪耳机+眼罩：长途飞行+睡眠浅星人必备。", "便携筷子勺子：超市酸奶有时没餐具，这个很实用。"]}
+]},
+  "爱尔兰":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：确保护照有效期6个月以上，签证页打印备份，电子档存手机。爱尔兰使用申根区标准，入境可能询问行程和住宿信息。", "证件复印件：护照、签证、保险单、学校录取通知书等重要文件复印2份，一份放行李箱，一份随身携带，电子档云端备份。"]},
+{icon:"💰",title:"资金与支付",list:["现金：建议提前兑换500欧元左右现金（2026年汇率约1欧元≈8元人民币）。", "信用卡：同时准备带VISA或MASTER标志的信用卡，支付宝在部分商场可用。"]},
+{icon:"🚄",title:"交通出行",list:["Google Maps：导航。"]},
+{icon:"📱",title:"通讯与APP",list:["手机卡：可提前在某宝购买爱尔兰电话卡（如Vodafone、Three），或落地后在市区门店办理，月费约20欧含无限流量。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：爱尔兰使用英标三孔插头（与香港一致），国内电器无法直接使用。建议带2-3个转换插头+一个多孔排插（带Type-C/USB接口更实用）。", "充电宝：国外价格较贵，且景点拍照耗电快，建议携带2万毫安以内充电宝（必须随身带，不可托运）。"]},
+{icon:"👕",title:"衣物与防晒",list:["防风防水冲锋衣：爱尔兰一天内可能经历四季，海风大、雨水多，普通雨伞容易被吹翻，一件带帽子的防水冲锋衣更实用。", "保暖衣物：全年气温约1-25℃，秋冬为主。带薄羽绒内胆、针织开衫、长袖卫衣，夏天短袖少带（季节很短）。", "鞋子：防滑防水鞋或徒步鞋必备，雨天路滑。女生裤子可以多带几件，当地尺码偏欧美版型。", "正装1套：面试、毕业典礼或正式场合可能用到。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：酒店通常不提供一次性洗漱用品，带旅行装应急即可，后续可在Boots或超市购买。", "隐形眼镜及护理液：当地配眼镜流程复杂且价格翻倍，多备几副更划算。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药（泰诺、999）、退烧药（布洛芬）、肠胃药（黄连素、蒙脱石散）、过敏药（氯雷他定）。每人限带1个月剂量，保留完整包装和说明书。", "消炎药：抗生素类在当地属于处方药，需看医生才能开，流程较慢，可备少量应急（如阿莫西林，最好附带处方笺）。", "外用药品：碘伏棉签、创可贴、烫伤药、达克宁等小伤口处理用品。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["电热毯：爱尔兰冬天阴冷，暖气费昂贵，很多老房子保暖效果一般，电热毯能大幅提升睡眠质量。", "电饭锅：本地卖的电饭锅功能单一且贵，国内带一个多功能的能煮饭、煲汤、蒸包子，很实用（选小功率适合宿舍使用）。"]}
+]},
+  "土耳其":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需6个月以上，自2026年1月2日起中国普通护照免签入境，每180天内最多停留90天。", "机票酒店订单：往返机票行程单+酒店预订单，电子版存手机，纸质版随身备用。"]},
+{icon:"💰",title:"资金与支付",list:["现金：建议带少量欧元（约200-500欧），在当地换土耳其里拉更划算；机场换汇汇率差，市区独立大街等兑换点汇率更好。", "银行卡：Visa/Master信用卡大部分商场酒店可刷；银联储蓄卡可在ATM取现，但注意选择PTT或Ziraat银行等手续费较低的ATM机。", "小费：餐厅一般给5%-10%小费被视为有礼貌，但非强制。"]},
+{icon:"🚄",title:"交通出行",list:["Google Maps：导航。", "Uber/BiTaksi：打车。", "obilet：买大巴票。"]},
+{icon:"📱",title:"通讯与APP",list:["流量卡：建议网上提前买，10天无限流量约90元左右；有自驾需求需买当地电话卡（Turkcell信号最好）。", "Agoda：订酒店（Booking在土耳其被限制）。", "Google翻译：备用。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：欧标双圆头（德标），220V电压，建议带2个方便同时充电。", "充电宝：必须带！土耳其几乎没共享充电宝，建议带2个20000mAh以内可登机款。"]},
+{icon:"👕",title:"衣物与防晒",list:["夏季：短袖短裤2-3套、防晒衣/冰袖、墨镜、遮阳帽、凉鞋/人字拖。", "温差应对：薄款长袖外套、防风防水冲锋衣（卡帕多奇亚热气球清晨必备）。", "鞋子：舒适运动鞋/徒步鞋（古城石板路多）、泳衣（费特希耶跳岛、棉花堡温泉）。", "配饰：大方巾/头巾（女士进清真寺必备包裹头发）、白色/浅色系衣服拍照更出片。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["防晒保湿：防晒霜SPF50+PA++++（地中海阳光毒辣，每2小时补涂）、保湿面膜+身体乳（内陆干燥）。", "洗漱套装：旅行装牙膏牙刷、洗面奶、洗发水沐浴露分装瓶（多数酒店不提供）。", "其他用品：驱蚊液（山区森林必备）、一次性浴巾/洗脸巾、润唇膏。"]},
+{icon:"💊",title:"药品",list:["肠胃药：蒙脱石散、藿香正气液（防水土不服、烤肉海鲜不适）。", "感冒退烧药：早晚温差大容易着凉。", "晕车药：D400沿海公路、长途车程必备。", "创可贴+碘伏棉片：古城走路多防磨脚小磕碰。", "过敏药：应对花粉、海鲜、蚊虫叮咬过敏。", "药品注意：土耳其海关对药品检查严格，务必保留原包装，含特殊成分药物需提前申报或办许可。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["禁止携带：槟榔、猪肉制品、奶制品（奶酪酸奶黄油）、新鲜果蔬、电子烟、含麝香虎骨的中成药、含可待因的止咳水。", "限制携带：现金不超过1万欧元/人、烟酒有限额、专业相机无人机可能征税、处方药需原盒+英文处方。", "安全提示：远离游行集会，警惕出租车不打表、换汇诈骗；夜间减少单独外出；包别一直敞着防扒窃。", "宗教礼仪：参观清真寺脱鞋、女性包头巾、不穿短裤无袖衣；餐厅桌上水要钱的，点餐前让拿走可不付钱。", "折叠购物袋：当地超市塑料袋收费，自带环保省钱。", "可重复使用水杯：部分景区有直饮水，但土耳其很难找到热水。", "防盗腰包+手机链：贵重物品随身带，伊斯坦布尔坡多车多注意安全。", "U型枕+眼罩：长途飞行10多小时+国内夜巴，提升舒适度。", "密码锁：住青旅自带锁，大部分青旅有柜子但无锁。", "零食：辣条、干辣椒面等（拯救中国胃，泡面可带但需注意热水问题）。"]}
+]},
+  "瑞士":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需大于6个月，建议复印或电子备份。", "签证：申根签证，提前办理。", "机票酒店订单：往返机票、酒店预订单，入境可能查验。", "旅行保险：申根区要求旅行保险保额不低于3万欧元。"]},
+{icon:"💰",title:"资金与支付",list:["现金：瑞士使用瑞士法郎（CHF），非欧元。建议换少量零钱，大部分地方可刷卡。", "信用卡：Visa/Mastercard通用，瑞士信用卡普及率很高。"]},
+{icon:"🚄",title:"交通出行",list:["Swiss Travel Pass：瑞士旅行通票，火车、公交、游船无限乘坐，非常划算。", "SBB Mobile：瑞士铁路官方APP，查时刻表、买票必备。", "Google Maps：导航备用。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前购买欧洲通用电话卡或开通国际漫游。瑞士本地卡较贵，建议提前买好。", "Google Maps：导航必备。", "SBB Mobile：火车时刻表。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：瑞士使用Type J插头（三圆孔，与欧标不同），务必提前购买瑞士专用转换插头！欧标两圆孔在瑞士无法使用。", "充电宝：容量≤20000mAh，需有3C认证。", "数据线：多备一根。"]},
+{icon:"👕",title:"衣物与防晒",list:["分层穿搭：瑞士山区天气多变，夏季山下温暖、山顶寒冷，冬季全境寒冷。", "防风防水外套：冲锋衣必备，阿尔卑斯山区风大。", "舒适鞋子：徒步鞋或运动鞋，瑞士适合户外徒步。", "防晒：高海拔地区紫外线强，墨镜、防晒霜、帽子必备。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：酒店一般提供基础洗漱用品，但建议自带牙刷、牙膏等。", "保温杯：瑞士餐厅提供热水，但价格昂贵，自带更划算。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药、肠胃药、创可贴、止痛药、过敏药。", "高山病药物：如计划前往高海拔地区（如少女峰），可备红景天等抗高反药物。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["物价极高：瑞士是欧洲物价最高的国家之一，餐厅一顿饭人均200-400元人民币，建议在超市或快餐解决部分餐食。", "垃圾分类：瑞士垃圾分类严格，乱扔垃圾罚款。", "安静时间：晚上10点后保持安静，周日不能晾衣服、使用洗衣机等（部分社区规定）。", "紧急电话：警察117、急救144、火警118，欧盟通用112也可用。"]}
+]},
+  "美国":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需超过预计离境日期6个月以上。", "签证：B1/B2旅游签证，需提前面签，EVUS登记（签证更新电子系统，出发前72小时内完成，两年有效）。", "机票酒店订单：往返机票确认单、酒店预订单，入境可能查验。", "旅行保险：美国医疗费用极高，强烈建议购买含医疗的境外旅行险。", "证件备份：护照、签证、EVUS确认页、保险单复印+电子备份。"]},
+{icon:"💰",title:"资金与支付",list:["信用卡：Visa/Mastercard/银联卡在美国广泛使用，大部分地方可刷卡。", "现金：建议换200-500美元零钱，部分小店、快餐店、小费需现金。", "小费文化：餐厅15%-20%、酒吧10%-15%、出租车10%-15%、酒店行李每件行李1-2美元。"]},
+{icon:"🚄",title:"交通出行",list:["租车：美国公共交通不发达，自驾是最方便的出行方式。需中国驾照+国际驾照翻译件或公证件。", "Uber/Lyft：打车软件，比出租车便宜。", "Google Maps：导航必备，美国谷歌地图非常准确。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前购买美国电话卡（T-Mobile/AT&T）或开通国际漫游。美国信号覆盖好。", "Google Maps：导航。", "Uber/Lyft：打车。", "Yelp：类似大众点评，找餐厅。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：美国使用Type A/B插头（两脚扁插/三脚扁插），电压120V。中国电器大部分支持100-240V宽电压，可直接使用，但三脚插头需转换。", "充电宝：容量≤20000mAh，需有3C认证。", "车载充电器：自驾必备。"]},
+{icon:"👕",title:"衣物与防晒",list:["根据季节和地区调整：美国地域广阔，气候差异大。夏季大部分地区炎热，冬季北部寒冷。", "舒适鞋子：美国适合自驾+步行，舒适运动鞋必备。", "防晒：美国阳光强烈，防晒霜、墨镜、帽子必备。", "正装：如计划去高级餐厅或百老汇等场合，备一套正装。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：美国酒店一般提供基础洗漱用品（牙刷、牙膏、洗发水、沐浴露），但品质一般，建议自带。", "保温杯：美国餐厅提供冰水为主，想喝热水需自备。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药、肠胃药、创可贴、止痛药、过敏药。", "个人处方药：带足量并保留原包装+英文处方。美国看病贵且流程慢。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["安全提示：部分城市治安较差（如旧金山、洛杉矶部分区域），避免夜间单独出行，贵重物品放酒店保险箱。", "交通规则：美国交通规则严格，严格遵守限速、STOP标志、校车停车规定。", "饮酒规定：公共场所禁止饮酒，购买酒精需出示ID（21岁以上）。", "紧急电话：911（警察、急救、火警通用）。"]}
+]},
+  "墨西哥":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需超过预计离境日期6个月以上。", "签证：中国护照持有效美国签证或申根签证可免签入境墨西哥，单次停留180天。如无可用的美签/申根签，需提前办理墨西哥签证。", "机票酒店订单：往返机票确认单、酒店预订单。", "FMM入境卡：入境时填写FMM表格（Forma Migratoria Múltiple），妥善保管下半联，出境时需交还。"]},
+{icon:"💰",title:"资金与支付",list:["现金：建议换200-500美元，在当地换墨西哥比索。机场汇率差，市区换汇点更划算。", "信用卡：Visa/Mastercard在商场、酒店、餐厅广泛使用。", "小费文化：餐厅10%-15%、酒店行李每件10-20比索、导游每天100-200比索。"]},
+{icon:"🚄",title:"交通出行",list:["Uber：墨西哥城等大城市可用，比出租车安全且便宜。", "ADO巴士：长途巴士，舒适且安全，提前在官网订票。", "Google Maps：导航必备。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前购买墨西哥电话卡（Telcel信号最好）或开通国际漫游。", "Google Maps：导航。", "Uber：打车。", "Google翻译：西班牙语为主，英语普及率一般。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：墨西哥使用Type A/B插头（与美国相同），电压127V。中国电器大部分支持宽电压，可直接使用。", "充电宝：容量≤20000mAh，需有3C认证。"]},
+{icon:"👕",title:"衣物与防晒",list:["夏季：短袖、短裤、裙子、凉鞋，墨西哥大部分地区炎热。", "薄外套：早晚温差大，高原地区（如墨西哥城）晚上较凉。", "舒适鞋子：古城遗址（如奇琴伊察）步行多，运动鞋必备。", "防晒：高倍防晒霜、墨镜、帽子，墨西哥紫外线强。", "泳衣：坎昆等海滨城市必备。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：酒店一般提供基础洗漱用品，但建议自带牙刷、牙膏等。", "驱蚊液：热带地区蚊虫多，必备。", "纸巾湿巾：部分公共厕所不提供纸巾。"]},
+{icon:"💊",title:"药品",list:["肠胃药：墨西哥饮食辛辣油腻，水土不服常见。蒙脱石散、藿香正气必备。", "感冒药：高原地区温差大容易感冒。", "创可贴：步行多，防磨脚。", "过敏药：应对花粉、蚊虫叮咬。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["安全提示：墨西哥部分区域治安较差，避免夜间单独出行，不携带大量现金，不露富。旅游城市（坎昆、墨西哥城历史中心）相对安全。", "饮用水：墨西哥自来水不能直接饮用，购买瓶装水。", "禁止携带：新鲜水果、蔬菜、肉类制品、种子等。", "紧急电话：911（通用）。"]}
+]},
+  "巴西":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需超过预计离境日期6个月以上，至少2页空白页。", "签证：中国护照需提前办理巴西签证，或通过免签政策（如持有效美国签证可免签入境巴西，具体以最新政策为准）。", "机票酒店订单：往返机票确认单、酒店预订单。", "旅行保险：巴西医疗费用较高，建议购买含医疗的境外旅行险。"]},
+{icon:"💰",title:"资金与支付",list:["现金：建议换200-500美元，在当地换巴西雷亚尔。机场汇率差，市区换汇点更划算。", "信用卡：Visa/Mastercard广泛使用，巴西信用卡普及率高。", "小费文化：餐厅一般已含10%服务费，无需额外给小费。"]},
+{icon:"🚄",title:"交通出行",list:["Uber：巴西各大城市可用，比出租车便宜且安全。", "地铁/公交：圣保罗、里约等城市有地铁，覆盖主要区域。", "Google Maps：导航必备。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前购买巴西电话卡（Vivo/Claro/TIM）或开通国际漫游。", "Google Maps：导航。", "Uber：打车。", "Google翻译：巴西讲葡萄牙语，英语普及率低。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：巴西使用Type C/N插头（两圆孔/三圆孔），电压110V/220V（不同城市不同）。建议带万能转换插头。", "充电宝：容量≤20000mAh，需有3C认证。"]},
+{icon:"👕",title:"衣物与防晒",list:["夏季（12-2月）：短袖、短裤、裙子、凉鞋、泳衣。巴西夏季炎热潮湿。", "冬季（6-8月）：薄外套、长裤，南部地区较冷需保暖衣物。", "舒适鞋子：运动鞋必备，巴西适合步行。", "防晒：高倍防晒霜、墨镜、帽子，巴西紫外线极强。", "正装：如计划去高级餐厅或夜店，部分场所对着装有要求。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：酒店一般提供基础洗漱用品，但建议自带牙刷、牙膏等。", "驱蚊液：巴西蚊虫多，尤其是亚马逊地区和夏季。"]},
+{icon:"💊",title:"药品",list:["肠胃药：巴西饮食油腻，水土不服常见。", "感冒药：温差大容易感冒。", "创可贴：步行多，防磨脚。", "黄热病疫苗：如计划前往亚马逊地区，建议提前接种黄热病疫苗并携带疫苗证书。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["安全提示：巴西治安较差，尤其是里约、圣保罗等大城市。避免夜间单独出行，不携带大量现金和贵重物品，不露富。旅游区域相对安全但仍需警惕。", "饮用水：建议购买瓶装水，不直接饮用自来水。", "禁止携带：新鲜水果、蔬菜、肉类制品、种子等。", "紧急电话：190（警察）、192（急救）、193（火警）。"]}
+]},
+  "澳大利亚":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需覆盖整个行程且回国后仍超半年，建议复印2份+电子版备份。", "签证：电子签建议打印纸质版备用，入境时可能需要查看。", "驾照+翻译件：如需自驾，需准备NAATI官方认证的英文翻译件。", "黑色签字笔：飞机上填写入境卡时用。"]},
+{icon:"💰",title:"资金与支付",list:["信用卡：带芯片的Visa或Mastercard，澳洲刷卡非常方便，磁条卡可能无法使用。", "现金：准备200-500澳元小额现金即可，大部分地方都能刷卡，硬币回国前花掉。", "小费文化：澳大利亚没有强制小费文化，餐厅一般不收小费，优质服务可给10%。"]},
+{icon:"🚄",title:"交通出行",list:["租车：澳大利亚地域广阔，自驾是最方便的出行方式。澳大利亚靠左行驶。", "Uber：各大城市可用。", "Google Maps：导航必备。", "公共交通：悉尼、墨尔本等城市有火车、公交、轮渡，使用Opal卡（悉尼）或Myki卡（墨尔本）。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前在某宝购买澳洲流量卡（Telstra/Optus/Vodafone），落地激活比机场买便宜。", "TripAdvisor：找餐厅和景点。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：澳洲是Type I三扁插头（三孔扁形），国内两孔插头需转换。", "插线板：建议带一个三孔插排，可同时给多台设备充电，比单个转换器更实用。", "充电宝：容量≤20000mAh可随身携带，国际航班一般不查3C认证。", "数据线：多备几根，飞机上USB口有时不稳定。", "车载充电器：自驾必备。"]},
+{icon:"👕",title:"衣物与防晒",list:["防晒装备：防晒霜SPF50+、墨镜、遮阳帽、防晒衣，澳洲紫外线极强，物理防晒很重要。", "分层穿衣：洋葱式穿法，短袖+外套+防风衣，澳洲昼夜温差大，尤其墨尔本\"一天四季\"。", "舒适运动鞋：适合城市暴走或徒步。", "泳衣+潜水袜：海边浮潜必备，大堡礁等景点会用到。", "保暖衣物：如7-8月冬季前往，需带轻薄羽绒服、保暖内衣、围巾手套，当地购买性价比低。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["牙刷牙膏拖鞋：很多酒店民宿不提供，需自备或向前台索要。", "防晒霜：SPF50+防水型，超过100ml需托运。", "一次性用品：浴巾、马桶垫、洗脸巾，提升旅途卫生舒适度。", "护肤小样：水乳面霜面膜等带旅行装即可，澳洲买也方便但国内带小样省空间。", "驱蚊液：郊区或雨林地区蚊虫较多，需要备着。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药、退烧药、肠胃药、晕车药、创口贴、碘伏棉签等日常用药。", "药品申报：所有药品需在入境卡申报，保留原包装和英文说明书，可提前做中英文对照清单。", "个人处方药：带足量并保留原包装+英文处方。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["入境申报：严禁携带新鲜水果、蔬菜、肉类、蛋类等食品，不确定是否需要申报的物品一律申报，申报了最多没收，未申报可能被罚款甚至遣返。", "防晒：澳洲紫外线强度远超国内，即使阴天也要涂防晒霜。", "季节相反：澳洲位于南半球，1-2月是夏季，7-8月是冬季，打包前确认目的地季节。", "野生动物：不要随意接触野生动物（袋鼠、考拉等），部分动物有攻击性。", "海滩安全：只在有救生员的海滩游泳，注意离岸流和水母（夏季北部海域有箱型水母）。", "紧急电话：000（警察、急救、火警通用）。", "水杯/保温杯：澳洲饮用水较贵，酒店可接水，自带杯子环保省钱。", "折叠餐具：筷子勺子，有中国胃的话很实用。", "收纳袋：分类存放衣物和电子产品，方便整理。", "密码锁：住青旅时锁柜子用。"]}
+]},
+  "加拿大":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需超6个月+有效签证/eTA+入境批文（留学带Study Letter，移民带COPR），全部随身带，别托运。", "辅助证明：往返机票行程单、酒店预订单或租房合同、资金证明以备海关查验。", "电子备份：建议手机相册+云端（如邮箱）各存一份电子版，纸质版单独放文件袋。", "入境申报：出发前72小时内完成ArriveCAN填报，获取回执是快速通关核心凭证。"]},
+{icon:"💰",title:"资金与支付",list:["现金：携带1万加币（或等值外币）以上需申报，否则可能被没收并罚款；建议带少量现金（100-300加币）应急。", "信用卡：办理一张可以国际支付的信用卡（Visa/Master卡）。"]},
+{icon:"🚄",title:"交通出行",list:["Google Maps：导航必备。", "Uber：各大城市可用。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前买好加拿大本地流量卡或开通国际漫游。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：加拿大标准110V电压，Type A/B插座（两扁插或三扁插），多备几个转换插头+排插。", "必备设备：手机充电器、电脑/平板及充电线、充电宝（需随身携带，100Wh以内）。", "其他配件：U盘/移动硬盘、耳机、取卡针。"]},
+{icon:"👕",title:"衣物与防晒",list:["冬季装备：羽绒服/冲锋衣（冬季必备，加拿大冬天可达零下二三十度）、保暖内衣、毛衣、手套、帽子、围巾。", "日常衣物：T恤、衬衫、牛仔裤、外套（风衣、夹克等）、内衣内裤、袜子。", "鞋子：运动鞋、皮鞋（正式场合用）、拖鞋（一双凉拖、一双棉拖）。", "注意：加拿大室内暖气很足，建议穿分层衣物，方便穿脱；不用带太多厚重室内衣物，当地可购买。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：旅行装的洗发水、沐浴露、牙刷牙膏（部分酒店可能不提供拖鞋，建议带一双轻便的）。", "护肤美妆：护肤品、化妆品（单瓶容积不超过100ml，需装透明密封袋）、防晒霜、润唇膏。", "其他用品：雨伞（加拿大雨季较长）、保温杯、衣架（可带几个折叠衣架）、指甲刀套装（托运）。", "床上用品：可带一套床单被罩应急（注意尺寸：加拿大Twin/Queen常见），被子可到当地购买。"]},
+{icon:"💊",title:"药品",list:["常备药：感冒药、肠胃药、止痛药、创可贴、晕车药、退烧药（布洛芬）。", "处方药：必须携带医生处方单（中英双语最好），且总量不超过90天，保留原包装和说明书。", "个人护理：体温计、隐形眼镜护理液（小瓶装）、眼镜/隐形眼镜（配一副备用，加拿大验光贵）。", "违禁提醒：含麻黄碱、吗啡成分的药物（如白加黑、甘草片）、中药材（如鹿茸、虫草）严禁携带。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["禁带食品：绝对不要带肉干、火腿肠、自热火锅、新鲜水果蔬菜、种子、带壳坚果，哪怕是包装零食也建议主动申报。", "免税额度：香烟限200支，酒类限1.14升烈酒或1.5升葡萄酒，超额需缴税。", "落地流程：下飞机后→自助机器申报（支持中文界面）→打印白色回执小票→递交材料接受海关问询→取行李→无申报走绿通道。", "海关问答：核心高频问题包括出行目的、停留时长、是否有返程机票、携带现金金额等，英文薄弱可提前手写答案备用。", "行李限制：托运行李每件一般不超过23-32公斤，随身行李一般不超过5-10公斤，提前确认所乘航班行李政策。", "安全提示：贵重物品尽量随身携带，不要托运；提前将行程告知国内亲友，考虑购买国际旅行保险。"]}
+]},
+  "阿根廷":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：确保护照有效期6个月以上。", "签证：持有有效美国B1/B2签证可免签阿根廷（2025年7月22日起政策），但建议提前确认最新入境要求，部分航空公司可能要求出示医疗保险证明。", "复印件：护照、签证页复印2份分开放，电子版存手机备用。"]},
+{icon:"💰",title:"资金与支付",list:["现金与换汇：携带美元现金（小额面额更佳），当地可兑换比索。汇率参考：美元:比索约1:1300-1400（黑市/银行/Western Union等渠道略有差异）。", "信用卡：Visa外卡汇率较好，很多餐厅、商店可直接刷卡消费，部分场所接受美元现金结账。"]},
+{icon:"🚄",title:"交通出行",list:["Google Maps：导航。", "Uber：打车。"]},
+{icon:"📱",title:"通讯与APP",list:["通讯工具：提前买当地流量卡或开通国际漫游，下载离线地图和西语翻译APP，偏远地区信号较弱。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：阿根廷用两孔斜插或欧标两圆插头（Type I），国内电器需适配转换器。", "充电宝：容量不超2万毫安，长途车程多很耗电。"]},
+{icon:"👕",title:"衣物与防晒",list:["分层穿衣法：内层打底、中层保暖、外层防风，南北温差大（布宜诺斯艾利斯夏季30℃，乌斯怀亚仅5℃）。", "防晒装备：高倍防晒霜（SPF50+）、遮阳帽、太阳镜必备，日均日照超11小时，紫外线超强。", "徒步鞋：日常逛街和轻度徒步穿舒适鞋，若去菲茨罗伊山或冰川徒步，建议专业防水徒步鞋。", "冲锋衣裤：巴塔哥尼亚地区风大，防风外套必带；乌斯怀亚需加绒外套。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：部分酒店不提供牙具、拖鞋，自备更环保。"]},
+{icon:"💊",title:"药品",list:["肠胃药：当地饮食偏酸重，备肠胃药应对水土不服。", "防蚊喷雾：选含DEET成分，尤其计划去亚马逊周边或雨林区域。", "应急药品：创可贴、感冒药、晕车贴、个人常用药，偏远地区药品难买。", "晒后修复：当地药房价格较贵，建议自备。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["随身小包：放证件、现金、手机等贵重物品，布宜诺斯艾利斯需注意防盗。", "密封袋：保护电子设备，伊瓜苏瀑布景区水雾大。", "笔：乌斯怀亚最南端邮局写明信片可用。"]}
+]},
+  "智利":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：确保护照有效期6个月以上。", "签证：持有有效美/加签证可免签入境，停留不超过90天，否则需提前申请智利旅游签。", "证件备份：护照、签证页复印2份+电子版备份，与原件分开存放。", "PDI入境卡：入境时填写并保存好（需拍照记录），出境时会用到。"]},
+{icon:"💰",title:"资金与支付",list:["货币：建议带美元现金（崭新纸币）到当地换智利比索，大部分商户支持Visa/Mastercard信用卡。", "隐形钱包：放护照、大额现金、信用卡，日常用少量现金即可。"]},
+{icon:"🚄",title:"交通出行",list:["交通：机场打车用Uber/Didi，避免黑出租；市区地铁办卡需现金。", "电话卡：推荐WOM卡（约50RMB/50G/30天），安卓手机开通更顺利。"]},
+{icon:"📱",title:"通讯与APP",list:["离线地图：提前下载Google Maps离线地图包，很多地区无信号。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：C型/F型欧标两孔插头，电压220V，建议带2个万用转换插头。", "充电宝：大容量充电宝必备，部分偏远地区信号差耗电极快。", "相机及配件：多备存储卡、充电器，拍星空银河很值得。"]},
+{icon:"👕",title:"衣物与防晒",list:["分层穿衣法：智利温差极大，早晚可能需要厚外套，中午可能只需短袖。", "必备单品：轻便羽绒服/冲锋衣、速干衣裤、保暖内衣、羊毛袜、遮阳帽、墨镜。", "徒步装备：如去百内国家公园等户外区域，需防水登山鞋、雨衣、头巾。", "泳衣：泡温泉或海边行程会用到。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：牙刷、牙膏、洗发水、沐浴露，很多酒店不提供一次性用品。", "折叠衣架：长时间旅行需要洗衣服。", "便携烧水壶：中国胃必备，酒店水壶卫生情况不明。", "阻门器：晚上住宿放在门口增加安全感。", "一次性拖鞋/马桶套：长途飞行和住酒店都用得上。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药、退烧药、止泻药、止痛药、抗过敏药。", "高原反应：如去北部高原地区，可备Sorojchi pills或红景天。", "防蚊液：含DEET成分的驱蚊液，雨林区域蚊虫较多。", "防晒用品：高倍数防晒霜、润唇膏，南美紫外线极强。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["长途飞行好物：颈枕+腰靠（30多小时飞行必备，选充气款更省空间）、蒸汽眼罩+一次性眼药水（缓解飞行干涩）、保湿面膜+护手霜（飞机上非常干燥）、耳塞+降噪耳机（休息神器）、小零食（飞机餐可能不合胃口，带点榨菜、老干妈等下饭酱）。", "防盗：不要在路上玩手机，等红灯关车窗，车内不放贵重物品。", "住宿区域：圣地亚哥建议选择拉斯孔德斯区（Las Condes）等安全区域。"]}
+]},
+  "古巴":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：确保护照有效期在6个月以上。", "古巴旅游卡/签证：中国公民持普通护照免签停留不超过90天，但需提前填写电子入境表（dviajeros.mitrans.gob.cu），生成二维码截图或打印保存。", "往返机票行程单：打印纸质版，入关时可能需要查验。", "酒店订单确认单：覆盖全部停留日期，建议打印备份。", "旅行保险单：建议提前购买，覆盖医疗和意外情况。", "证件复印件：护照首页复印两份分开存放，备几张证件照以防万一。"]},
+{icon:"💰",title:"资金与支付",list:["美元现金：带新钞无折痕的小面额美元（1元、5元、10元），用于小费和小额支付。", "换汇建议：不要机场换汇，可在民宿老板或当地商店换比索，汇率约1:280-320。", "信用卡：基本无法使用，尤其是美国发行的卡，现金是主流支付方式。", "随身钱袋：比索面值大，携带较重，用贴身小包装钱更安全。"]},
+{icon:"🚄",title:"交通出行",list:["正规交通：认准黄色国营出租车，黑车别坐，让民宿老板预约接送更靠谱。", "Google Maps：离线地图下载好，网络不稳定时用。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：安卓手机可买当地电话卡作热点，苹果手机在古巴被禁用热点分享功能。", "西班牙语翻译软件：提前下载离线包，当地人英语普及率有限。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：美标两脚圆头转换器（欧标），电压220V，部分插座可直接插但建议备用。", "充电宝：很多地方信号弱且充电不便，必备大容量充电宝。", "多口充电器：可同时充多个设备。", "相机及备用电池：复古街景很出片，多备电池。"]},
+{icon:"👕",title:"衣物与防晒",list:["夏装速干衣裤：气候湿热类似广东，洗后易干。", "薄外套长裤：早晚温差大，飞机上和空调房需要。", "防晒衣+遮阳帽+墨镜：海边和城市游览必备，哈瓦那风大帽子易吹飞。", "泳衣：巴拉德罗海滩必穿。", "厚底舒适走路鞋：老城区石板路多，需要长时间步行。", "正装一件：部分高档餐厅有着装要求。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["牙刷牙膏毛巾：四星酒店和民宿大多不提供。", "洗发水沐浴露：小瓶装分装携带。", "抽纸和湿巾：大包+小包多带，当地缺乏卫生用品。", "卫生巾：当地买不到合适品牌，需自备足量。", "便携热水壶：折叠式更方便，当地难买到烧水壶。", "晾衣绳：湿热天气衣服不易干，部分民宿不提供洗衣服务。", "塑料拖鞋：酒店可能不提供。"]},
+{icon:"💊",title:"药品",list:["肠胃药：防止水土不服和饮食不适。", "防蚊虫叮咬药：驱蚊水、清凉油、风油精，蚊子较多。", "消炎退烧药：临时应对发烧感冒，当地买药非常困难。", "过敏药：根据个人体质准备。", "创可贴：日常小伤口处理。", "高倍防晒霜：加勒比太阳很强，容易晒伤蜕皮。", "个人常用药：如有慢性病请带足量。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["食品与水：泡面和小零食（当地食物普遍偏咸且选择少，自带下饭调料包、榨菜等）、坚果巧克力牛肉干（长途飞行和外出时补充能量）、瓶装水（自备一两瓶1.5L水，当地水质不好避免直接饮用）、运动水壶（可重复使用，出门随身携带）。", "电蚊拍：折叠式便携，当地蚊虫较多花露水效果有限。", "吹风筒：部分住宿不提供。", "小礼品：笔、本子、耳机等小物件，送当地人或给小费都受欢迎。", "文件袋：存放所有行程单、行李托运单、酒店订单，离境时可能被查验。", "安全提示：结伴出行、避免夜间单独出行、不穿戴名贵服饰、妥善保管护照和贵重物品、街上喊money的别对视、主动带路的可能收费、只去有救生员看管的海滩游泳。"]}
+]},
+  "秘鲁":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需6个月以上，建议复印2份并保存电子备份。", "签证：中国护照持有效美国签证可免签入境秘鲁（停留不超过180天）。", "保险单：国际旅行险建议提前购买，确认是否包含高原医疗救援。"]},
+{icon:"💰",title:"资金与支付",list:["现金：带美金到当地换秘鲁索尔，利马汇率较好，小城镇多收现金。建议在利马市区换汇（机场汇率较差）。小摊、厕所、打车等多需现金，备些零钱。", "信用卡：Visa/Master在大城市通用，备一张银联卡应急。部分小店只收现金，且刷卡可能有手续费。"]},
+{icon:"🚄",title:"交通出行",list:["打车软件：Uber和Didi都用，但Didi可能需要现金，司机不好找零。", "Google Maps：导航。"]},
+{icon:"📱",title:"通讯与APP",list:["当地SIM卡/eSIM：落地办Claro信号较好，山区覆盖更稳。漫游信号差。", "翻译App：下载西班牙语离线包，乡村地区英语不普及。", "WhatsApp：旅行团和酒店常用此沟通。"]},
+{icon:"🔌",title:"电子设备",list:["插头转换器：秘鲁使用A/B/C型插座，电压220V。美标两孔插头通用，三孔需要转换器。", "移动电源：夜巴、徒步时无处充电。", "头灯：营地照明有限，清晨出发也用得上。", "防水袋：保护电子设备，雨林/船行时用。"]},
+{icon:"👕",title:"衣物与防晒",list:["分层穿搭：高原地区温差极大，采用\"速干衣+抓绒/羽绒+冲锋衣\"三层穿法，方便随时增减。", "防水外套：雨季（11月-次年3月）必备，马丘比丘景区不允许带雨伞，建议用雨衣或冲锋衣。", "徒步鞋：防滑耐磨的登山鞋是必须的，爬马丘比丘或彩虹山时鞋会很脏，建议带旧一点的。", "防晒配件：太阳镜、遮阳帽、冰袖必备，高原紫外线非常强。", "保暖配件：手套、围巾、毛线帽，彩虹山山顶和库斯科早晚很冷。", "泳衣：如果想泡温泉记得带上，但大部分酒店不提供。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["洗漱用品：牙刷、牙膏、洗发水、沐浴露，很多酒店不提供一次性用品。", "便携纸巾+湿巾：部分地方洗手间条件一般，纸不会及时补充。", "耳塞眼罩：长途飞行和住宿条件参差不齐时使用。", "保温水壶：高原喝冷水易胃不适，很多酒店提供热水。", "速干毛巾：青旅或部分酒店不提供。"]},
+{icon:"💊",title:"药品",list:["高反药：提前一周开始服用红景天，或乙酰唑胺（Diamox）需提前一天开始服用，到库斯科后继续48小时。抵达后避免剧烈运动、多喝水。古柯茶也能缓解高反，但有提神作用，睡眠浅的人睡前少喝。", "便携氧气罐：可在库斯科当地购买，Inkafarma药店有售。", "肠胃药：止泻药（蒙脱石散）、胃胀气药、急性胃疼急救药、益生菌。南美饮食不习惯容易拉肚子。", "防蚊用品：DEET浓度30%以上的驱蚊液，亚马逊地区必带。", "防晒霜：SPF50+以上，每2-3小时补涂一次。高原太阳非常毒辣。", "润唇膏：高原干燥，嘴唇容易裂口。", "创可贴+水泡贴：长途徒步必备。", "感冒药+止痛药：昼夜温差大易感冒，布洛芬可缓解头痛。", "疫苗接种：去热带雨林区域建议提前打黄热病疫苗，入境巴西可能需要黄皮书。部分区域可能需要服用抗疟疾药物。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["马丘比丘门票：热门线路最好提前三个月预订，现场买可能售罄。", "饮水安全：只喝瓶装水，包括刷牙用水，避免冰块。", "饮食注意：不吃生冷食物，水果削皮吃，路边摊谨慎尝试。", "防盗意识：贵重物品随身保管，不要边走边玩手机，打车摇上车窗。利马等城市夜间不要独行，少露手机和名牌包。", "高反应对：到达库斯科后前两天动作放慢，多喝水，避免暴饮暴食。", "退税：购物时主动要求退税单，机场有自助机器，检查信息是否正确。", "紧急联系：中国驻秘鲁大使馆电话00511-4228251，外交部全球领事保护热线12308。", "能量棒/巧克力：高原消耗大，快速补充能量。"]}
+]},
+  "哥斯达黎加":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期6个月以上。", "签证：美签/加签/申根签可免签入境30天。", "驾照翻译件：如自驾需准备。"]},
+{icon:"💰",title:"资金与支付",list:["现金：带美元现金，当地通用，小费/路边摊需零钱（多备1美元纸币），约200-500美元够用一周。", "信用卡：Visa/Mastercard、Apple Pay部分商家可用，但现金付tour更划算。"]},
+{icon:"🚄",title:"交通出行",list:["租车建议：推荐大公司（Alamo/Budget/Avis）租四驱SUV，路况差但好开，避免本地便宜车押金坑。", "Google Maps/Waze：导航，很多路段无信号需提前下载离线地图。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：落地办Claro卡即可，或提前买eSIM（Gigsky/Kolbi），景点多有WiFi。"]},
+{icon:"🔌",title:"电子设备",list:["插头：美标双扁脚插头转换器（A型两孔）。", "拍摄：运动相机（GoPro/大疆，玩水项目必备，注意配潜水保护壳）。", "充电宝：必备。"]},
+{icon:"👕",title:"衣物与防晒",list:["鞋类：溯溪鞋（必带，溪降/温泉/漂流都用得上）、防滑运动鞋、拖鞋。", "上衣：速干短袖T恤、防水冲锋衣/雨衣（雨季必备）、薄外套（早晚温差大）。", "下装：速干长裤（比短裤用得多）、可拆卸两截裤（Convertible pants）。", "其他：泳衣（2-3套，换洗频繁）、防晒帽、墨镜。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["手机防水袋：必备。", "防水背包：必备。", "消毒棉片：备用。"]},
+{icon:"💊",title:"药品",list:["防晒：高倍防晒霜（选reef-safe环保型，下海友好）、晒后修复凝胶。", "防虫：驱蚊喷雾（非常重要！）、蚊虫叮咬药膏、小蚊帐（住宿不确定是否提供时备用）。", "药品：晕车药（山路颠簸）、创口贴、碘酒、维生素片、肠胃药。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["最佳季节：12月-4月旱季适合出行，5-10月雨季每天可能暴雨但植被更绿。", "安全提示：不坐黑车、贵重物品保管好、夜间活动跟正规tour、雨林徒步请紧向导。", "小费文化：餐厅账单含服务费可不另给，tour结束自愿给小费。", "环保提醒：部分景点禁塑料瓶，自带水杯；选择对珊瑚友好的防晒霜。"]}
+]},
+  "埃及":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需6个月以上，至少2页空白页，建议复印2份+存电子版分开放。", "签证：落地签需备25美元现金（贴签费），可提前在国内换好小面额零钱。", "行程单：机票酒店预订单打印或截图备用，入境可能查验。"]},
+{icon:"💰",title:"资金与支付",list:["银行卡：Visa/Mastercard必带（部分神庙只收卡），银联卡也可备用。", "现金：建议带300-500美元小额钞票用于小费、打车、买水；埃及镑落地换汇更划算。"]},
+{icon:"🚄",title:"交通出行",list:["InDrive：打车性价比高，卢克索常用。", "Uber：开罗、赫尔格达可用，明码标价。", "Google Maps：导航找餐厅精准。"]},
+{icon:"📱",title:"通讯与APP",list:["当地电话卡：机场落地后办理WE或Orange信号较好，提前飞猪买流量卡可能无法注册打车软件。", "Google翻译：菜单拍照翻译超实用。", "WhatsApp：联系地接、预定行程全靠它。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：欧标两圆孔（C/F型），埃及电压230V。", "充电宝：≤20000mAh，景区无共享充电宝。", "手机挂绳/防水袋：防丢+浮潜拍照用。"]},
+{icon:"👕",title:"衣物与防晒",list:["防晒衣/薄外套：昼夜温差大，空调车、清晨热气球会冷。", "长裤长裙：进神庙、清真寺需穿着得体，避免暴露。", "舒适徒步鞋：大量步行，沙石路多，别穿新鞋磨脚。", "泳衣：红海浮潜建议长袖款水母衣，比基尼可选一套拍照用。", "帽子墨镜：宽檐帽+防紫外线墨镜，沙漠紫外线极强。", "丝巾披肩：防晒防风，进清真寺可遮头。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["高倍防晒霜：SPF50+ PA++++，身体面部都要带，喷雾方便补涂。", "保湿用品：润唇膏、补水面膜、芦荟胶，气候极度干燥。", "一次性用品：马桶垫、浴巾、枕套、内裤袜子，酒店卫生条件有限。", "纸巾湿巾：景区厕所可能无纸，酒精纸擦座椅很必要。", "牙刷牙膏拖鞋：多数酒店不提供。", "耳塞眼罩：睡眠浅的必带，清真寺早诵经、度假酒店晚上音乐吵。", "中性笔：填写入境卡时用，现场借笔要排队。", "折叠水杯/泡面碗：当地饮食偏油腻，带点国内零食解馋。"]},
+{icon:"💊",title:"药品",list:["肠胃药：蒙脱石散、肠炎宁，水土不服必备。", "晕车船药：长途大巴和出海游船都用得上。", "感冒止痛药：布洛芬、小柴胡等应对小毛病。", "创可贴碘伏：玩沙拣贝壳时防止划伤。"]}
+]},
+  "摩洛哥":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需6个月以上，建议准备3页以上空白页，复印或拍照留存首页、签证页和入境章页。", "签证：中国护照免签（停留不超过90天）。", "机票酒店订单：打印返程机票、酒店预订单及行程计划单，入境时可能查验。"]},
+{icon:"💰",title:"资金与支付",list:["现金：携带美元或欧元到当地兑换摩洛哥迪拉姆，机场可换少量应急，市区换汇点汇率更划算。", "信用卡：Visa/Mastercard在主要城市酒店餐厅可用，银联卡基本无法取现。", "小费准备：准备少量零钱用于午餐和小费。"]},
+{icon:"🚄",title:"交通出行",list:["Google Maps：地图导航。", "inDrive：打车，注意当地规定不合法需隐蔽使用。", "Glovo：外卖。", "Booking/Airbnb：住宿。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：机场有免费电话卡领取（无流量），推荐Inwi或Maroc Telecom（沙漠信号覆盖好），Orange不推荐。", "WhatsApp：联络。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：欧标两圆孔插头（部分酒店是带凸点的圆柱形，建议买中间带孔的）。", "充电宝：容量不超过2万毫安，沙漠地区无法充电需提前备满电。"]},
+{icon:"👕",title:"衣物与防晒",list:["防晒装备：墨镜、遮阳帽、防晒霜（高倍数）、防晒衣/防晒口罩。", "日常穿着：轻薄透气长袖衣裤、过膝衣服（尊重当地文化，进清真寺需遮盖肩膀和膝盖）。", "保暖外套：薄羽绒或防风外套（沙漠昼夜温差大，晚上很冷）。", "鞋子：舒适平底鞋/运动鞋（老城全是石板路和台阶）、拖鞋、短靴（爬沙丘用）。", "配饰：大围巾/头巾（2-3米，防沙防晒拍照出片）、丝巾、夸张耳环项链。", "颜色建议：白色、红色、黄色、绿色等亮色连衣裙在舍夫沙万和马拉喀什很出片。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["个人护理：牙膏牙刷梳子（酒店不提供）、保湿面膜、润唇膏、护手霜、压缩浴巾。", "其他用品：一次性床单、一次性马桶垫、一次性内衣、免洗洗手液、保温杯、压缩烧水壶（当地无热水供应）。", "零食储备：榨菜、山楂条等开胃零食（当地饮食以塔吉锅为主，口味单一）。"]},
+{icon:"💊",title:"药品",list:["常用药品：肠胃药、感冒药、晕车药、创可贴、过敏药、止疼药、防蚊喷雾。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["防盗抢：贵重物品随身携带，手机最好有绳子挂住脖子，背包前置，夜间结伴出行。", "海关提醒：坚持要求盖入境章（即使对方说不用盖也要盖章），避免出境时被卡。", "饮食卫生：喝矿泉水不买散装水，尝试当地美食但注意适量。", "禁忌事项：穆斯林国家禁止猪肉，公共场合不宜喝酒，无人机未经许可不得携带入境。", "砍价技巧：市场购物大胆对半砍价，先问清价格再决定购买。"]}
+]},
+  "南非":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需超过6个月，至少2页空白页。", "签证：中国护照需提前办理旅游签，电子签约170元（3-5个工作日）或纸质签约430元（5-10个工作日）。", "机票酒店订单：打印往返机票和酒店预订单，入境可能查验。", "驾照及翻译件：如计划租车，需带原件+国际翻译件，南非右舵左行。", "证件备份：护照、签证复印+电子版存手机，单独放一份在行李箱。"]},
+{icon:"💰",title:"资金与支付",list:["信用卡：带Visa或Mastercard芯片卡，大部分地方可刷卡，磁条卡可能无法使用。", "现金：建议换少量美元（2019年后版本，小面值方便给小费）+兰特（可在当地ATM取现，汇率更好）。"]},
+{icon:"🚄",title:"交通出行",list:["Uber：开普敦好用。", "Waze：导航。", "WhatsApp：联系商家。"]},
+{icon:"📱",title:"通讯与APP",list:["电话卡：提前飞猪买好落地能用，或到机场买Vodacom/MTN（景区信号可能不稳定）。", "Google Maps：导航。"]},
+{icon:"🔌",title:"电子设备",list:["转换插头：南非用欧标/英标三圆孔插头（Type M），建议带2个+一个小型接线板。", "充电宝：20000毫安以内，飞机可携带。", "数据线/充电线：多备几根，手机、相机一起充。"]},
+{icon:"👕",title:"衣物与防晒",list:["季节性衣物：6-8月是南非冬季，早晚凉需厚外套；12-2月夏季带轻薄透气衣物。", "防晒装备：高倍数防晒霜、墨镜、遮阳帽、防晒衣（紫外线非常强）。", "舒适鞋袜：走路多穿舒服的鞋，Safari行程穿长袖长裤防蚊虫。", "一次性用品：一次性内裤、床单被套（部分酒店卫生标准不一）。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["牙刷牙膏拖鞋：多数酒店不提供，需自备。", "护肤品：面膜、润唇膏、保湿霜（气候干燥）。", "卫生用品：纸巾、湿巾、女性卫生用品。", "小工具：指甲刀、折叠衣架、行李收纳袋。"]},
+{icon:"💊",title:"药品",list:["常用药：感冒药、肠胃药、退烧药、创口贴、抗过敏药。", "防蚊用品：驱蚊液、电蚊拍（Safari期间有用）。", "特殊药品：疟疾药（如去野生动物园）、个人处方药。", "其他防护：口罩（防尘/油漆味）、洗鼻器（风沙大）。"]},
+{icon:"⚠️",title:"注意事项与禁忌",list:["安全提示：低调出行，不要露富，贵重物品妥善保管，夜间避免独自外出。", "旅游保险：强烈建议购买，医疗费用昂贵。", "电压：220V/50Hz，与中国相同。"]}
+]},
+  "肯尼亚":{sections:[
+{icon:"🛂",title:"证件与签证",list:["护照：有效期需6个月以上，空白页充足。", "ETA电子旅行许可：入境前必须申请，至少提前1周在官网办理，打印纸质版+手机留档。", "黄热病疫苗接种证（小黄本）：建议提前15天接种，虽有时不查但被查到未携带可能罚款。", "机票酒店行程单：打印纸质版，入境时可能被要求出示回程机票。"]},
+{icon:"💰",title:"资金与支付",list:["美金现金：建议带新版1美元、5美元、10美元小面额，用于给小费（向导约10美元/天/人）。", "信用卡：Visa或Mastercard，大部分酒店和餐厅可刷卡。"]},
+{icon:"🚄",title:"交通出行",list:["Google Maps：导航。"]},
+{icon:"📱",title:"通讯与APP",list:["WhatsApp：联络。"]},
+{icon:"🔌",title:"电子设备",list:["英标转换插头：肯尼亚使用三孔方形插座，建议带2个以上。", "插线板：很多酒店插座数量有限，带个迷你排插很实用。", "充电宝：Safari车程长，车上无法充电，建议带大容量2万毫安以上。", "望远镜：10倍左右双筒望远镜，看动物体验感拉满（也可现场借）。", "相机&长焦镜头：建议焦距至少400mm以上，拍动物更清晰。", "手机充电线：多备几根，最好有USB接口可飞机上使用。"]},
+{icon:"👕",title:"衣物与防晒",list:["冲锋衣/薄羽绒服：早晚温差极大，清晨看动物时非常冷。", "防晒衣/长袖衬衫：白天紫外线强，物理防晒最重要。", "大地色系衣物：卡其色、棕色、白色为主，拍照出片且不易显脏。", "长裤+速干T恤：多带几条裤子，百搭好穿。", "洞洞鞋/拖鞋：车上穿脱方便，可踩座椅拍照，酒店洗澡也用得上。", "遮阳帽+墨镜+防晒面罩：灰尘大紫外线强，必备三件套。", "舒适运动鞋：日常行走用。"]},
+{icon:"🧴",title:"洗漱与日用品",list:["高倍防晒霜：SPF50+防水型，带涂抹和喷雾两种。", "保湿护肤品：当地非常干燥，面霜、护手霜、唇膏都要带足。", "护发精油/发膜：头发会特别干，长发女生必备。", "一次性用品：内裤、浴巾、洗脸巾、马桶垫多带点。", "牙膏牙刷：酒店一般不提供牙具。", "吹风机：很多帐篷营地不提供或电压不稳，建议带折叠款。", "湿巾纸巾：大量携带，当地纸巾质量较差。", "口罩：防尘用，安博塞利等地灰尘极大，建议带保湿口罩。", "U型枕+腰靠：每天车程9小时以上，腰痛星人必备。", "收纳布袋：肯尼亚禁塑令，严禁携带一次性塑料袋入境。", "零食：泡面、辣条、牛肉干等，当地中餐选择少。", "折叠衣架：方便晾晒衣物。", "垃圾袋：分类收纳脏衣服或垃圾。"]},
+{icon:"💊",title:"药品",list:["驱蚊产品：避蚊胺含量20%以上的驱蚊液、无比滴、风油精。", "肠胃药：止泻药、消炎药、蒙脱石散等。", "感冒药+退烧药：早晚温差大易感冒。", "晕车药：Safari车程久且路况颠簸，必带。", "创口贴+碘伏棉签：处理小伤口。", "抗过敏药：氯雷他定等备用。"]}
+]}
+};
+const MAX_Q=6;
+let state={round:0,correct:0,wrong:0,questions:[],history:[],totalQ:0,currentCountry:''};
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function goHome(){showScreen('startScreen')}
+function renderCountryCards(){
+  const sec=document.getElementById('countrySection');
+  const groups={};
+  QUESTIONS.forEach(q=>{
+    if(!groups[q.region])groups[q.region]={};
+    if(!groups[q.region][q.country])groups[q.region][q.country]={flag:q.flag,count:0};
+    groups[q.region][q.country].count++;
+  });
+  let html='';
+  for(const[rkey,r]of Object.entries(REGIONS)){
+    const cs=groups[rkey];if(!cs)continue;
+    const order=['日本','韩国','新加坡','泰国','马来西亚','越南','菲律宾','柬埔寨','阿联酋','意大利','法国','英国','德国','西班牙','俄罗斯','希腊','瑞典','瑞士','荷兰','葡萄牙','冰岛','爱尔兰','土耳其','美国','墨西哥','巴西','加拿大','阿根廷','智利','古巴','秘鲁','哥斯达黎加','埃及','摩洛哥','南非','肯尼亚','澳大利亚'];
+    const sorted=Object.entries(cs).sort((a,b)=>order.indexOf(a[0])-order.indexOf(b[0]));
+    html+=`<div class="country-region-block"><div class="country-region-title">${r.icon} ${r.name}（${sorted.length}）</div><div class="country-grid">`;
+    sorted.forEach(([cname,info])=>{
+      html+=`<div class="country-card" onclick="startGame('${cname}')"><div class="cc-flag">${info.flag}</div><div class="cc-name">${cname}</div><div class="cc-count">${info.count}题·抽${Math.min(MAX_Q,info.count)}</div></div>`;
+    });
+    html+='</div></div>';
+  }
+  sec.innerHTML=html;
+}
+renderCountryCards();
+function startGame(country){
+  const pool=QUESTIONS.filter(q=>q.country===country);
+  const totalQ=Math.min(MAX_Q,pool.length);
+  state={round:0,correct:0,wrong:0,questions:shuffle(pool).slice(0,totalQ),history:[],totalQ,currentCountry:country};
+  showScreen('gameScreen');showQuestion();
+}
+function showQuestion(){
+  const q=state.questions[state.round];
+  document.getElementById('roundInfo').textContent=`第 ${state.round+1}/${state.totalQ} 题`;
+  document.getElementById('correctCounter').textContent=`✅ ${state.correct}/${state.round}`;
+  document.getElementById('countryFlag').textContent=q.flag;
+  document.getElementById('countryName').textContent=q.country;
+  document.getElementById('behaviorText').textContent=`"${q.behavior}"`;
+  document.getElementById('hintText').textContent=q.hint||'';
+  document.getElementById('situationHint').style.display=q.hint?'flex':'none';
+  document.getElementById('questionCard').className='question-card';
+  document.getElementById('okBtn').disabled=false;document.getElementById('noBtn').disabled=false;
+  document.getElementById('okBtn').className='answer-btn ok-btn';document.getElementById('noBtn').className='answer-btn no-btn';
+  document.getElementById('answerBtns').style.display='flex';
+  document.getElementById('explanationArea').innerHTML='';
+  document.getElementById('nextBtnWrap').style.display='none';
+}
+function answer(userSaysOk){
+  const q=state.questions[state.round];const isRight=(userSaysOk===q.ok);const card=document.getElementById('questionCard');
+  document.getElementById('okBtn').disabled=true;document.getElementById('noBtn').disabled=true;
+  if(userSaysOk){document.getElementById('okBtn').classList.add('chosen-ok')}else{document.getElementById('noBtn').classList.add('chosen-no')}
+  if(isRight){state.correct++;card.classList.add('correct-bg')}else{state.wrong++;card.classList.add('wrong-bg')}
+  state.history.push({q,isRight});
+  document.getElementById('correctCounter').textContent=`✅ ${state.correct}/${state.round+1}`;
+  const answerText=q.ok?'✅ 其实可以这样做':'❌ 这样做不行哦';
+  document.getElementById('explanationArea').innerHTML=`<div class="explanation ${isRight?'correct':'wrong'}"><div class="result-label"><span class="icon">${isRight?'🎉':'💡'}</span>${isRight?'答对了！':'答错了～'} ${isRight?'':answerText}</div><div class="fact">${q.fact}</div><div class="learn">💡 ${q.learn}</div></div>`;
+  document.getElementById('nextBtnWrap').style.display='block';
+  document.getElementById('nextBtnWrap').querySelector('.btn').textContent=state.round<state.totalQ-1?'下一题 →':'查看结果 🎉';
+}
+function nextQuestion(){state.round++;if(state.round>=state.totalQ){showFinal();return}showQuestion()}
+function showFinal(){
+  showScreen('finalScreen');
+  const pct=Math.round((state.correct/state.totalQ)*100);
+  let rank='';
+  if(pct>=90)rank='文化旅行家！这个国家的文化你了如指掌。'
+  else if(pct>=70)rank='资深旅客！大部分文化都掌握了，再补补冷门知识。'
+  else if(pct>=50)rank='好奇背包客！有一些文化盲区，出发前再做做功课。'
+  else rank='文化小白…建议出发前好好了解一下当地风俗。'
+  const c=state.currentCountry;
+  const flag=(QUESTIONS.find(q=>q.country===c)||{}).flag||'';
+  document.getElementById('finalResult').innerHTML=`${state.correct}<span class="result-unit">/${state.totalQ}</span>`;
+  document.getElementById('finalRegionTag').textContent=`${flag} ${c}`;
+  document.getElementById('finalRank').textContent=rank;
+  renderTabs(c);
+  renderTravelCard(c);
+}
+
+
+
+
+
+
+
+function renderTabs(current){
+  const el=document.getElementById('countryTabs');
+  const groups={};
+  QUESTIONS.forEach(q=>{
+    if(!groups[q.region])groups[q.region]={};
+    if(!groups[q.region][q.country])groups[q.region][q.country]=q.flag;
+  });
+  const order=['日本','韩国','新加坡','泰国','马来西亚','越南','菲律宾','柬埔寨','阿联酋','意大利','法国','英国','德国','西班牙','俄罗斯','希腊','瑞典','瑞士','荷兰','葡萄牙','冰岛','爱尔兰','土耳其','美国','墨西哥','巴西','加拿大','阿根廷','智利','古巴','秘鲁','哥斯达黎加','埃及','摩洛哥','南非','肯尼亚','澳大利亚'];
+  let tabs='';
+  for(const[rkey,r]of Object.entries(REGIONS)){
+    const cs=groups[rkey];if(!cs)continue;
+    const sorted=Object.keys(cs).sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+    sorted.forEach(cn=>{
+      tabs+=`<div class="tab-item${cn===current?' active':''}" id="tab-${cn}" onclick="pickTab('${cn}')"><span class="tab-flag">${cs[cn]}</span>${cn}</div>`;
+    });
+  }
+  el.innerHTML=`<div class="tab-scroll">${tabs}</div><div class="tab-filter" onclick="openCountryModal()">更多</div>`;
+  setTimeout(()=>{const a=document.querySelector('.tab-item.active');if(a)a.scrollIntoView({behavior:'instant',inline:'center',block:'nearest'})},50);
+}
+function openCountryModal(){
+  const c=state.currentCountry;
+  const groups={};
+  QUESTIONS.forEach(q=>{
+    if(!groups[q.region])groups[q.region]={};
+    if(!groups[q.region][q.country])groups[q.region][q.country]=q.flag;
+  });
+  const order=['日本','韩国','新加坡','泰国','马来西亚','越南','菲律宾','柬埔寨','阿联酋','意大利','法国','英国','德国','西班牙','俄罗斯','希腊','瑞典','瑞士','荷兰','葡萄牙','冰岛','爱尔兰','土耳其','美国','墨西哥','巴西','加拿大','阿根廷','智利','古巴','秘鲁','哥斯达黎加','埃及','摩洛哥','南非','肯尼亚','澳大利亚'];
+  let h='';
+  for(const[rkey,r]of Object.entries(REGIONS)){
+    const cs=groups[rkey];if(!cs)continue;
+    const sorted=Object.keys(cs).sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+    h+=`<div class="cm-region"><div class="cm-region-title">${r.icon} ${r.name}</div><div class="cm-grid">`;
+    sorted.forEach(cn=>{
+      h+=`<div class="cm-cell${cn===c?' active':''}" onclick="pickCountry('${cn}')"><span class="cm-flag">${cs[cn]}</span><span class="cm-name">${cn}</span></div>`;
+    });
+    h+='</div></div>';
+  }
+  document.getElementById('cmBody').innerHTML=h;
+  document.getElementById('countryModal').classList.add('open');
+}
+function closeCountryModal(){document.getElementById('countryModal').classList.remove('open')}
+function pickTab(country){
+  state.currentCountry=country;
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  const at=document.getElementById('tab-'+country);
+  if(at)at.classList.add('active');
+  renderTravelCard(country);
+}
+function pickCountry(country){
+  pickTab(country);
+  closeCountryModal();
+}
+function renderTravelCard(c){
+  const travel=TRAVEL[c];
+  let r='';
+  if(travel){
+    if(travel.sections){
+      travel.sections.forEach(s=>{
+        r+=`<div class="travel-module"><div class="travel-module-title">${s.icon} ${s.title}</div>`;
+        if(s.items){r+='<ul>'+s.items.map(i=>i.v?`<li><span class="ti-b">${i.k}：</span>${i.v}</li>`:`<li>${i.k}</li>`).join('')+'</ul>';}
+        if(s.list){r+='<ul>'+s.list.map(t=>'<li>'+t+'</li>').join('')+'</ul>';}
+        if(s.text){r+=`<p>${s.text}</p>`;}
+        r+='</div>';
+      });
+    }else{
+      r+=`<div class="travel-module"><div class="travel-module-title">\uD83D\uDEC2 签证</div><p>${travel.visa}</p></div>`;
+      r+=`<div class="travel-module"><div class="travel-module-title">\uD83D\uDCC5 最佳时间</div><ul>${travel.bestTime.map(t=>'<li>'+t+'</li>').join('')}</ul></div>`;
+      r+=`<div class="travel-module"><div class="travel-module-title">\uD83C\uDF92 行李清单</div><ul>${travel.packing.map(t=>'<li>'+t+'</li>').join('')}</ul></div>`;
+      r+=`<div class="travel-module"><div class="travel-module-title">\uD83D\uDCB0 货币支付</div><ul>${travel.payment.map(t=>'<li>'+t+'</li>').join('')}</ul></div>`;
+      r+=`<div class="travel-module"><div class="travel-module-title">\uD83D\uDD0C 实用贴士</div><ul>${travel.tips.map(t=>'<li>'+t+'</li>').join('')}</ul></div>`;
+    }
+  }
+  document.getElementById('travelArea').innerHTML=r;
+}
+</script>
+</body>
+</html>

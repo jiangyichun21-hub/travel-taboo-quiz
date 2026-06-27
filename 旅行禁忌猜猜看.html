@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅行禁忌猜猜看 — 别踩文化的坑</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',sans-serif;background:linear-gradient(135deg,#e8f4fd 0%,#f0faf6 100%);min-height:100vh;color:#2d3748;overflow-x:hidden}
+.screen{display:none;animation:fadeIn .5s ease}.screen.active{display:flex;flex-direction:column;align-items:center}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounceIn{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes flipIn{0%{transform:rotateY(90deg);opacity:0}100%{transform:rotateY(0);opacity:1}}
+@keyframes streak{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes correctBg{0%{background:#f0fff4}50%{background:#c6f6d5}100%{background:#f0fff4}}
+@keyframes wrongBg{0%{background:#fff5f5}50%{background:#fed7d7}100%{background:#fff5f5}}
+
+.btn{padding:14px 40px;border:none;border-radius:50px;font-size:18px;font-weight:600;cursor:pointer;transition:all .25s ease;outline:none;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,#4ecdc4,#44b3ab);color:#fff;box-shadow:0 4px 15px rgba(78,205,196,.35)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(78,205,196,.45)}
+.btn-secondary{background:#fff;color:#4ecdc4;border:2px solid #4ecdc4}
+.btn-secondary:hover{background:#f0faf6}
+
+/* Start */
+#startScreen{justify-content:center;min-height:100vh;padding:40px 20px;text-align:center}
+.logo{font-size:80px;margin-bottom:16px;animation:bounceIn .8s ease}
+.title{font-size:32px;font-weight:700;color:#1a7a6d;margin-bottom:8px;letter-spacing:1px}
+.subtitle{font-size:15px;color:#718096;margin-bottom:36px;line-height:1.7;max-width:360px}
+
+/* Game */
+#gameScreen{padding:20px;width:100%;max-width:480px;margin:0 auto;min-height:100vh}
+.header{display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:20px}
+.round-info{font-size:14px;color:#718096;font-weight:500}
+.score-display{background:#fff;padding:6px 16px;border-radius:20px;font-size:14px;font-weight:600;color:#1a7a6d;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.streak-display{font-size:13px;color:#f6ad55;font-weight:600;margin-left:8px}
+.streak-display.active{animation:streak .4s ease}
+
+.question-card{background:#fff;border-radius:24px;padding:36px 28px;width:100%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:24px;transition:background .4s ease}
+.question-card.correct-bg{animation:correctBg .6s ease}
+.question-card.wrong-bg{animation:wrongBg .6s ease}
+.country-flag{font-size:56px;margin-bottom:8px}
+.country-name{font-size:14px;color:#a0aec0;font-weight:500;margin-bottom:16px;letter-spacing:1px}
+.behavior-text{font-size:20px;font-weight:600;line-height:1.6;color:#2d3748;margin-bottom:8px}
+.situation-hint{background:#fffdf0;border:1.5px solid #f6e05e;border-radius:12px;padding:12px 16px;margin:12px 0 0;text-align:left;font-size:13px;color:#744210;line-height:1.5;display:flex;align-items:flex-start;gap:8px}
+.situation-hint .hint-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+.answer-btns{display:flex;gap:16px;width:100%;margin-bottom:20px;justify-content:center}
+.answer-btn{flex:1;max-width:180px;padding:16px 20px;border:2.5px solid #e2e8f0;border-radius:16px;background:#fff;font-size:18px;font-weight:600;cursor:pointer;transition:all .2s ease;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+.answer-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.answer-btn.ok-btn:hover{border-color:#38a169;background:#f0fff4;color:#38a169}
+.answer-btn.no-btn:hover{border-color:#e53e3e;background:#fff5f5;color:#e53e3e}
+.answer-btn:disabled{opacity:.5;cursor:default;transform:none;box-shadow:none}
+.answer-btn.chosen-ok{border-color:#38a169;background:#f0fff4;color:#38a169}
+.answer-btn.chosen-no{border-color:#e53e3e;background:#fff5f5;color:#e53e3e}
+
+.explanation{width:100%;border-radius:16px;padding:20px 24px;margin-bottom:20px;animation:flipIn .4s ease;text-align:left;line-height:1.6}
+.explanation.correct{background:linear-gradient(135deg,#f0fff4,#e6ffed);border:2px solid #c6f6d5}
+.explanation.wrong{background:linear-gradient(135deg,#fff5f5,#ffe3e3);border:2px solid #feb2b2}
+.explanation.result-label{font-size:15px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.explanation.result-label .icon{font-size:20px}
+.explanation.fact{font-size:14px;color:#4a5568;margin-bottom:6px}
+.explanation.learn{font-size:13px;color:#718096;line-height:1.5;padding-top:8px;border-top:1px solid rgba(0,0,0,.06)}
+
+.next-btn-wrap{text-align:center;width:100%}
+.next-btn-wrap .btn{padding:12px 36px;font-size:15px}
+
+/* Final */
+#finalScreen{justify-content:center;min-height:100vh;padding:40px 20px;text-align:center}
+.final-icon{font-size:72px;margin-bottom:16px;animation:bounceIn .8s ease}
+.final-title{font-size:26px;font-weight:700;margin-bottom:8px}
+.final-score{font-size:44px;font-weight:800;color:#1a7a6d;margin:12px 0}
+.final-rank{font-size:16px;color:#718096;margin-bottom:24px;line-height:1.5}
+.final-stats{display:flex;gap:20px;justify-content:center;margin-bottom:28px;flex-wrap:wrap}
+.stat-item{text-align:center}
+.stat-num{font-size:26px;font-weight:700;color:#4ecdc4}
+.stat-label{font-size:12px;color:#a0aec0;margin-top:2px}
+.final-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+
+/* Review */
+.review-section{width:100%;max-width:480px;margin:0 auto 24px;text-align:left}
+.review-title{font-size:14px;color:#718096;font-weight:600;margin-bottom:12px;text-align:center}
+.review-item{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.4;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.review-item .ri-flag{font-size:22px;flex-shrink:0}
+.review-item .ri-body{flex:1}
+.review-item .ri-q{font-weight:600;color:#2d3748;margin-bottom:2px}
+.review-item .ri-ans{font-size:12px;color:#718096}
+.review-item.ri-correct{border-left:3px solid #38a169}
+.review-item.ri-wrong{border-left:3px solid #e53e3e}
+</style>
+</head>
+<body>
+
+<div id="startScreen" class="screen active">
+  <div class="logo">🌍</div>
+  <div class="title">旅行禁忌猜猜看</div>
+  <div class="subtitle">去不同国家旅行，哪些事能做、哪些事万万不行？<br>来测测你的文化知识储备吧！</div>
+  <button class="btn btn-primary" onclick="startGame()">开始挑战</button>
+</div>
+
+<div id="gameScreen" class="screen">
+  <div class="header">
+    <span class="round-info" id="roundInfo">第 1/8 题</span>
+    <span><span class="score-display" id="scoreDisplay">🏆 0</span><span class="streak-display" id="streakDisplay"></span></span>
+  </div>
+  <div class="question-card" id="questionCard">
+    <div class="country-flag" id="countryFlag"></div>
+    <div class="country-name" id="countryName"></div>
+    <div class="behavior-text" id="behaviorText"></div>
+    <div class="situation-hint" id="situationHint"><span class="hint-icon">💬</span><span id="hintText"></span></div>
+  </div>
+  <div class="answer-btns" id="answerBtns">
+    <button class="answer-btn ok-btn" id="okBtn" onclick="answer(true)">✅ 可以</button>
+    <button class="answer-btn no-btn" id="noBtn" onclick="answer(false)">❌ 不可以</button>
+  </div>
+  <div id="explanationArea"></div>
+  <div class="next-btn-wrap" id="nextBtnWrap" style="display:none">
+    <button class="btn btn-primary" onclick="nextQuestion()">下一题 →</button>
+  </div>
+</div>
+
+<div id="finalScreen" class="screen">
+  <div class="final-icon" id="finalIcon">🌟</div>
+  <div class="final-title">挑战完成！</div>
+  <div class="final-score" id="finalScore">0</div>
+  <div class="final-rank" id="finalRank"></div>
+  <div class="final-stats" id="finalStats"></div>
+  <div id="reviewArea"></div>
+  <div class="final-btns">
+    <button class="btn btn-primary" onclick="startGame()">再来一局</button>
+    <button class="btn btn-secondary" onclick="goHome()">返回首页</button>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  { country:'泰国', flag:'🇹🇭', behavior:'摸当地小孩的头表示友好', ok:false,
+    hint:'你在清迈的夜市看到一个超可爱的小朋友，忍不住想摸摸他的头…',
+    fact:'在泰国，头部被视为身体最神圣的部位。',
+    learn:'泰国是佛教国家，头部被认为是灵魂所在。即使是善意的摸头，也会被看作极大的冒犯。对小朋友也不要这样做。' },
+  { country:'日本', flag:'🇯🇵', behavior:'吃拉面时大声吸溜', ok:true,
+    hint:'你在东京一家拉面馆，周围日本食客都在"呼呼"吃面…',
+    fact:'在日本，吸面条发出声音是表示"好吃"的方式。',
+    learn:'日本人吃拉面、荞麦面时发出声音不仅不礼貌问题，反而是对厨师的赞美。声音越大，表示越享受。不过喝汤和吃米饭时还是要安静。' },
+  { country:'印度', flag:'🇮🇳', behavior:'用右手递东西给别人', ok:true,
+    hint:'你在德里的集市买了一条围巾，摊主正等着你付款后接过去…',
+    fact:'在印度，右手才是"干净"的手。',
+    learn:'印度文化中左手用于清洁身体，被认为不洁。递东西、握手、吃饭都应该用右手。用左手递物会被视为不尊重。' },
+  { country:'印度', flag:'🇮🇳', behavior:'用左手接别人递来的食物', ok:false,
+    hint:'在印度的街头小摊，老板热情地递给你一份咖喱角…',
+    fact:'在印度，左手被视为"不洁"的手。',
+    learn:'因为左手传统上用于如厕后的清洁，所以用左手接食物或递东西是很不礼貌的。吃饭时也只用右手。' },
+  { country:'韩国', flag:'🇰🇷', behavior:'把筷子竖直插在米饭上', ok:false,
+    hint:'你在首尔的一家韩餐馆，筷子没地方放，顺手插在了米饭里…',
+    fact:'竖直插筷子是韩国祭祀时的摆法。',
+    learn:'在韩国（以及中国、日本部分地区），把筷子竖插在饭里类似祭祀亡者的香火，非常忌讳。应该把筷子平放在碗边或筷架上。' },
+  { country:'土耳其', flag:'🇹🇷', behavior:'去土耳其人家里做客时带酒作为礼物', ok:false,
+    hint:'你在伊斯坦布尔结识了一位当地人，他邀请你去家里吃饭，你打算带瓶红酒…',
+    fact:'土耳其虽然世俗化，但多数人口信仰伊斯兰教。',
+    learn:'很多土耳其人不饮酒，送酒可能被视为冒犯。去做客最好带甜点（如土耳其软糖）、鲜花或巧克力。' },
+  { country:'新加坡', flag:'🇸🇬', behavior:'在公共场所嚼口香糖', ok:false,
+    hint:'你刚从国内飞到新加坡樟宜机场，习惯性地从包里掏出一片口香糖…',
+    fact:'新加坡对口香糖有严格的法律禁令。',
+    learn:'1992年起新加坡禁止进口和销售口香糖（药用除外），乱吐口香糖会被罚款。这是为了保持城市清洁。去新加坡记得不要带口香糖入境。' },
+  { country:'意大利', flag:'🇮🇹', behavior:'下午3点点一杯卡布奇诺', ok:false,
+    hint:'你在罗马暴走了一下午，3点走进一家咖啡馆想点杯卡布奇诺提提神…',
+    fact:'在意大利，卡布奇诺是"早餐饮品"。',
+    learn:'意大利人只在早餐时（通常上午11点前）喝卡布奇诺，因为牛奶被认为影响消化。下午和饭后只喝浓缩咖啡（Espresso）。午后点卡布奇诺虽然不会被拒，但会立刻暴露你是游客。' },
+  { country:'日本', flag:'🇯🇵', behavior:'在餐厅吃完饭后给服务员小费', ok:false,
+    hint:'你在京都一家料亭吃完了一顿精致的怀石料理，想在桌上留一些现金表示感谢…',
+    fact:'日本没有小费文化，给小费反而让人困惑。',
+    learn:'日本服务业以"おもてなし"（极致待客）为荣，不收额外费用。给小费会被认为"你觉得我的服务只值这点钱吗？"，甚至可能被追出来还给你。' },
+  { country:'泰国', flag:'🇹🇭', behavior:'用餐时用脚去勾远处的椅子', ok:false,
+    hint:'你在曼谷的路边摊吃粉，椅子离你有点远，懒得起身就用脚把椅子勾过来…',
+    fact:'在泰国，脚被视为身体最低贱的部位。',
+    learn:'泰国文化中头最神圣、脚最低贱。用脚指东西、踩门槛、把脚底对着人都是严重的不尊重。坐着时不要把脚翘起来对着任何人。' },
+  { country:'德国', flag:'🇩🇪', behavior:'参加聚会时迟到15分钟到场', ok:true,
+    hint:'一个德国朋友邀请你参加家庭聚会，约定晚上7点，你7:15到了门口…',
+    fact:'德国人对"准时"的理解和你想的不一样。',
+    learn:'德国人非常守时，但社交聚会通常允许迟到5-15分钟（称为"学术一刻钟"）。不过商务场合必须准时。早到反而可能让主人措手不及。' },
+  { country:'英国', flag:'🇬🇧', behavior:'用食指和中指比V字手势（手背朝外）', ok:false,
+    hint:'你在伦敦街头拍照，对着镜头比了个"耶"的手势，但手背朝着镜头…',
+    fact:'手背朝外的V字手势在英国是侮辱性手势。',
+    learn:'手心朝外的V是"胜利/和平"，但手背朝外就等同于竖中指。这个手势源于英法百年战争，据说被俘的弓箭手会被砍掉这两根手指。拍照比耶时注意手心朝外！' },
+  { country:'中东', flag:'🇸🇦', behavior:'未经允许拍摄当地女性', ok:false,
+    hint:'你在迪拜的老城区闲逛，看到一位穿黑袍的女士很有气质，举起相机准备拍…',
+    fact:'在中东地区，拍摄陌生女性是非常严重的冒犯。',
+    learn:'中东文化重视女性隐私，未经许可拍摄女性（尤其是穿传统服饰的）可能引发严重冲突。在清真寺等宗教场所拍照也需事先确认是否允许。' },
+  { country:'法国', flag:'🇫🇷', behavior:'进面包店时先跟店员说Bonjour', ok:true,
+    hint:'你在巴黎街角看到一家诱人的面包店，推门进去直奔可颂柜台…等等，好像忘了什么？',
+    fact:'在法国，进店先打招呼是基本社交礼仪。',
+    learn:'法国人非常重视礼貌用语。进入任何商店都应该先说"Bonjour"（你好），离开时说"Merci, au revoir"（谢谢再见）。不说就直接挑东西会被认为很粗鲁。' },
+  { country:'西班牙', flag:'🇪🇸', behavior:'晚上8点就去餐厅吃晚饭', ok:false,
+    hint:'你在巴塞罗那玩了一天，8点肚子饿了走进一家本地人常去的餐厅…',
+    fact:'西班牙人的晚餐时间通常在晚上9-11点。',
+    learn:'西班牙作息比大多数欧洲国家晚2小时。午餐在下午2-4点，晚餐在9点以后。8点去餐厅吃饭，可能连厨房都还没开。游客集中的区域会有例外，但体验地道的西班牙要晚点吃。' },
+  { country:'越南', flag:'🇻🇳', behavior:'过马路时伸手拦车让车停下来', ok:false,
+    hint:'你在胡志明市，面前是一条不停流动的摩托车河，你想伸手示意让车停下…',
+    fact:'越南的摩托车流几乎不会为行人停下。',
+    learn:'越南（尤其胡志明市和河内）的摩托车流像河水一样不停流动。过马路的秘诀是匀速前进、不要停、不要后退，车流会绕着你走。伸手拦车反而容易造成事故。' },
+  { country:'埃及', flag:'🇪🇬', behavior:'在金字塔前拍照比V字手势', ok:true,
+    hint:'你终于站到了吉萨金字塔前，激动地举起手比了个耶准备合影…',
+    fact:'在埃及旅游景点拍照比手势完全没问题。',
+    learn:'埃及是旅游大国，景点拍照非常自由。不过要注意：进入清真寺要脱鞋并穿着得体，拍摄当地居民（尤其女性）要先征得同意，军事设施和政府建筑禁止拍照。' },
+  { country:'巴西', flag:'🇧🇷', behavior:'见面时用OK手势（拇指和食指围成圈）', ok:false,
+    hint:'你在里约热内卢认识了一位新朋友，想用手势告诉他"一切都OK"…',
+    fact:'在巴西，OK手势是非常粗鲁的侮辱。',
+    learn:'在美国和中国表示"没问题"的OK手势，在巴西等同于竖中指。这个手势据说和1950年代美国副总统尼克松访巴时的事件有关。在巴西用竖大拇指来表示"好"更安全。' },
+  { country:'中国', flag:'🇨🇳', behavior:'送朋友时钟作为生日礼物', ok:false,
+    hint:'朋友快过生日了，你在商场看到一款精美的台钟，觉得很有品味想买来送他…',
+    fact:'"送钟"谐音"送终"，在中国是送礼大忌。',
+    learn:'中国文化讲究谐音吉利。"送钟"="送终"（丧葬），"送梨"="送离"（分离），"送伞"="送散"（离散），都要避免。送礼选苹果（平安）、橘子（吉祥）更安全。' },
+  { country:'墨西哥', flag:'🇲🇽', behavior:'在餐厅吃完饭直接起身走人', ok:false,
+    hint:'你在墨西哥城一家餐厅吃完了Taco，觉得价格里应该已经包含了服务费…',
+    fact:'在墨西哥餐厅不付小费是非常失礼的。',
+    learn:'墨西哥有小费文化，餐厅通常给10-15%小费。和中国、日本不同，墨西哥的服务员收入很大程度依赖小费。不给小费等于说"你的服务一文不值"。' },
+  { country:'俄罗斯', flag:'🇷🇺', behavior:'在门口门槛上和别人握手', ok:false,
+    hint:'你去拜访一位俄罗斯朋友，他打开门，你站在门槛上伸出手准备握手…',
+    fact:'俄罗斯人认为在门槛上握手会带来厄运。',
+    learn:'俄罗斯迷信认为门槛是"边界"，在门槛上握手或递东西会导致争吵。正确做法是：要么完全进门再握手，要么在门外完成。送花也要送奇数朵（偶数用于葬礼）。' },
+  { country:'澳大利亚', flag:'🇦🇺', behavior:'去海边冲浪时涂防晒霜', ok:true,
+    hint:'你在悉尼邦迪海滩准备冲浪，阳光很好，犹豫要不要涂防晒…',
+    fact:'澳大利亚紫外线极强，防晒是生存必需品。',
+    learn:'澳洲臭氧层较薄，紫外线指数经常达到"极端"级别。不涂防晒霜15分钟就可能晒伤。澳洲癌症委员会推荐"Slip, Slop, Slap"——穿上衣服、涂上防晒、戴上帽子。' },
+  { country:'摩洛哥', flag:'🇲🇦', behavior:'在当地人家做客时拒绝喝薄荷茶', ok:false,
+    hint:'你在马拉喀什被一户热情的人家邀请进屋，主人端上了热腾腾的薄荷茶，但你不太想喝…',
+    fact:'摩洛哥薄荷茶是待客的核心礼仪。',
+    learn:'摩洛哥人待客必上薄荷茶（通常连上三杯），拒绝喝茶是非常失礼的行为。即使不想喝，至少象征性地抿一口。茶壶从高处倒入杯中是为了产生泡沫，表示尊重。' },
+  { country:'尼泊尔', flag:'🇳🇵', behavior:'顺时针方向绕行佛塔和寺庙', ok:true,
+    hint:'你在加德满都的博大哈佛塔前，准备绕塔一圈祈福，不确定该走哪个方向…',
+    fact:'在尼泊尔和藏传佛教地区，绕行圣迹必须顺时针。',
+    learn:'佛教和印度教传统中，顺时针（pradakshina）绕行圣物表示尊敬。逆时针走会被认为不敬。同样，转经筒也要顺时针转动。在尼泊尔旅行要特别注意这个规矩。' }
+];
+
+const TOTAL_Q = 12;
+const SCORE_RIGHT = 15;
+const SCORE_WRONG = 0;
+const STREAK_BONUS = 5;
+
+let state = { round:0, score:0, streak:0, maxStreak:0, correct:0, wrong:0, questions:[], history:[] };
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function goHome(){showScreen('startScreen')}
+
+function startGame(){
+  state={round:0,score:0,streak:0,maxStreak:0,correct:0,wrong:0,questions:shuffle(QUESTIONS).slice(0,TOTAL_Q),history:[]};
+  showScreen('gameScreen');
+  showQuestion();
+}
+
+function showQuestion(){
+  const q=state.questions[state.round];
+  document.getElementById('roundInfo').textContent=`第 ${state.round+1}/${TOTAL_Q} 题`;
+  document.getElementById('scoreDisplay').textContent=`🏆 ${state.score}`;
+  updateStreak();
+  document.getElementById('countryFlag').textContent=q.flag;
+  document.getElementById('countryName').textContent=q.country;
+  document.getElementById('behaviorText').textContent=`"${q.behavior}"`;
+  document.getElementById('hintText').textContent=q.hint||'';
+  document.getElementById('situationHint').style.display=q.hint?'flex':'none';
+  document.getElementById('questionCard').className='question-card';
+  document.getElementById('okBtn').disabled=false;
+  document.getElementById('noBtn').disabled=false;
+  document.getElementById('okBtn').className='answer-btn ok-btn';
+  document.getElementById('noBtn').className='answer-btn no-btn';
+  document.getElementById('answerBtns').style.display='flex';
+  document.getElementById('explanationArea').innerHTML='';
+  document.getElementById('nextBtnWrap').style.display='none';
+}
+
+function updateStreak(){
+  const el=document.getElementById('streakDisplay');
+  if(state.streak>=2){el.textContent=`🔥×${state.streak}`;el.className='streak-display active';setTimeout(()=>el.classList.remove('active'),400)}
+  else{el.textContent='';el.className='streak-display'}
+}
+
+function answer(userSaysOk){
+  const q=state.questions[state.round];
+  const isRight=(userSaysOk===q.ok);
+  const card=document.getElementById('questionCard');
+  const okBtn=document.getElementById('okBtn');
+  const noBtn=document.getElementById('noBtn');
+
+  okBtn.disabled=true;noBtn.disabled=true;
+
+  if(userSaysOk){okBtn.classList.add('chosen-ok')}else{noBtn.classList.add('chosen-no')}
+
+  if(isRight){
+    state.correct++;state.streak++;
+    if(state.streak>state.maxStreak)state.maxStreak=state.streak;
+    const bonus=state.streak>=3?STREAK_BONUS*(state.streak-2):0;
+    state.score+=SCORE_RIGHT+bonus;
+    card.classList.add('correct-bg');
+  }else{
+    state.wrong++;state.streak=0;
+    card.classList.add('wrong-bg');
+  }
+
+  state.history.push({q,isRight});
+  document.getElementById('scoreDisplay').textContent=`🏆 ${state.score}`;
+  updateStreak();
+
+  const answerText=q.ok?'✅ 其实可以这样做':'❌ 这样做不行哦';
+  const explanationHTML=`
+    <div class="explanation ${isRight?'correct':'wrong'}">
+      <div class="result-label"><span class="icon">${isRight?'🎉':'💡'}</span>${isRight?'答对了！':'答错了～'} ${isRight?'':answerText}</div>
+      <div class="fact">${q.fact}</div>
+      <div class="learn">💡 ${q.learn}</div>
+    </div>`;
+  document.getElementById('explanationArea').innerHTML=explanationHTML;
+  document.getElementById('nextBtnWrap').style.display='block';
+  document.getElementById('nextBtnWrap').querySelector('.btn').textContent=state.round<TOTAL_Q-1?'下一题 →':'查看结果 🎉';
+}
+
+function nextQuestion(){
+  state.round++;
+  if(state.round>=TOTAL_Q){showFinal();return}
+  showQuestion();
+}
+
+function showFinal(){
+  showScreen('finalScreen');
+  const pct=Math.round((state.correct/TOTAL_Q)*100);
+  let icon='🌍',rank='';
+  if(pct>=90){icon='🏆';rank='文化旅行家！你对世界各地的风俗了如指掌，去哪个国家都不会踩坑。'}
+  else if(pct>=70){icon='🌟';rank='资深旅客！大部分文化知识都掌握了，再补补冷门知识就完美了。'}
+  else if(pct>=50){icon='🎒';rank='好奇背包客！有一些文化盲区，下次旅行前记得做做功课。'}
+  else{icon='🏠';rank='文化小白…建议出发前好好了解一下目的地的风俗习惯，避免尴尬！'}
+
+  document.getElementById('finalIcon').textContent=icon;
+  document.getElementById('finalScore').textContent=state.score+' 分';
+  document.getElementById('finalRank').textContent=rank;
+  document.getElementById('finalStats').innerHTML=`
+    <div class="stat-item"><div class="stat-num">${state.correct}</div><div class="stat-label">答对</div></div>
+    <div class="stat-item"><div class="stat-num">${state.wrong}</div><div class="stat-label">答错</div></div>
+    <div class="stat-item"><div class="stat-num">${state.maxStreak}</div><div class="stat-label">最长连对</div></div>
+    <div class="stat-item"><div class="stat-num">${TOTAL_Q}</div><div class="stat-label">总题数</div></div>`;
+
+  // Build review
+  let reviewHTML='<div class="review-section"><div class="review-title">📖 本局知识回顾</div>';
+  state.history.forEach(h=>{
+    reviewHTML+=`<div class="review-item ${h.isRight?'ri-correct':'ri-wrong'}">
+      <span class="ri-flag">${h.q.flag}</span>
+      <div class="ri-body">
+        <div class="ri-q">${h.q.behavior}</div>
+        <div class="ri-ans">${h.isRight?'✅':'❌'} ${h.q.ok?'答案：可以':'答案：不可以'} — ${h.q.fact}</div>
+      </div>
+    </div>`;
+  });
+  reviewHTML+='</div>';
+  document.getElementById('reviewArea').innerHTML=reviewHTML;
+}
+</script>
+</body>
+</html>

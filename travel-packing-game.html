@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅行装箱 — 打包你的下一趟旅程</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',sans-serif;background:linear-gradient(135deg,#e8f4fd 0%,#f0faf6 100%);min-height:100vh;color:#2d3748;overflow-x:hidden}
+.screen{display:none;animation:fadeIn .5s ease}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounceIn{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-120px) rotate(360deg);opacity:0}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+/* Start Screen */
+#startScreen{justify-content:center;min-height:100vh;padding:40px 20px;text-align:center}
+.logo{font-size:80px;margin-bottom:16px;animation:bounceIn .8s ease}
+.title{font-size:36px;font-weight:700;color:#1a7a6d;margin-bottom:8px;letter-spacing:2px}
+.subtitle{font-size:16px;color:#718096;margin-bottom:40px;line-height:1.6}
+.btn{padding:14px 40px;border:none;border-radius:50px;font-size:18px;font-weight:600;cursor:pointer;transition:all .25s ease;outline:none;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,#4ecdc4,#44b3ab);color:#fff;box-shadow:0 4px 15px rgba(78,205,196,.35)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(78,205,196,.45)}
+.btn-primary:active{transform:translateY(0)}
+.btn-secondary{background:#fff;color:#4ecdc4;border:2px solid #4ecdc4}
+.btn-secondary:hover{background:#f0faf6}
+
+/* Game Screen */
+#gameScreen{padding:20px;width:100%;max-width:640px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.round-info{font-size:14px;color:#718096;font-weight:500}
+.score-display{background:#fff;padding:6px 16px;border-radius:20px;font-size:14px;font-weight:600;color:#1a7a6d;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.dest-card{background:linear-gradient(135deg,#4ecdc4 0%,#44b3ab 100%);color:#fff;border-radius:20px;padding:28px 24px;width:100%;text-align:center;margin-bottom:16px;position:relative;overflow:hidden}
+.dest-card::before{content:'';position:absolute;top:-50%;right:-50%;width:100%;height:100%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);pointer-events:none}
+.dest-icon{font-size:48px;margin-bottom:8px}
+.dest-name{font-size:26px;font-weight:700;margin-bottom:6px}
+.dest-desc{font-size:14px;opacity:.9;line-height:1.5}
+.dest-hint{font-size:13px;opacity:.75;margin-top:8px;font-style:italic}
+.progress-bar{width:100%;height:6px;background:#e2e8f0;border-radius:3px;margin-bottom:12px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#4ecdc4,#f6ad55);border-radius:3px;transition:width .1s linear}
+.progress-fill.danger{background:linear-gradient(90deg,#fc8181,#e53e3e)}
+.basket-label{font-size:14px;color:#718096;margin-bottom:10px;display:flex;align-items:center;gap:6px;font-weight:500}
+.item-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin-bottom:20px}
+.item-card{background:#fff;border:2.5px solid #e2e8f0;border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s ease;user-select:none;position:relative}
+.item-card:hover{border-color:#b2dfdb;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.item-card.selected{border-color:#4ecdc4;background:linear-gradient(135deg,#f0faf6,#e8f8f5);box-shadow:0 3px 12px rgba(78,205,196,.2)}
+.item-card.selected::after{content:'✓';position:absolute;top:6px;right:8px;font-size:14px;font-weight:700;color:#4ecdc4}
+.item-card.correct-reveal{border-color:#38a169;background:#f0fff4;animation:pop .4s ease}
+.item-card.wrong-reveal{border-color:#e53e3e;background:#fff5f5;animation:shake .5s ease}
+.item-card.missed-reveal{border-color:#ed8936;background:#fffaf0;opacity:.7}
+.item-emoji{font-size:36px;display:block;margin-bottom:6px}
+.item-name{font-size:13px;font-weight:600;color:#4a5568;line-height:1.3}
+.action-bar{display:flex;gap:12px;width:100%;justify-content:center;margin-top:8px}
+.action-bar .btn{flex:1;max-width:200px;padding:12px 20px;font-size:15px}
+
+/* Result Overlay */
+#resultOverlay{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(4px);display:none;justify-content:center;align-items:center;z-index:100;padding:20px}
+#resultOverlay.active{display:flex}
+.result-card{background:#fff;border-radius:24px;padding:32px 28px;max-width:420px;width:100%;text-align:center;animation:bounceIn .5s ease;max-height:85vh;overflow-y:auto}
+.result-icon{font-size:56px;margin-bottom:12px}
+.result-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.result-score{font-size:15px;color:#718096;margin-bottom:20px;line-height:1.5}
+.result-items{text-align:left;margin-bottom:20px}
+.result-items h4{font-size:13px;color:#718096;margin-bottom:6px;font-weight:600}
+.result-item{font-size:14px;padding:6px 0;display:flex;align-items:flex-start;gap:6px;line-height:1.4}
+.result-item .ri-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.result-item .ri-text{flex:1}
+.result-item .ri-reason{font-size:12px;color:#718096;display:block;margin-top:2px}
+.result-divider{height:1px;background:#e2e8f0;margin:12px 0}
+.result-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.result-btns .btn{padding:10px 28px;font-size:14px}
+
+/* Final Screen */
+#finalScreen{justify-content:center;min-height:100vh;padding:40px 20px;text-align:center}
+.final-icon{font-size:72px;margin-bottom:16px;animation:bounceIn .8s ease}
+.final-title{font-size:28px;font-weight:700;margin-bottom:8px}
+.final-score{font-size:48px;font-weight:800;color:#1a7a6d;margin:16px 0}
+.final-rank{font-size:18px;color:#718096;margin-bottom:24px}
+.final-stats{display:flex;gap:24px;justify-content:center;margin-bottom:32px;flex-wrap:wrap}
+.stat-item{text-align:center}
+.stat-num{font-size:28px;font-weight:700;color:#4ecdc4}
+.stat-label{font-size:12px;color:#a0aec0;margin-top:2px}
+</style>
+</head>
+<body>
+
+<!-- Start Screen -->
+<div id="startScreen" class="screen active">
+  <div class="logo">🧳</div>
+  <div class="title">旅行装箱</div>
+  <div class="subtitle">你的下一趟旅程，需要带什么？<br>从大筐里挑出正确的旅行装备，别被无关物品骗了！</div>
+  <button class="btn btn-primary" onclick="startGame()">开始游戏</button>
+</div>
+
+<!-- Game Screen -->
+<div id="gameScreen" class="screen">
+  <div class="header">
+    <span class="round-info" id="roundInfo">第 1/5 关</span>
+    <span class="score-display" id="scoreDisplay">🏆 0 分</span>
+  </div>
+  <div class="dest-card" id="destCard">
+    <div class="dest-icon" id="destIcon"></div>
+    <div class="dest-name" id="destName"></div>
+    <div class="dest-desc" id="destDesc"></div>
+    <div class="dest-hint" id="destHint"></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="basket-label">🧺 装备筐 — 点击选择你认为需要携带的物品</div>
+  <div class="item-grid" id="itemGrid"></div>
+  <div class="action-bar">
+    <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">✅ 确认装箱</button>
+  </div>
+</div>
+
+<!-- Result Overlay -->
+<div id="resultOverlay">
+  <div class="result-card" id="resultCard"></div>
+</div>
+
+<!-- Final Screen -->
+<div id="finalScreen" class="screen">
+  <div class="final-icon">🎉</div>
+  <div class="final-title">旅途愉快！</div>
+  <div class="final-score" id="finalScore">0</div>
+  <div class="final-rank" id="finalRank"></div>
+  <div class="final-stats" id="finalStats"></div>
+  <button class="btn btn-primary" onclick="startGame()" style="margin-bottom:12px">再来一局</button>
+  <button class="btn btn-secondary" onclick="goHome()">返回首页</button>
+</div>
+
+<script>
+const DESTINATIONS = [
+  {
+    name: '三亚海滩',
+    icon: '🏖️',
+    desc: '阳光、沙滩、海浪声，一场热带海滨的悠闲假期正在等你',
+    hint: '想想海边需要什么——防晒、戏水、清凉',
+    correct: [
+      { name: '防晒霜', emoji: '🧴', reason: '热带紫外线强烈，不涂会晒伤脱皮' },
+      { name: '泳衣', emoji: '👙', reason: '下海游泳和水上活动的必备装备' },
+      { name: '墨镜', emoji: '🕶️', reason: '海面反射阳光刺眼，保护眼睛' },
+      { name: '沙滩拖鞋', emoji: '🩴', reason: '沙滩行走方便，不怕烫脚不怕沙' },
+      { name: '浮潜面镜', emoji: '🤿', reason: '三亚珊瑚礁丰富，浮潜看海底世界' },
+      { name: '遮阳帽', emoji: '👒', reason: '长时间户外暴晒，防止中暑和晒伤' }
+    ],
+    wrong: [
+      { name: '滑雪板', emoji: '🎿' },
+      { name: '暖宝宝', emoji: '🔥' },
+      { name: '登山杖', emoji: '🥢' },
+      { name: '厚羽绒服', emoji: '🧥' },
+      { name: '保温水壶', emoji: '🫗' },
+      { name: '雪地靴', emoji: '🥾' }
+    ]
+  },
+  {
+    name: '阿尔卑斯滑雪',
+    icon: '⛷️',
+    desc: '白雪皑皑的雪山，呼啸而下的雪道，冬季运动爱好者的天堂',
+    hint: '冰天雪地——保暖和滑雪装备是关键',
+    correct: [
+      { name: '滑雪镜', emoji: '🥽', reason: '雪地反射阳光极强，防止雪盲症' },
+      { name: '防寒服', emoji: '🧥', reason: '雪山气温零下十几度，保暖第一' },
+      { name: '保暖手套', emoji: '🧤', reason: '手部最容易冻伤，必须防护' },
+      { name: '雪地靴', emoji: '🥾', reason: '雪地行走保暖防滑缺一不可' },
+      { name: '暖宝宝', emoji: '🔥', reason: '贴身取暖神器，户外滑雪必备' },
+      { name: '毛线帽', emoji: '🧶', reason: '头部散热快，戴帽保暖很关键' }
+    ],
+    wrong: [
+      { name: '泳衣', emoji: '👙' },
+      { name: '防晒霜', emoji: '🧴' },
+      { name: '沙滩裤', emoji: '🩳' },
+      { name: '浮潜面镜', emoji: '🤿' },
+      { name: '人字拖', emoji: '🩴' },
+      { name: '太阳伞', emoji: '⛱️' }
+    ]
+  },
+  {
+    name: '云南山野露营',
+    icon: '⛺',
+    desc: '远离城市喧嚣，在星空下的山谷里搭起帐篷，享受自然',
+    hint: '野外生存——照明、急救、防虫不能少',
+    correct: [
+      { name: '帐篷', emoji: '⛺', reason: '野外过夜遮风挡雨的基本住所' },
+      { name: '睡袋', emoji: '🛏️', reason: '山野夜间气温低，睡袋保暖保命' },
+      { name: '手电筒', emoji: '🔦', reason: '野外没有路灯，夜间照明全靠它' },
+      { name: '急救包', emoji: '🩹', reason: '户外受伤概率高，紧急自救处理' },
+      { name: '驱蚊液', emoji: '🧪', reason: '云南山林蚊虫多，可能传播疾病' },
+      { name: '登山鞋', emoji: '🥾', reason: '保护脚踝，应对复杂山地地形' }
+    ],
+    wrong: [
+      { name: '高跟鞋', emoji: '👠' },
+      { name: '晚礼服', emoji: '👗' },
+      { name: '红酒杯', emoji: '🍷' },
+      { name: '蓝牙音箱', emoji: '🔊' },
+      { name: '化妆包', emoji: '💄' },
+      { name: '游戏手柄', emoji: '🎮' }
+    ]
+  },
+  {
+    name: '东京城市观光',
+    icon: '🗼',
+    desc: '漫步涩谷街头，穿梭古老神社，感受传统与潮流的碰撞',
+    hint: '暴走城市——舒适走路和记录美好最重要',
+    correct: [
+      { name: '舒适步行鞋', emoji: '👟', reason: '每天暴走两万步，鞋子最重要' },
+      { name: '相机', emoji: '📷', reason: '记录东京街头巷尾的美景和美食' },
+      { name: '充电宝', emoji: '🔋', reason: '手机导航拍照耗电快，随时续命' },
+      { name: '城市地图', emoji: '🗺️', reason: '探索小巷和地铁线路的好帮手' },
+      { name: '轻便外套', emoji: '🧥', reason: '日本天气多变，室内外温差大' },
+      { name: '折叠雨伞', emoji: '☂️', reason: '东京天气说变就变，雨伞常备' }
+    ],
+    wrong: [
+      { name: '帐篷', emoji: '⛺' },
+      { name: '登山绳', emoji: '🪢' },
+      { name: '滑雪板', emoji: '🎿' },
+      { name: '救生衣', emoji: '🦺' },
+      { name: '钓鱼竿', emoji: '🎣' },
+      { name: '冲浪板', emoji: '🏄' }
+    ]
+  },
+  {
+    name: '撒哈拉沙漠探险',
+    icon: '🏜️',
+    desc: '金色沙丘绵延至天际，骑骆驼穿越沙漠，追寻绿洲的踪迹',
+    hint: '沙漠极端环境——防晒、补水、导航是生命线',
+    correct: [
+      { name: '防沙面巾', emoji: '🧕', reason: '沙漠风沙大，保护口鼻和呼吸系统' },
+      { name: '大容量水壶', emoji: '🫗', reason: '沙漠补水是生命线，脱水极度危险' },
+      { name: 'GPS导航仪', emoji: '📡', reason: '沙漠无明显路标，迷路后果很严重' },
+      { name: '防晒霜', emoji: '🧴', reason: '沙漠紫外线极端，不做防护会灼伤' },
+      { name: '墨镜', emoji: '🕶️', reason: '防止沙粒入眼和强光刺伤' },
+      { name: '急救包', emoji: '🩹', reason: '远离医疗点，蛇虫咬伤需紧急处理' }
+    ],
+    wrong: [
+      { name: '雨伞', emoji: '☂️' },
+      { name: '滑雪手套', emoji: '🧤' },
+      { name: '浮潜面镜', emoji: '🤿' },
+      { name: '保温杯', emoji: '☕' },
+      { name: '雨靴', emoji: '🥾' },
+      { name: '厚围巾', emoji: '🧣' }
+    ]
+  },
+  {
+    name: '日本温泉旅馆',
+    icon: '♨️',
+    desc: '古朴的和式旅馆，氤氲的温泉水，享受一泊两食的极致放松',
+    hint: '泡温泉——洗浴用品和放松心态是主角',
+    correct: [
+      { name: '小毛巾', emoji: '🧻', reason: '泡温泉标配，擦身和搭在池边用' },
+      { name: '浴衣', emoji: '👘', reason: '旅馆内穿着，符合传统也方便休息' },
+      { name: '护肤品', emoji: '🧴', reason: '泡完温泉皮肤容易干燥需要保湿' },
+      { name: '木屐', emoji: '🩴', reason: '日式旅馆标配，在庭院散步穿' },
+      { name: '发圈', emoji: '🎀', reason: '长发扎起避免泡温泉时散落不卫生' },
+      { name: '小扇子', emoji: '🪭', reason: '温泉蒸汽热，扇一扇帮助降温' }
+    ],
+    wrong: [
+      { name: '滑雪板', emoji: '🎿' },
+      { name: '登山绳', emoji: '🪢' },
+      { name: '帐篷', emoji: '⛺' },
+      { name: '急救包', emoji: '🩹' },
+      { name: '手电筒', emoji: '🔦' },
+      { name: '钓鱼竿', emoji: '🎣' }
+    ]
+  },
+  {
+    name: '冰岛追极光',
+    icon: '🌌',
+    desc: '在极夜的星空下，等待绿色极光划破天际的震撼瞬间',
+    hint: '极寒+长时间户外等待——保暖和摄影装备是王道',
+    correct: [
+      { name: '防寒服', emoji: '🧥', reason: '冰岛极夜气温零下十几度且风大' },
+      { name: '保暖手套', emoji: '🧤', reason: '户外长时间等待极光，手部最易冻僵' },
+      { name: '三脚架', emoji: '📐', reason: '拍极光需长曝光，手持必糊' },
+      { name: '相机', emoji: '📷', reason: '记录一生必看的极光美景' },
+      { name: '暖宝宝', emoji: '🔥', reason: '户外等待极光动辄几小时，贴身取暖' },
+      { name: '保温水壶', emoji: '☕', reason: '极寒中一口热水暖手暖身' }
+    ],
+    wrong: [
+      { name: '泳衣', emoji: '👙' },
+      { name: '防晒霜', emoji: '🧴' },
+      { name: '沙滩裤', emoji: '🩳' },
+      { name: '浮潜面镜', emoji: '🤿' },
+      { name: '遮阳帽', emoji: '👒' },
+      { name: '人字拖', emoji: '🩴' }
+    ]
+  },
+  {
+    name: '西双版纳雨林',
+    icon: '🌿',
+    desc: '热带雨林中徒步，探寻野生动植物，感受原始自然的力量',
+    hint: '湿热雨林——防虫、防雨、速干是必备',
+    correct: [
+      { name: '防蚊喷雾', emoji: '🧪', reason: '热带雨林蚊虫多且可能传播疾病' },
+      { name: '速干衣', emoji: '👕', reason: '雨林高温高湿，普通衣服湿了不干' },
+      { name: '防水袋', emoji: '👝', reason: '保护手机证件，雨林随时暴雨来袭' },
+      { name: '手电筒', emoji: '🔦', reason: '雨林林下光线暗，探路和夜观必备' },
+      { name: '徒步鞋', emoji: '🥾', reason: '湿地防滑，保护脚踝应对复杂地形' },
+      { name: '雨衣', emoji: '🧥', reason: '热带阵雨频繁，雨衣比伞更实用' }
+    ],
+    wrong: [
+      { name: '高跟鞋', emoji: '👠' },
+      { name: '晚礼服', emoji: '👗' },
+      { name: '香水', emoji: '💐' },
+      { name: '滑雪手套', emoji: '🧤' },
+      { name: '保温杯', emoji: '☕' },
+      { name: '墨镜', emoji: '🕶️' }
+    ]
+  }
+];
+
+const TOTAL_ROUNDS = 5;
+const TIME_PER_ROUND = 40;
+const SCORE_CORRECT = 10;
+const SCORE_WRONG = -5;
+const TIME_BONUS_PER_SEC = 1;
+
+let gameState = {
+  round: 0,
+  score: 0,
+  totalCorrect: 0,
+  totalWrong: 0,
+  totalMissed: 0,
+  selected: new Set(),
+  currentDest: null,
+  roundItems: [],
+  timeLeft: TIME_PER_ROUND,
+  timer: null,
+  destinations: [],
+  roundResults: []
+};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goHome() {
+  showScreen('startScreen');
+}
+
+function startGame() {
+  gameState = {
+    round: 0,
+    score: 0,
+    totalCorrect: 0,
+    totalWrong: 0,
+    totalMissed: 0,
+    selected: new Set(),
+    currentDest: null,
+    roundItems: [],
+    timeLeft: TIME_PER_ROUND,
+    timer: null,
+    destinations: shuffle(DESTINATIONS).slice(0, TOTAL_ROUNDS),
+    roundResults: []
+  };
+  document.getElementById('resultOverlay').classList.remove('active');
+  showScreen('gameScreen');
+  nextRound();
+}
+
+function nextRound() {
+  if (gameState.round >= TOTAL_ROUNDS) {
+    showFinalScreen();
+    return;
+  }
+  const dest = gameState.destinations[gameState.round];
+  gameState.currentDest = dest;
+  gameState.selected = new Set();
+  gameState.timeLeft = TIME_PER_ROUND;
+
+  // Build item list: pick 5-6 correct + 5-6 wrong, shuffle
+  const correctItems = shuffle(dest.correct).slice(0, 6);
+  const wrongItems = shuffle(dest.wrong).slice(0, 6);
+  gameState.roundItems = shuffle([...correctItems.map(i => ({...i, isCorrect: true})), ...wrongItems.map(i => ({...i, isCorrect: false}))]);
+
+  // Update UI
+  document.getElementById('roundInfo').textContent = `第 ${gameState.round + 1}/${TOTAL_ROUNDS} 关`;
+  document.getElementById('scoreDisplay').textContent = `🏆 ${gameState.score} 分`;
+  document.getElementById('destIcon').textContent = dest.icon;
+  document.getElementById('destName').textContent = dest.name;
+  document.getElementById('destDesc').textContent = dest.desc;
+  document.getElementById('destHint').textContent = `💡 ${dest.hint}`;
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('submitBtn').textContent = '✅ 确认装箱';
+
+  renderItems();
+  startTimer();
+}
+
+function renderItems() {
+  const grid = document.getElementById('itemGrid');
+  grid.innerHTML = '';
+  gameState.roundItems.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'item-card' + (gameState.selected.has(idx) ? ' selected' : '');
+    card.innerHTML = `<span class="item-emoji">${item.emoji}</span><span class="item-name">${item.name}</span>`;
+    card.onclick = () => toggleItem(idx);
+    card.style.animation = `slideUp .3s ease ${idx * 0.04}s both`;
+    grid.appendChild(card);
+  });
+  updateProgress();
+}
+
+function toggleItem(idx) {
+  if (gameState.timer === null) return; // round over
+  if (gameState.selected.has(idx)) {
+    gameState.selected.delete(idx);
+  } else {
+    gameState.selected.add(idx);
+  }
+  const cards = document.querySelectorAll('.item-card');
+  cards[idx].classList.toggle('selected');
+}
+
+function startTimer() {
+  clearInterval(gameState.timer);
+  gameState.timer = setInterval(() => {
+    gameState.timeLeft -= 0.1;
+    updateProgress();
+    if (gameState.timeLeft <= 0) {
+      gameState.timeLeft = 0;
+      submitAnswer();
+    }
+  }, 100);
+}
+
+function updateProgress() {
+  const pct = (gameState.timeLeft / TIME_PER_ROUND) * 100;
+  const fill = document.getElementById('progressFill');
+  fill.style.width = pct + '%';
+  fill.className = 'progress-fill' + (pct < 25 ? ' danger' : '');
+}
+
+function submitAnswer() {
+  clearInterval(gameState.timer);
+  gameState.timer = null;
+
+  const items = gameState.roundItems;
+  const selected = gameState.selected;
+  const cards = document.querySelectorAll('.item-card');
+  const timeUsed = TIME_PER_ROUND - gameState.timeLeft;
+
+  let roundCorrect = 0, roundWrong = 0, roundMissed = 0;
+  const correctPicks = [], wrongPicks = [], missedPicks = [];
+
+  items.forEach((item, idx) => {
+    if (selected.has(idx)) {
+      if (item.isCorrect) {
+        roundCorrect++;
+        correctPicks.push(item);
+        cards[idx].classList.add('correct-reveal');
+      } else {
+        roundWrong++;
+        wrongPicks.push(item);
+        cards[idx].classList.add('wrong-reveal');
+      }
+    } else {
+      if (item.isCorrect) {
+        roundMissed++;
+        missedPicks.push(item);
+        cards[idx].classList.add('missed-reveal');
+      }
+    }
+  });
+
+  // Calculate score
+  const baseScore = roundCorrect * SCORE_CORRECT + roundWrong * SCORE_WRONG;
+  const timeBonus = Math.max(0, Math.floor((TIME_PER_ROUND - timeUsed) * TIME_BONUS_PER_SEC));
+  const roundScore = Math.max(0, baseScore + timeBonus);
+  gameState.score += roundScore;
+  gameState.totalCorrect += roundCorrect;
+  gameState.totalWrong += roundWrong;
+  gameState.totalMissed += roundMissed;
+
+  gameState.roundResults.push({
+    dest: gameState.currentDest.name,
+    icon: gameState.currentDest.icon,
+    roundScore,
+    correct: roundCorrect,
+    wrong: roundWrong,
+    missed: roundMissed,
+    timeBonus
+  });
+
+  // Disable submit
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').textContent = '⏳ 查看结果';
+
+  // Show result after a brief pause
+  setTimeout(() => showRoundResult(roundScore, correctPicks, wrongPicks, missedPicks, timeBonus), 800);
+}
+
+function showRoundResult(roundScore, correctPicks, wrongPicks, missedPicks, timeBonus) {
+  const total = correctPicks.length + wrongPicks.length + missedPicks.length;
+  const accuracy = correctPicks.length + missedPicks.length > 0
+    ? Math.round((correctPicks.length / (correctPicks.length + missedPicks.length)) * 100)
+    : 0;
+
+  let emoji = '🎉', title = '完美打包！';
+  if (accuracy < 50) { emoji = '😅'; title = '好像带错了不少…'; }
+  else if (accuracy < 80) { emoji = '👍'; title = '还不错！'; }
+  else if (accuracy < 100) { emoji = '😄'; title = '很棒，接近完美！'; }
+
+  let html = `
+    <div class="result-icon">${emoji}</div>
+    <div class="result-title">${title}</div>
+    <div class="result-score">
+      本关得分：<strong>${roundScore}分</strong>
+      ${timeBonus > 0 ? `<span style="color:#f6ad55">（含时间奖励 +${timeBonus}）</span>` : ''}
+    </div>
+  `;
+
+  if (correctPicks.length > 0) {
+    html += `<div class="result-items"><h4>✅ 选对了</h4>`;
+    correctPicks.forEach(i => { html += `<div class="result-item"><span class="ri-icon">${i.emoji}</span><span class="ri-text">${i.name}<span class="ri-reason">${i.reason || ''}</span></span></div>`; });
+    html += `</div>`;
+  }
+  if (wrongPicks.length > 0) {
+    html += `<div class="result-items"><h4>❌ 不该带的</h4>`;
+    wrongPicks.forEach(i => { html += `<div class="result-item"><span class="ri-icon">${i.emoji}</span><span class="ri-text">${i.name} <span style="color:#e53e3e;font-size:12px">(${SCORE_WRONG}分)</span></span></div>`; });
+    html += `</div>`;
+  }
+  if (missedPicks.length > 0) {
+    html += `<div class="result-items"><h4>🤔 忘记带了</h4>`;
+    missedPicks.forEach(i => { html += `<div class="result-item"><span class="ri-icon">${i.emoji}</span><span class="ri-text">${i.name}<span class="ri-reason">${i.reason || ''}</span></span></div>`; });
+    html += `</div>`;
+  }
+
+  html += `
+    <div class="result-btns">
+      ${gameState.round < TOTAL_ROUNDS ? '<button class="btn btn-primary" onclick="nextRound()">下一关 →</button>' : '<button class="btn btn-primary" onclick="showFinalScreen()">查看总结 🎉</button>'}
+    </div>
+  `;
+
+  document.getElementById('resultCard').innerHTML = html;
+  document.getElementById('resultOverlay').classList.add('active');
+}
+
+function showFinalScreen() {
+  document.getElementById('resultOverlay').classList.remove('active');
+  showScreen('finalScreen');
+
+  const maxPossible = TOTAL_ROUNDS * 6 * SCORE_CORRECT + TOTAL_ROUNDS * TIME_PER_ROUND * TIME_BONUS_PER_SEC;
+  const pct = Math.round((gameState.score / maxPossible) * 100);
+
+  let rank = '';
+  if (pct >= 80) rank = '🏆 旅行达人 — 打包技能满分！';
+  else if (pct >= 60) rank = '🌟 资深旅客 — 经验丰富，小有遗漏';
+  else if (pct >= 40) rank = '🎒 新手背包客 — 还需多多练习';
+  else rank = '🏠 宅家选手 — 也许先看看攻略？';
+
+  document.getElementById('finalScore').textContent = gameState.score + ' 分';
+  document.getElementById('finalRank').textContent = rank;
+  document.getElementById('finalStats').innerHTML = `
+    <div class="stat-item"><div class="stat-num">${gameState.totalCorrect}</div><div class="stat-label">选对物品</div></div>
+    <div class="stat-item"><div class="stat-num">${gameState.totalWrong}</div><div class="stat-label">选错物品</div></div>
+    <div class="stat-item"><div class="stat-num">${gameState.totalMissed}</div><div class="stat-label">遗漏物品</div></div>
+    <div class="stat-item"><div class="stat-num">${TOTAL_ROUNDS}</div><div class="stat-label">完成关卡</div></div>
+  `;
+  gameState.round = TOTAL_ROUNDS; // ensure final screen knows we're done
+}
+
+// Override nextRound to handle overlay close
+const _origNextRound = nextRound;
+nextRound = function() {
+  document.getElementById('resultOverlay').classList.remove('active');
+  gameState.round++;
+  _origNextRound();
+};
+</script>
+</body>
+</html>

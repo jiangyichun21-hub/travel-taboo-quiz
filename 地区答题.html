@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅行禁忌猜猜看 — 别踩文化的坑</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',sans-serif;background:linear-gradient(135deg,#e8f4fd 0%,#f0faf6 100%);min-height:100vh;color:#2d3748;overflow-x:hidden}
+.screen{display:none;animation:fadeIn .5s ease}.screen.active{display:flex;flex-direction:column;align-items:center}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounceIn{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes flipIn{0%{transform:rotateY(90deg);opacity:0}100%{transform:rotateY(0);opacity:1}}
+@keyframes streak{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes correctBg{0%{background:#f0fff4}50%{background:#c6f6d5}100%{background:#f0fff4}}
+@keyframes wrongBg{0%{background:#fff5f5}50%{background:#fed7d7}100%{background:#fff5f5}}
+.btn{padding:14px 40px;border:none;border-radius:50px;font-size:18px;font-weight:600;cursor:pointer;transition:all .25s ease;outline:none;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,#4ecdc4,#44b3ab);color:#fff;box-shadow:0 4px 15px rgba(78,205,196,.35)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(78,205,196,.45)}
+.btn-secondary{background:#fff;color:#4ecdc4;border:2px solid #4ecdc4}
+.btn-secondary:hover{background:#f0faf6}
+#startScreen{justify-content:center;min-height:100vh;padding:40px 20px 30px;text-align:center}
+.logo{font-size:80px;margin-bottom:16px;animation:bounceIn .8s ease}
+.title{font-size:32px;font-weight:700;color:#1a7a6d;margin-bottom:8px;letter-spacing:1px}
+.subtitle{font-size:15px;color:#718096;margin-bottom:36px;line-height:1.7;max-width:360px}
+#regionScreen{justify-content:flex-start;min-height:100vh;padding:30px 20px;text-align:center}
+.region-header{margin-bottom:24px}
+.region-header h2{font-size:22px;font-weight:700;color:#1a7a6d;margin-bottom:6px}
+.region-header p{font-size:14px;color:#718096;line-height:1.5}
+.region-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:420px;margin-bottom:16px}
+.region-card{background:#fff;border-radius:16px;padding:18px 14px;text-align:center;cursor:pointer;transition:all .25s ease;border:2px solid transparent;box-shadow:0 2px 12px rgba(0,0,0,.05)}
+.region-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.1);border-color:#4ecdc4}
+.region-card .rc-icon{font-size:32px;margin-bottom:6px}
+.region-card .rc-name{font-size:15px;font-weight:600;color:#2d3748;margin-bottom:4px}
+.region-card .rc-flags{font-size:18px;margin-bottom:6px;letter-spacing:2px}
+.region-card .rc-count{font-size:12px;color:#a0aec0;background:#f7fafc;border-radius:10px;padding:2px 10px;display:inline-block}
+.region-card.disabled{opacity:.5;cursor:default;pointer-events:none}
+#gameScreen{padding:20px;width:100%;max-width:480px;margin:0 auto;min-height:100vh}
+.header{display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:20px;flex-wrap:wrap;gap:6px}
+.round-info{font-size:14px;color:#718096;font-weight:500}
+.score-display{background:#fff;padding:6px 16px;border-radius:20px;font-size:14px;font-weight:600;color:#1a7a6d;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.streak-display{font-size:13px;color:#f6ad55;font-weight:600;margin-left:8px}
+.streak-display.active{animation:streak .4s ease}
+.question-card{background:#fff;border-radius:24px;padding:36px 28px;width:100%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:24px;transition:background .4s ease}
+.question-card.correct-bg{animation:correctBg .6s ease}
+.question-card.wrong-bg{animation:wrongBg .6s ease}
+.country-flag{font-size:56px;margin-bottom:8px}
+.country-name{font-size:14px;color:#a0aec0;font-weight:500;margin-bottom:16px;letter-spacing:1px}
+.behavior-text{font-size:20px;font-weight:600;line-height:1.6;color:#2d3748;margin-bottom:8px}
+.situation-hint{background:#fffdf0;border:1.5px solid #f6e05e;border-radius:12px;padding:12px 16px;margin:12px 0 0;text-align:left;font-size:13px;color:#744210;line-height:1.5;display:flex;align-items:flex-start;gap:8px}
+.situation-hint .hint-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.answer-btns{display:flex;gap:16px;width:100%;margin-bottom:20px;justify-content:center}
+.answer-btn{flex:1;max-width:180px;padding:16px 20px;border:2.5px solid #e2e8f0;border-radius:16px;background:#fff;font-size:18px;font-weight:600;cursor:pointer;transition:all .2s ease;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+.answer-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.answer-btn.ok-btn:hover{border-color:#38a169;background:#f0fff4;color:#38a169}
+.answer-btn.no-btn:hover{border-color:#e53e3e;background:#fff5f5;color:#e53e3e}
+.answer-btn:disabled{opacity:.5;cursor:default;transform:none;box-shadow:none}
+.answer-btn.chosen-ok{border-color:#38a169;background:#f0fff4;color:#38a169}
+.answer-btn.chosen-no{border-color:#e53e3e;background:#fff5f5;color:#e53e3e}
+.explanation{width:100%;border-radius:16px;padding:20px 24px;margin-bottom:20px;animation:flipIn .4s ease;text-align:left;line-height:1.6}
+.explanation.correct{background:linear-gradient(135deg,#f0fff4,#e6ffed);border:2px solid #c6f6d5}
+.explanation.wrong{background:linear-gradient(135deg,#fff5f5,#ffe3e3);border:2px solid #feb2b2}
+.explanation .result-label{font-size:15px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.explanation .result-label .icon{font-size:20px}
+.explanation .fact{font-size:14px;color:#4a5568;margin-bottom:6px}
+.explanation .learn{font-size:13px;color:#718096;line-height:1.5;padding-top:8px;border-top:1px solid rgba(0,0,0,.06)}
+.next-btn-wrap{text-align:center;width:100%}
+.next-btn-wrap .btn{padding:12px 36px;font-size:15px}
+#finalScreen{min-height:100vh;padding:0 0 70px;text-align:center;justify-content:flex-start}
+.final-top{padding:28px 16px 20px;display:flex;flex-direction:column;align-items:center}
+.final-result{font-size:52px;font-weight:800;color:#1a7a6d;margin-bottom:4px;letter-spacing:-1px}
+.final-result .result-unit{font-size:16px;font-weight:600;color:#718096;margin-left:2px}
+.final-title{font-size:18px;font-weight:600;color:#2d3748;margin-bottom:10px}
+.final-region-tag{font-size:12px;color:#4ecdc4;background:#f0faf6;border:1px solid #4ecdc4;border-radius:12px;padding:2px 12px;display:inline-block;margin-bottom:6px}
+.final-rank{font-size:13px;color:#718096;line-height:1.4;max-width:300px}
+.culture-section{width:100%;max-width:480px;padding:0 16px;margin:0 auto;text-align:left}
+.culture-title{font-size:14px;color:#2d3748;font-weight:700;margin-bottom:14px;text-align:center;letter-spacing:1px}
+.culture-country{background:#fff;border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.culture-country-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f7fafc;border-bottom:1px solid #edf2f7}
+.culture-country-header .cc-flag{font-size:22px}
+.culture-country-header .cc-name{font-size:14px;font-weight:700;color:#2d3748}
+.culture-fact{padding:12px 14px;border-bottom:1px solid #f0f0f0;display:flex;align-items:flex-start;gap:8px}
+.culture-fact:last-child{border-bottom:none}
+.culture-fact .fact-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.culture-fact .fact-text{font-size:13px;color:#4a5568;line-height:1.6}
+.final-btns{position:fixed;bottom:0;left:0;right:0;display:flex;gap:10px;padding:12px 16px;background:#fff;box-shadow:0 -2px 12px rgba(0,0,0,.06);z-index:100;justify-content:center}
+.final-btns .btn{flex:1;max-width:200px;padding:12px 16px;font-size:14px}
+.travel-toggle{display:flex;align-items:center;gap:6px;padding:10px 14px;font-size:12px;font-weight:600;color:#4ecdc4;cursor:pointer;border-top:1px solid #edf2f7;background:#f7fafc;transition:background .2s}
+.travel-toggle:hover{background:#edf7f6}
+.travel-toggle .arrow{transition:transform .2s;display:inline-block}
+.travel-toggle.open .arrow{transform:rotate(180deg)}
+.travel-list{display:none;padding:10px 14px 14px}
+.travel-list.open{display:block}
+.travel-module{margin-bottom:12px}
+.travel-module:last-child{margin-bottom:0}
+.travel-module-title{font-size:12px;font-weight:700;color:#2d3748;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.travel-module ul{list-style:none;padding:0;margin:0}
+.travel-module li{font-size:12px;color:#4a5568;line-height:1.6;padding:2px 0 2px 12px;position:relative}
+.travel-module li::before{content:'·';position:absolute;left:0;color:#a0aec0}
+.travel-module p{font-size:12px;color:#4a5568;line-height:1.6;margin:0}
+</style>
+</head>
+<body>
+<div id="startScreen" class="screen active">
+  <div class="logo">🌍</div>
+  <div class="title">旅行禁忌猜猜看</div>
+  <div class="subtitle">去不同国家旅行，哪些事能做、哪些事万万不行？<br>选择你感兴趣的旅行地区，开始挑战吧！</div>
+  <div class="region-grid" id="regionGrid"></div>
+</div>
+<div id="gameScreen" class="screen">
+  <div class="header">
+    <span class="round-info" id="roundInfo">第 1/6 题</span>
+    <span><span class="score-display" id="scoreDisplay">🏆 0</span><span class="streak-display" id="streakDisplay"></span></span>
+  </div>
+  <div class="question-card" id="questionCard">
+    <div class="country-flag" id="countryFlag"></div>
+    <div class="country-name" id="countryName"></div>
+    <div class="behavior-text" id="behaviorText"></div>
+    <div class="situation-hint" id="situationHint"><span class="hint-icon">💬</span><span id="hintText"></span></div>
+  </div>
+  <div class="answer-btns" id="answerBtns">
+    <button class="answer-btn ok-btn" id="okBtn" onclick="answer(true)">✅ 可以</button>
+    <button class="answer-btn no-btn" id="noBtn" onclick="answer(false)">❌ 不可以</button>
+  </div>
+  <div id="explanationArea"></div>
+  <div class="next-btn-wrap" id="nextBtnWrap" style="display:none">
+    <button class="btn btn-primary" onclick="nextQuestion()">下一题 →</button>
+  </div>
+</div>
+<div id="finalScreen" class="screen">
+  <div class="final-top">
+    <div class="final-result" id="finalResult">0/0</div>
+    <div class="final-title">答题结束</div>
+    <div class="final-region-tag" id="finalRegionTag"></div>
+    <div class="final-rank" id="finalRank"></div>
+  </div>
+  <div class="culture-section" id="cultureArea"></div>
+  <div class="final-btns">
+    <button class="btn btn-primary" onclick="goHome()">换个地区</button>
+    <button class="btn btn-secondary" onclick="goHome()">返回首页</button>
+  </div>
+</div>
+<script>
+const REGIONS={
+  asia:{name:'亚洲',icon:'🌏',flags:'🇨🇳🇯🇵🇰🇷🇹🇭🇻🇳🇲🇾🇮🇩🇸🇬🇮🇳🇱🇰🇳🇵'},
+  europe:{name:'欧洲',icon:'🏰',flags:'🇮🇹🇫🇷🇬🇧🇩🇪🇪🇸🇷🇺🇬🇷🇨🇭🇸🇪🇩🇰🇮🇸🇭🇺'},
+  middleeast:{name:'中东',icon:'🕌',flags:'🇹🇷🇸🇦🇦🇪🇯🇴🇶🇦🇮🇱🇮🇷🇴🇲🇰🇼🇱🇧'},
+  africa:{name:'非洲',icon:'🌍',flags:'🇪🇬🇲🇦🇰🇪🇿🇦🇹🇿🇹🇳🇬🇭🇸🇳🇪🇹🇧🇼'},
+  americas:{name:'美洲',icon:'🌎',flags:'🇺🇸🇨🇦🇲🇽🇧🇷🇨🇺🇦🇷🇨🇱🇵🇪🇨🇷🇯🇲'},
+  oceania:{name:'大洋洲',icon:'🌊',flags:'🇦🇺🇳🇿🇫🇯🇵🇫🇵🇬'}
+};
+const QUESTIONS=[
+{country:'泰国',flag:'🇹🇭',region:'asia',behavior:'摸当地小孩的头表示友好',ok:false,hint:'你在曼谷的夜市闲逛，看到一个非常可爱的泰国小朋友，忍不住想伸手摸摸他的头...',fact:'在泰国，头部被视为身体最神圣的部位。',learn:'泰国是佛教国家，头部被认为是灵魂所在。即使是善意的摸头，也会被看作极大的冒犯。'},
+{country:'日本',flag:'🇯🇵',region:'asia',behavior:'吃拉面时大声吸溜',ok:true,hint:'你第一次来日本旅行，走进东京一家拉面店，发现周围的日本人吃面都在发出声音...',fact:'在日本，吸面条发出声音是表示"好吃"的方式。',learn:'日本人吃拉面、荞麦面时发出声音不仅不礼貌，反而是对厨师的赞美。不过喝汤和吃米饭时还是要安静。'},
+{country:'印度',flag:'🇮🇳',region:'asia',behavior:'用右手递东西给别人',ok:true,hint:'你在新德里的街头市场买纪念品，摊主递给你一件商品，你需要把护照递给他看...',fact:'在印度，右手才是"干净"的手。',learn:'印度文化中左手用于清洁身体，被认为不洁。递东西、握手、吃饭都应该用右手。'},
+{country:'印度',flag:'🇮🇳',region:'asia',behavior:'用左手接别人递来的食物',ok:false,hint:'你在印度朋友家做客，主人热情地端来一杯马萨拉奶茶，你顺手用左手去接...',fact:'在印度，左手被视为"不洁"的手。',learn:'因为左手传统上用于如厕后的清洁，所以用左手接食物或递东西是很不礼貌的。'},
+{country:'韩国',flag:'🇰🇷',region:'asia',behavior:'把筷子竖直插在米饭上',ok:false,hint:'你在首尔的餐厅吃饭，端上来一碗米饭和一双筷子，你随手把筷子插在了米饭里...',fact:'竖直插筷子是韩国祭祀时的摆法。',learn:'在韩国（以及中国、日本部分地区），把筷子竖插在饭里类似祭祀亡者的香火，非常忌讳。应该平放在碗边或筷架上。'},
+{country:'土耳其',flag:'🇹🇷',region:'middleeast',behavior:'去土耳其人家里做客时带酒作为礼物',ok:false,hint:'你的土耳其同事邀请你周末去他家吃晚饭，你想着带瓶红酒当伴手礼，毕竟在中国这是很得体的...',fact:'土耳其虽然世俗化，但多数人口信仰伊斯兰教。',learn:'很多土耳其人不饮酒，送酒可能被视为冒犯。去做客最好带甜点（如土耳其软糖）、鲜花或巧克力。'},
+{country:'新加坡',flag:'🇸🇬',region:'asia',behavior:'在公共场所嚼口香糖',ok:false,hint:'你刚从国内飞到新加坡樟宜机场，口袋里还有一包没吃完的口香糖，想嚼一颗清新口气...',fact:'新加坡对口香糖有严格的法律禁令。',learn:'1992年起新加坡禁止进口和销售口香糖（药用除外），乱吐口香糖会被罚款。去新加坡记得不要带口香糖入境。'},
+{country:'意大利',flag:'🇮🇹',region:'europe',behavior:'下午3点点一杯卡布奇诺',ok:false,hint:'你在罗马逛街走累了，下午3点走进一家咖啡馆，想在悠闲的午后喝一杯卡布奇诺配甜点...',fact:'在意大利，卡布奇诺是"早餐饮品"。',learn:'意大利人只在早餐时（上午11点前）喝卡布奇诺，因为牛奶被认为影响消化。午后点卡布奇诺会立刻暴露你是游客。'},
+{country:'日本',flag:'🇯🇵',region:'asia',behavior:'在餐厅吃完饭后给服务员小费',ok:false,hint:'你在京都的一家高级和食餐厅吃完了一顿精致的怀石料理，服务非常周到，你想留下小费表示感谢...',fact:'日本没有小费文化，给小费反而让人困惑。',learn:'日本服务业以"おもてなし"（极致待客）为荣，不收额外费用。给小费甚至可能被追出来还给你。'},
+{country:'泰国',flag:'🇹🇭',region:'asia',behavior:'用餐时用脚去勾远处的椅子',ok:false,hint:'你在清迈的一家露天餐厅吃饭，椅子离你有点远，懒得站起来，想用脚把椅子勾过来...',fact:'在泰国，脚被视为身体最低贱的部位。',learn:'泰国文化中头最神圣、脚最低贱。用脚指东西、踩门槛、把脚底对着人都是严重的不尊重。'},
+{country:'德国',flag:'🇩🇪',region:'europe',behavior:'参加聚会时迟到15分钟到场',ok:true,hint:'你的德国朋友邀请你参加周末的家庭聚会，约好晚上7点开始，你想着该准点到还是稍晚一点...',fact:'德国人对"准时"的理解和你想的不一样。',learn:'德国人非常守时，但社交聚会通常允许迟到5-15分钟（称为"学术一刻钟"）。不过商务场合必须准时。'},
+{country:'英国',flag:'🇬🇧',region:'europe',behavior:'用食指和中指比V字手势（手背朝外）',ok:false,hint:'你在伦敦旅游，朋友帮你拍照，你开心地比了个V字手势，但不小心手背朝向了镜头...',fact:'手背朝外的V字手势在英国是侮辱性手势。',learn:'手心朝外的V是"胜利/和平"，但手背朝外等同于竖中指。这个手势源于英法百年战争。拍照比耶时注意手心朝外！'},
+{country:'中东',flag:'🇸🇦',region:'middleeast',behavior:'未经允许拍摄当地女性',ok:false,hint:'你在迪拜老城区游览，看到几位穿着传统黑色长袍的女性走过，觉得画面很美想拍下来...',fact:'在中东地区，拍摄陌生女性是非常严重的冒犯。',learn:'中东文化重视女性隐私，未经许可拍摄女性可能引发严重冲突。在清真寺等宗教场所拍照也需事先确认。'},
+{country:'法国',flag:'🇫🇷',region:'europe',behavior:'进面包店时先跟店员说Bonjour',ok:true,hint:'你在巴黎街头看到一家飘香的面包店，走进去想买几个可颂，店员正看着你...',fact:'在法国，进店先打招呼是基本社交礼仪。',learn:'法国人非常重视礼貌用语。进入任何商店都应该先说"Bonjour"，不说就直接挑东西会被认为很粗鲁。'},
+{country:'西班牙',flag:'🇪🇸',region:'europe',behavior:'晚上8点就去餐厅吃晚饭',ok:false,hint:'你在马德里逛了一天，晚上8点肚子饿了，想找一家当地餐厅吃晚饭...',fact:'西班牙人的晚餐时间通常在晚上9-11点。',learn:'西班牙作息比大多数欧洲国家晚2小时。午餐在下午2-4点，晚餐在9点以后。8点去可能连厨房都还没开。'},
+{country:'越南',flag:'🇻🇳',region:'asia',behavior:'过马路时伸手拦车让车停下来',ok:false,hint:'你站在胡志明市的街头，面前是一条川流不息的摩托车河，你想伸手让车停下来再过...',fact:'越南的摩托车流几乎不会为行人停下。',learn:'越南过马路的秘诀是匀速前进、不要停、不要后退，车流会绕着你走。伸手拦车反而容易造成事故。'},
+{country:'埃及',flag:'🇪🇬',region:'africa',behavior:'在金字塔前拍照比V字手势',ok:true,hint:'你终于来到了埃及吉萨金字塔，想拍一张打卡照留念，比了个V字手势...',fact:'在埃及旅游景点拍照比手势完全没问题。',learn:'埃及是旅游大国，景点拍照非常自由。不过进入清真寺要脱鞋，拍摄当地居民要先征得同意。'},
+{country:'巴西',flag:'🇧🇷',region:'americas',behavior:'见面时用OK手势（拇指和食指围成圈）',ok:false,hint:'你在里约热内卢见到刚认识的巴西朋友，想用国际通用的OK手势表示"一切都好"...',fact:'在巴西，OK手势是非常粗鲁的侮辱。',learn:'在美国和中国表示"没问题"的OK手势，在巴西等同于竖中指。在巴西用竖大拇指来表示"好"更安全。'},
+{country:'中国',flag:'🇨🇳',region:'asia',behavior:'送朋友时钟作为生日礼物',ok:false,hint:'你看到一个很精美的中式座钟，想送给中国朋友当生日礼物，又精致又实用...',fact:'"送钟"谐音"送终"，在中国是送礼大忌。',learn:'中国文化讲究谐音吉利。"送钟"="送终"，"送梨"="送离"，"送伞"="送散"，都要避免。'},
+{country:'墨西哥',flag:'🇲🇽',region:'americas',behavior:'在餐厅吃完饭直接起身走人',ok:false,hint:'你在墨西哥城的一家餐厅吃完taco，觉得和在国内一样吃完直接走就行...',fact:'在墨西哥餐厅不付小费是非常失礼的。',learn:'墨西哥有小费文化，餐厅通常给10-15%小费。和中国、日本不同，墨西哥的服务员收入很大程度依赖小费。'},
+{country:'俄罗斯',flag:'🇷🇺',region:'europe',behavior:'在门口门槛上和别人握手',ok:false,hint:'你去拜访俄罗斯朋友，他开门后你站在门口，隔着门槛伸出手准备握手打招呼...',fact:'俄罗斯人认为在门槛上握手会带来厄运。',learn:'俄罗斯迷信认为门槛是"边界"，在门槛上握手会导致争吵。正确做法是完全进门或门外完成。送花也要送奇数朵。'},
+{country:'澳大利亚',flag:'🇦🇺',region:'oceania',behavior:'去海边冲浪时涂防晒霜',ok:true,hint:'你在悉尼邦迪海滩准备冲浪，阳光很强烈，你在考虑要不要涂防晒霜...',fact:'澳大利亚紫外线极强，防晒是生存必需品。',learn:'澳洲臭氧层较薄，紫外线指数经常达到"极端"级别。不涂防晒霜15分钟就可能晒伤。'},
+{country:'摩洛哥',flag:'🇲🇦',region:'africa',behavior:'在当地人家做客时拒绝喝薄荷茶',ok:false,hint:'你在马拉喀什的老城游览，一位摩洛哥大叔热情地邀请你到他家做客，端上了薄荷茶，但你不太想喝...',fact:'摩洛哥薄荷茶是待客的核心礼仪。',learn:'摩洛哥人待客必上薄荷茶（通常连上三杯），拒绝喝茶非常失礼。至少象征性地抿一口。'},
+{country:'尼泊尔',flag:'🇳🇵',region:'asia',behavior:'顺时针方向绕行佛塔和寺庙',ok:true,hint:'你在加德满都的博达哈佛塔参观，看到当地人都在绕着佛塔走，你想跟着走但不确定方向...',fact:'在尼泊尔和藏传佛教地区，绕行圣迹必须顺时针。',learn:'佛教和印度教传统中，顺时针绕行圣物表示尊敬。逆时针走会被认为不敬。转经筒也要顺时针转动。'},
+{country:'印度尼西亚',flag:'🇮🇩',region:'asia',behavior:'用左手把钱递给收银员',ok:false,hint:'你在巴厘岛的一家小店买纪念品，结账时顺手用左手把钞票递给老板...',fact:'在印尼，左手和印度一样被视为不洁。',learn:'印尼是世界最大的穆斯林国家，左手传统上用于清洁。递东西、握手、吃饭都应该用右手，和印度、马来西亚一样。'},
+{country:'瑞士',flag:'🇨🇭',region:'europe',behavior:'晚上10点以后在公寓楼里冲马桶',ok:false,hint:'你住在苏黎世的一家民宿里，深夜回来想上厕所，但房东特意提醒过你一条"奇怪的规定"...',fact:'瑞士很多地方禁止晚上10点后制造噪音。',learn:'瑞士非常重视安静，很多公寓规定晚10点后不能冲马桶、洗澡或大声说话。违反可能被邻居投诉甚至罚款。'},
+{country:'希腊',flag:'🇬🇷',region:'europe',behavior:'用手掌张开对着别人的脸（Moutza手势）',ok:false,hint:'你在雅典的一家餐厅吃饭，服务员问你菜好不好吃，你张开手掌对着他比了个"停"的手势想表示"太棒了不用说了"...',fact:'张开手掌对着别人的脸在希腊叫Moutza，是极大的侮辱。',learn:'Moutza源于拜占庭时期用灰烬涂抹罪犯脸部的刑罚。在希腊千万不要张开手掌对着人，哪怕只是想表示"停"或"不要"。'},
+{country:'丹麦',flag:'🇩🇰',region:'europe',behavior:'和初次见面的人握手时戴着手套',ok:false,hint:'你在哥本哈根冬天街头认识了一位丹麦朋友，他伸出手来握手，但你嫌冷没有摘手套...',fact:'在丹麦（以及大多数北欧国家），握手时必须摘掉手套。',learn:'戴手套握手被视为不真诚、不尊重。北欧国家非常重视握手的诚意，即使是寒冷的冬天也要摘下手套再握。'},
+{country:'匈牙利',flag:'🇭🇺',region:'europe',behavior:'喝酒时和别人碰杯发出叮的声音',ok:false,hint:'你在布达佩斯的酒吧里和当地朋友庆祝旅行愉快，举起啤酒杯准备碰杯...',fact:'匈牙利人有不碰杯的传统，尤其不能用啤酒碰杯。',learn:'传说1848年匈牙利革命失败后，奥地利将领处决匈牙利人时用碰杯庆祝。从此匈牙利人发誓不碰杯，这个传统延续至今。'},
+{country:'马来西亚',flag:'🇲🇾',region:'asia',behavior:'用食指指着别人说话',ok:false,hint:'你在吉隆坡和同事讨论工作方案，激动之下用食指指着对方强调自己的观点...',fact:'在马来西亚，用食指指人是非常不礼貌的。',learn:'马来文化中用食指指人被认为具有攻击性。如果需要指示方向或人，应该用右手拇指（其余四指握拳），这才是礼貌的方式。'},
+{country:'瑞典',flag:'🇸🇪',region:'europe',behavior:'在超市结账时直接插到前面空着的柜台',ok:false,hint:'你在斯德哥尔摩的ICA超市买完东西，看到有个柜台没有排队的人，直接走过去准备结账...',fact:'瑞典人非常注重排队秩序，有专门的取号系统。',learn:'瑞典几乎所有需要排队的地方都有取号机（nummersystem），你必须先取号等叫号。插队是瑞典社会中最严重的失礼行为之一。'},
+{country:'缅甸',flag:'🇲🇲',region:'asia',behavior:'觉得小朋友可爱就摸摸他的头',ok:false,hint:'你在蒲甘的寺庙旁遇到一群可爱的缅甸小朋友，他们好奇地看着你，你忍不住想摸摸最近那个孩子的头...',fact:'在缅甸，头部和泰国一样被认为是最神圣的。',learn:'缅甸深受佛教文化影响，头部是灵魂所在。即使是大人之间，摸别人的头也很不礼貌。同时脚也被视为最低贱的部位。'},
+{country:'柬埔寨',flag:'🇰🇭',region:'asia',behavior:'穿着短裤背心进入吴哥窟寺庙',ok:false,hint:'你在暹粒旅行，天气炎热穿着短裤和背心，准备进入吴哥窟参观...',fact:'柬埔寨的寺庙是神圣场所，有着装要求。',learn:'进入吴哥窟等寺庙必须遮盖肩膀和膝盖。穿短裤、背心、拖鞋会被拒绝入内。建议随身带一条长裤和薄外套。'},
+{country:'菲律宾',flag:'🇵🇭',region:'asia',behavior:'在餐桌上用手直接抓饭吃',ok:false,hint:'你在马尼拉的当地人家里做客，主人盛情邀请你一起吃晚饭，桌上有米饭和各种菜肴，你没看到餐具...',fact:'在菲律宾正式用餐场合，用手吃饭被认为不卫生。',learn:'虽然菲律宾传统有用手吃饭的习惯（kamayan），但在餐厅或正式场合应该使用勺子和叉子。菲律宾人习惯右手持勺、左手持叉。'},
+{country:'阿根廷',flag:'🇦🇷',region:'americas',behavior:'第一次到朋友家做客直接进门',ok:false,hint:'你的阿根廷朋友邀请你去他家吃烤肉（asado），你到了门口准备直接推门进去...',fact:'阿根廷人重视进门礼仪，第一次到家应先站在门口等候。',learn:'阿根廷人热情好客但也有礼节。第一次到别人家应该站在门口等主人邀请进入，可以带一瓶葡萄酒或甜点作为感谢。'},
+{country:'荷兰',flag:'🇳🇱',region:'europe',behavior:'生日时请同事们吃蛋糕庆祝',ok:true,hint:'你在阿姆斯特丹工作，今天是你生日，荷兰同事问你怎么没有准备蛋糕...',fact:'在荷兰，过生日的人要请别人吃东西，而不是别人请你。',learn:'荷兰有个有趣的传统：谁过生日谁请客。生日那天要带蛋糕（taart）去公司请同事吃，这和大多数国家的习惯正好相反。'},
+{country:'葡萄牙',flag:'🇵🇹',region:'europe',behavior:'在餐厅吃饭后把钱放在桌上就走',ok:false,hint:'你在里斯本的一家传统餐厅吃完烤鱼，准备把饭钱放在桌上直接离开，和在国内大排档一样...',fact:'在葡萄牙，给小费是表达感谢的重要方式。',learn:'葡萄牙餐厅一般期望留下5-10%的小费。虽然不像美国那么多，但完全不给会被认为不尊重服务员。最好把小费放在桌上而非递给服务员。'},
+{country:'冰岛',flag:'🇮🇸',region:'europe',behavior:'在餐厅吃饭前脱掉外套放在椅背上',ok:true,hint:'你在雷克雅未克的一家餐厅吃晚餐，室内暖气很足，你想脱掉厚外套放松吃饭...',fact:'冰岛人进室内脱外套是基本习惯。',learn:'冰岛天气寒冷但室内暖气充足，进餐厅脱掉外套是礼貌。穿着厚外套吃饭被认为不雅观，也暗示你觉得这里不够暖和。'},
+{country:'斯里兰卡',flag:'🇱🇰',region:'asia',behavior:'背对着佛像拍照留念',ok:false,hint:'你在斯里兰卡的佛牙寺参观，看到一尊精美的佛像，想和它合影，于是背对着佛像让朋友帮你拍照...',fact:'在斯里兰卡，背对佛像是极大的不敬。',learn:'斯里兰卡是虔诚的佛教国家。对佛像做出不尊重的行为（包括背对、搂抱、模仿姿势拍照）可能导致被驱逐甚至逮捕。拍照时应面朝佛像。'},
+{country:'以色列',flag:'🇮🇱',region:'middleeast',behavior:'对朋友家的小孩不停夸赞',ok:false,hint:'你在特拉维夫的朋友家做客，他家的小孩非常可爱又聪明，你不停地夸赞"太漂亮了！太聪明了！"...',fact:'在以色列（及犹太文化中），过度夸赞小孩被认为会招来厄运。',learn:'犹太传统中有"邪眼"（evil eye）的说法，过度夸赞可能被认为会带来坏运气。以色列父母更喜欢低调的赞美，而不是夸张的吹捧。'},
+{country:'老挝',flag:'🇱🇦',region:'asia',behavior:'和当地朋友聊天时拍拍对方的肩膀',ok:true,hint:'你在琅勃拉邦和老挝朋友在湄公河边散步聊天，气氛轻松愉快，你想拍拍朋友的肩膀表示亲近...',fact:'老挝人性格温和友善，朋友间拍肩膀是可以接受的。',learn:'老挝是东南亚最悠闲的国家之一，人们性格温和。朋友间的肢体接触如拍肩膀是可以的，但注意不要摸头或用脚指人。'},
+{country:'秘鲁',flag:'🇵🇪',region:'americas',behavior:'做客时拒绝主人提供的食物',ok:false,hint:'你在库斯科的当地人家做客，主人热情地端上一盘当地特色菜——烤豚鼠（cuy），你看着不太敢吃想拒绝...',fact:'在秘鲁拒绝主人的食物是非常失礼的。',learn:'秘鲁人非常好客，拒绝食物会让主人难过。至少要尝一小口表示尊重。豚鼠（cuy）是安第斯山区的传统美食，已有数千年食用历史。'},
+{country:'加拿大',flag:'🇨🇦',region:'americas',behavior:'买一杯咖啡也刷信用卡支付',ok:true,hint:'你在多伦多的Tim Hortons买一杯咖啡，掏出了信用卡准备付款，后面排队的人看着你...',fact:'加拿大几乎所有消费都可以刷卡，金额不限。',learn:'加拿大电子支付非常普及，即使只买一杯咖啡也可以刷卡。不像有些国家觉得小额刷卡不好意思，加拿大人完全不在意。'},
+{country:'阿联酋',flag:'🇦🇪',region:'middleeast',behavior:'在公共场合和伴侣接吻',ok:false,hint:'你和另一半在迪拜购物中心逛街，情不自禁想亲吻一下表达爱意...',fact:'阿联酋法律禁止在公共场合展示亲密行为。',learn:'阿联酋虽然是国际化都市，但仍遵循伊斯兰法律。公共场合接吻、拥抱都可能被警告甚至拘留。在公共场合应保持克制。'},
+{country:'古巴',flag:'🇨🇺',region:'americas',behavior:'在哈瓦那街头随意给当地人拍照',ok:false,hint:'你在哈瓦那老城漫步，看到一位穿着鲜艳传统服饰的古巴大妈，觉得画面太美了直接举起相机...',fact:'在古巴拍摄当地人需要先征得同意。',learn:'古巴人对拍照比较敏感，尤其是外国游客。很多人会要求付费才让你拍照。最好的做法是先微笑打招呼，征得同意后再拍。'},
+{country:'爱尔兰',flag:'🇮🇪',region:'europe',behavior:'在酒吧里主动请全桌人喝酒',ok:true,hint:'你在都柏林的一家传统酒吧里和当地人聊得很开心，想请大家喝一杯表示友好...',fact:'爱尔兰酒吧文化中请客喝酒（buying a round）是很常见的社交行为。',learn:'爱尔兰酒吧有"轮流请酒"（rounds）的传统，如果你被请了一轮，下次轮到你时也应该请回去。不请回去会被认为不够意思。'},
+{country:'约旦',flag:'🇯🇴',region:'middleeast',behavior:'在自助餐盘里把食物翻来翻去挑着吃',ok:false,hint:'你在安曼的一家餐厅吃自助餐，看到一盘烤羊肉，你拿起夹子开始翻找最好看的几块...',fact:'在中东自助餐里翻挑食物是非常不礼貌的行为。',learn:'在约旦和其他中东国家，在公共餐盘中翻挑食物被认为不卫生且自私。应该用夹子从上往下取，不要挑拣。这也是伊斯兰饮食礼仪的一部分。'},
+{country:'泰国',flag:'🇹🇭',region:'asia',behavior:'在寺庙里用脚朝向佛像方向坐着',ok:false,hint:'你在曼谷玉佛寺参观，走累了直接坐在地上休息，脚不自觉地朝着佛像的方向...',fact:'在泰国，脚底朝向佛像是极大的不敬。',learn:'泰国文化中脚最低贱、佛最神圣。坐在寺庙里时应盘腿或跪坐，确保脚底不朝向任何佛像或僧侣。'},
+{country:'越南',flag:'🇻🇳',region:'asia',behavior:'把筷子竖插在饭碗中央',ok:false,hint:'你在河内的一家粉店吃pho，随手把筷子插在了碗里...',fact:'和东亚多国一样，越南也忌讳竖插筷子。',learn:'在越南竖插筷子象征祭祀亡者的香火，和日韩中国的禁忌相同。用餐时应将筷子平放在碗边或桌面上。'},
+{country:'印度尼西亚',flag:'🇮🇩',region:'asia',behavior:'进当地人家里不脱鞋',ok:false,hint:'你在巴厘岛被邀请到当地人家里做客，穿着凉鞋直接走进了客厅...',fact:'在印尼，进屋脱鞋是基本礼仪。',learn:'印尼人家中通常被视为洁净空间，穿鞋进入非常失礼。看到门口摆着拖鞋，应该换上。去印尼旅行建议随身带方便穿脱的凉鞋。'},
+{country:'柬埔寨',flag:'🇰🇭',region:'asia',behavior:'用合十礼时把手举到头顶',ok:false,hint:'你在暹粒游览，遇到一位柬埔寨长者，想表示最大尊敬，双手合十举到了头顶...',fact:'柬埔寨的合十礼高度有严格讲究。',learn:'柬埔寨合十礼（Sampeah）双手高度代表尊敬等级：胸口=同辈，嘴=长辈，鼻子=老师，眉毛=国王，头顶=佛陀。对普通人举到头顶反而不合礼仪。'},
+{country:'日本',flag:'🇯🇵',region:'asia',behavior:'泡温泉前不先冲洗身体直接进入池子',ok:false,hint:'你在箱根的温泉旅馆，换好浴衣准备泡温泉，看到温泉池想直接跳进去享受...',fact:'日本泡温泉必须先冲洗干净身体才能入池。',learn:'日本温泉礼仪严格要求先在外面冲洗全身，然后才能进入温泉池。温泉池是用来放松的，不是用来洗澡的。不冲洗直接入池是非常失礼的。'},
+{country:'韩国',flag:'🇰🇷',region:'asia',behavior:'给长辈倒酒时用一只手',ok:false,hint:'你在首尔和韩国朋友聚餐，朋友的爷爷也在，你单手给他倒了一杯烧酒...',fact:'在韩国给长辈倒酒必须用双手。',learn:'韩国尊老文化非常强。给长辈倒酒要一手持瓶、一手托瓶底（或扶手腕）。接酒时也要双手。同辈之间可以单手。倒酒时不要给自己倒。'},
+{country:'中国',flag:'🇨🇳',region:'asia',behavior:'过年时用白色信封包压岁钱',ok:false,hint:'春节到了，你想给中国朋友的孩子包个红包，手头只有白色信封...',fact:'在中国，白色信封只用于丧事。',learn:'中国红包必须用红色信封，红色象征喜庆和好运。白色信封只在丧事（白包）中使用。金额也避免带"4"（谐音"死"）。'},
+{country:'印度',flag:'🇮🇳',region:'asia',behavior:'对印度人摇头表示不同意',ok:false,hint:'你在印度问路，路人听了你的问题后一直左右摇头，你以为他不知道...',fact:'印度人的摇头（head wobble）含义很复杂。',learn:'印度人特有的摇头动作不是"不同意"，通常表示"我理解了"或"好的"。这个微妙的左右摆动让很多外国人困惑。直接摇头（像中国一样）才是不。'},
+{country:'斯里兰卡',flag:'🇱🇰',region:'asia',behavior:'和当地人见面时行合十礼（Ayubowan）',ok:true,hint:'你在科伦坡参加一个文化活动，主持人向大家双手合十问候，你也想回礼...',fact:'斯里兰卡的合十礼（Ayubowan）是标准问候方式。',learn:'斯里兰卡人说"Ayubowan"（祝你长寿）时双手合十，和泰国的wai类似但略有不同。对长辈合十时手举到胸口即可， handshake 也可以但女性避免主动伸手。'},
+{country:'尼泊尔',flag:'🇳🇵',region:'asia',behavior:'在尼泊尔用手直接触碰别人的食物',ok:false,hint:'你在加德满都的当地人家做客，看到大家用手抓饭吃，你也伸手从公共盘子里拿了一块馕...',fact:'即使手抓饭也要遵守卫生规则。',learn:'尼泊尔和印度一样，左手被视为不洁。即使用手吃饭也必须用右手。从公共餐盘中取食应使用公用餐具，取到自己盘子里后再用手。'},
+{country:'韩国',flag:'🇰🇷',region:'asia',behavior:'在韩国餐厅吃饭时自己先动筷子',ok:false,hint:'你在首尔的一家韩定食餐厅，菜都上齐了，你准备先拿起筷子开始吃...',fact:'在韩国，应该等最年长的人先动筷子。',learn:'韩国餐桌礼仪中，长辈（最年长者）先动筷子后其他人才能开始吃。同样，长辈放下筷子时其他人也应该停止。这是韩国尊老文化的体现。'},
+{country:'中国',flag:'🇨🇳',region:'asia',behavior:'在中国敬酒时杯子举得比长辈高',ok:false,hint:'你在北京参加一场商务晚宴，给对面的长辈敬酒时杯子举得很高...',fact:'中国敬酒时杯子高度体现尊重等级。',learn:'中国敬酒碰杯时，晚辈/下级的杯沿应低于长辈/上级的杯沿，表示尊敬和谦虚。如果对方也故意放低杯子，就成了一场"比谁杯子低"的有趣拉锯战。'},
+{country:'土耳其',flag:'🇹🇷',region:'middleeast',behavior:'在土耳其喝红茶时用茶碟当杯盖',ok:false,hint:'你在伊斯坦布尔的大巴扎逛累了，坐下来喝一杯土耳其红茶，你把茶碟盖在了杯子上...',fact:'土耳其红茶的喝法和中国的盖碗茶不同。',learn:'土耳其红茶用郁金香形玻璃杯盛，通常加方糖搅拌。把碟子盖在杯子上在当地意味着"我不想再喝了"。正确做法是把碟子放在杯子下面当底托。'},
+{country:'摩洛哥',flag:'🇲🇦',region:'africa',behavior:'用左手撕面包递给同桌的人',ok:false,hint:'你在摩洛哥朋友家吃塔吉锅，大家围坐在圆桌旁，你撕了一块面包用左手递给旁边的人...',fact:'摩洛哥和大多数穆斯林国家一样，左手被视为不洁。',learn:'摩洛哥吃饭传统上用手（右手）撕面包蘸汤汁。左手仅用于拿自己的水杯。递食物给别人一定要用右手，这是北非和整个阿拉伯世界的通用礼仪。'},
+{country:'埃及',flag:'🇪🇬',region:'africa',behavior:'在埃及人面前擤鼻涕',ok:false,hint:'你在开罗参观清真寺时鼻子不舒服，直接掏出纸巾大声擤鼻涕...',fact:'在埃及（及多数阿拉伯国家），当众擤鼻涕很不礼貌。',learn:'阿拉伯文化认为在餐桌上或公共场合擤鼻涕是不卫生且不雅的行为。如果需要擤鼻涕，应该去洗手间。轻微的吸鼻子声倒还好。'},
+{country:'沙特',flag:'🇸🇦',region:'middleeast',behavior:'斋月期间在公共场合喝水',ok:false,hint:'你斋月期间去沙特出差，中午在街上口渴了，从包里掏出一瓶水喝...',fact:'斋月期间在沙特公共场合饮食是违法的。',learn:'斋月期间所有穆斯林从日出到日落禁食禁饮。在沙特，非穆斯林在公共场合饮食同样违法，可能被逮捕。应在室内私密空间进食。'},
+{country:'南非',flag:'🇿🇦',region:'africa',behavior:'在南非餐厅吃饭不给小费',ok:false,hint:'你在开普敦的一家高级餐厅吃完了一顿丰盛的晚餐，准备结账走人...',fact:'南非餐厅有小费文化，不给小费会被认为不尊重。',learn:'南非餐厅通常给10-15%小费，有些餐厅会自动加收服务费。如果账单上已含"service charge"则不需要再额外给。和中国不同，南非服务员收入依赖小费。'},
+{country:'肯尼亚',flag:'🇰🇪',region:'africa',behavior:'未经允许拍摄马赛族部落的人',ok:false,hint:'你在肯尼亚马赛马拉保护区游览，看到一群穿着红色传统服饰的马赛人，想直接拍照...',fact:'马赛族人拍照通常需要付费。',learn:'马赛族是肯尼亚最著名的部落，很多马赛人会在旅游景点"摆姿势"等待游客付费拍照。直接拍照可能引发纠纷，应先协商好价格再拍。'},
+{country:'卡塔尔',flag:'🇶🇦',region:'middleeast',behavior:'和卡塔尔人聊天时问对方妻子的情况',ok:false,hint:'你在多哈参加一场商务晚宴，和当地合作伙伴聊得很开心，随口问了一句"你太太最近怎么样"...',fact:'在海湾国家，询问对方女性家属被视为冒犯。',learn:'卡塔尔等海湾国家非常重视家庭隐私，直接询问对方妻子、女儿的情况非常不礼貌。可以泛泛地问候"家里人都好吗"（family），但不要具体提到女性。'},
+{country:'伊朗',flag:'🇮🇷',region:'middleeast',behavior:'收到礼物时当面打开',ok:false,hint:'你在德黑兰的朋友送了你一份精美的波斯地毯小样当纪念品，你当场就拆开看...',fact:'在伊朗（及多数中东国家），当面拆礼物不太礼貌。',learn:'中东文化中当面拆礼物可能被视为太急切或贪婪。应该先表示感谢，回去后再打开。不过如果送礼者主动让你打开那就没问题。'},
+{country:'美国',flag:'🇺🇸',region:'americas',behavior:'在快餐店吃饭后给小费',ok:false,hint:'你在纽约的麦当劳买了一个汉堡，吃完准备走，纠结要不要给点零钱当小费...',fact:'美国快餐店不需要给小费。',learn:'美国小费文化虽然强烈，但仅限于有餐桌服务的餐厅。快餐店、咖啡馆柜台、外卖窗口不需要给小费。有些有tip jar的咖啡店可以随意放零钱但不是必须的。'},
+{country:'美国',flag:'🇺🇸',region:'americas',behavior:'在正式餐厅给15%的小费',ok:true,hint:'你在旧金山的一家正式餐厅吃完晚餐，账单200美元，你准备给30美元小费...',fact:'美国正式餐厅给15-20%小费是标准做法。',learn:'美国服务员基本工资很低（有些州只有2-3美元/小时），主要靠小费生活。15%是底线，服务好的话给18-20%。不给小费是非常严重的失礼。'},
+{country:'智利',flag:'🇨🇱',region:'americas',behavior:'在餐厅用手拿薯条吃',ok:false,hint:'你在圣地亚哥的一家餐厅点了一份牛排配薯条，直接用手拿薯条吃...',fact:'智利人非常讲究餐桌礼仪，几乎所有食物都用刀叉吃。',learn:'智利是南美餐桌礼仪最讲究的国家之一。即使是披萨、薯条、汉堡这类"手抓食物"，智利人也会用刀叉来吃。用手直接拿食物被认为不礼貌。'},
+{country:'哥斯达黎加',flag:'🇨🇷',region:'americas',behavior:'对当地人说"Pura Vida"作为问候',ok:true,hint:'你在哥斯达黎加度假，当地人跟你打招呼说"Pura Vida"，你也想回一句...',fact:'"Pura Vida"（纯粹的生活）是哥斯达黎加的国民口头禅。',learn:'"Pura Vida"在哥斯达黎加可以当"你好""谢谢""再见""没问题"使用，是最地道的表达。游客用它会让当地人觉得你很了解当地文化。'},
+{country:'澳大利亚',flag:'🇦🇺',region:'oceania',behavior:'在澳洲自驾时靠左行驶',ok:true,hint:'你在澳大利亚自驾游，租车时不确定应该在哪一侧行驶...',fact:'澳大利亚是靠左行驶的国家，和中国相反。',learn:'澳大利亚、新西兰、英国、日本等都是靠左行驶。方向盘在右侧。初到靠左行驶国家要特别注意环岛（顺时针行驶）和转弯方向。'},
+{country:'墨西哥',flag:'🇲🇽',region:'americas',behavior:'在墨西哥用"America"来指代美国',ok:false,hint:'你在墨西哥城和当地朋友聊天，提到你去过"America"旅行...',fact:'在拉丁美洲，"America"指的是整个美洲大陆。',learn:'对墨西哥人和大多数拉美人来说，"America"是整个美洲（北美+南美），美国应该叫"Estados Unidos"或"US"。用"America"指美国可能让人觉得你在暗示美洲都是美国的。'},
+{country:'古巴',flag:'🇨🇺',region:'americas',behavior:'在古巴用信用卡支付所有消费',ok:false,hint:'你在哈瓦那旅行，走进一家餐厅吃完饭准备刷信用卡...',fact:'古巴的信用卡支付系统对外国卡非常不友好。',learn:'由于美国长期制裁，很多外国信用卡（尤其是美国发行的）在古巴无法使用。去古巴一定要带够现金（美元或欧元），到了当地兑换古巴比索。'},
+{country:'加拿大',flag:'🇨🇦',region:'americas',behavior:'在加拿大给出租车司机小费',ok:true,hint:'你在多伦多打了一辆出租车，到了目的地准备给司机加点小费...',fact:'加拿大出租车给10-15%小费是常规做法。',learn:'加拿大和美国一样有小费文化。出租车、餐厅、理发等个人服务通常给15%左右。不过超市、便利店等零售场所不需要。'}
+];
+const CULTURE={
+'泰国':['🙏 泰国人见面行"合十礼"(Wai)，双手合十越高表示越尊敬，对国王合十要举到头顶','🦶 脚被认为身体最低贱的部位，不能用脚指东西或把脚底朝向他人','🛕 进入寺庙必须脱鞋，女性不能触碰僧侣，也不能递东西给僧侣','🐘 大象在泰国文化中地位崇高，曾经出现在国旗上，白象更是皇家象征'],
+'越南':['🎎 越南国服"奥黛"(Ao Dai)是优雅的长衫配长裤，男女都穿','🍜 越南河粉(Pho)是国民美食，通常早餐吃，汤底要熬制8小时以上','🏍️ 越南是全球摩托车密度最高的国家之一，胡志明市约800万辆摩托车','☕ 越南是世界第二大咖啡出口国，特色滴漏咖啡加炼乳非常好喝'],
+'新加坡':['🌳 新加坡被称为"花园城市"，绿化覆盖率超过50%','🍽️ 新加坡的小贩中心(Hawker Centre)已列入联合国非物质文化遗产','🚇 新加坡地铁和公交车严禁饮食喝水，违者最高罚款500新元','🏙️ 滨海湾金沙酒店顶部有全球最大空中无边际泳池'],
+'马来西亚':['🤝 马来西亚是多民族国家，马来人、华人和印度人三大族群各有独特文化','🕌 进入清真寺需脱鞋，女性要包头巾和穿长袖长裤','🫶 马来人打招呼后会将右手放在心口，表示"来自内心的问候"','🍛 马来西亚的椰浆饭(Nasi Lemak)是国民早餐'],
+'缅甸':['🪷 缅甸是世界上最虔诚的佛教国家之一，男性一生中至少要出家一次','👗 男女都穿"笼基"(Longyi)——一种筒裙，是日常必备服饰','🏛️ 仰光大金塔贴满金箔，塔顶镶嵌7000多颗钻石和宝石','🌅 茵莱湖上的渔民用单腿划船捕鱼，已成为缅甸标志性景观'],
+'菲律宾':['🎄 菲律宾拥有全球最长圣诞季，从9月就开始庆祝，持续到次年1月','🚌 吉普尼(Jeepney)是菲律宾特色公共交通，由二战美军吉普车改装','🎤 菲律宾人极其热爱卡拉OK，几乎每个家庭都有一台','🏝️ 菲律宾由7641个岛屿组成，拥有全球最美的海滩之一'],
+'老挝':['🌅 琅勃拉邦的清晨布施是世界上最美的宗教仪式之一','🏛️ 老挝曾是法国殖民地，建筑融合了法式风格和东南亚特色','💰 老挝货币基普面值很大，1元人民币约等于3000基普','🍺 老挝啤酒(Beerlao)被评为亚洲最好喝的啤酒之一'],
+'柬埔寨':['🏯 吴哥窟是世界最大宗教建筑，曾是高棉帝国的都城','👗 柬埔寨传统丝绸纺织工艺已有千年历史','🎭 "仙女舞"(Apsara Dance)是柬埔寨皇家舞蹈，手势各有不同含义','🍚 柬埔寨人日常以米饭为主食，"阿摩克"(Amok)是国菜'],
+'日本':['♨️ 日本有3000多处温泉，泡温泉前必须先冲洗身体','🌸 每年3-4月赏樱(花见)是全民活动，公司会组织公园野餐','🍵 茶道是日本传统艺术，一碗抹茶要经过严格的点茶仪式','🎌 日本有"おもてなし"(极致待客)文化，服务追求完美到极致'],
+'韩国':['🥘 韩国每餐必有泡菜(Kimchi)，联合国将泡菜制作列为非遗','🛁 汗蒸幕是韩国特色桑拿文化，24小时营业可以过夜','🎵 K-POP和韩剧让韩流席卷全球，首尔明洞是追星圣地','🏔️ 韩国人热爱登山，周末穿冲锋衣爬山是最常见的休闲活动'],
+'中国':['🧧 春节红包(压岁钱)必须用红色信封，金额避免数字4','🍵 中国茶文化有4700多年历史，不同茶叶有不同的冲泡讲究','🏥 中医讲究阴阳平衡和五行理论，针灸推拿至今广泛使用','🐉 龙在中国是吉祥象征，与西方文化中龙代表邪恶截然不同'],
+'印度':['🪔 排灯节(Diwali)是印度最盛大的节日，家家户户点亮油灯','🧘 瑜伽起源于5000多年前的印度，"Yoga"在梵语中意为"结合"','🌶️ 印度是世界最大香料生产国，印度菜使用的香料种类超过40种','🎨 印度女性额头的红点叫"宾迪"(Bindi)，代表智慧'],
+'斯里兰卡':['💎 斯里兰卡被称为"宝石之岛"，蓝宝石和红宝石世界闻名','☕ 锡兰红茶是世界三大红茶之一，茶园分布在山区风景如画','🐘 大象在斯里兰卡文化中地位崇高，每年有盛大的大象游行节','🏏 板球是斯里兰卡最受欢迎的运动，1996年曾获世界杯冠军'],
+'尼泊尔':['🏔️ 珠穆朗玛峰南坡在尼泊尔，名为"萨加玛塔"意为"天空之额"','🛕 尼泊尔是世界上印度教和佛教寺庙密度最高的国家之一','🙏 尼泊尔人问候语"Namaste"意为"我向你内心的神性致敬"','🎨 尼泊尔的唐卡绘画是藏传佛教艺术精品，绘制一幅可能需要数月'],
+'土耳其':['🛁 土耳其浴(Hamam)有600多年历史，是社交和清洁的重要场所','☕ 土耳其咖啡不用过滤，咖啡渣留在杯底还能用来占卜运势','🧶 土耳其手工地毯世界闻名，一个村庄的编织技艺可追溯数百年','🎈 卡帕多奇亚的热气球景观被评为全球最美飞行体验之一'],
+'沙特':['🕋 麦加是伊斯兰教最神圣的城市，每年有超过200万穆斯林朝觐','🌴 沙特拥有全球约18%的已探明石油储量','🏜️ 沙特正在沙漠中建造"线性城市"NEOM，规划长170公里宽仅200米','🐪 赛骆驼是沙特传统运动，现在已用机器人骑师替代儿童'],
+'阿联酋':['🏙️ 迪拜哈利法塔高828米，是世界最高建筑有163层','🌴 棕榈岛是世界最大人工岛，从太空都能看到','🛍️ 迪拜购物中心有全球最大室内水族馆和奥运标准溜冰场','🏎️ 阿布扎比的法拉利主题公园有全球最快过山车'],
+'埃及':['🏛️ 吉萨金字塔建于约4500年前，是古代世界七大奇迹中唯一幸存者','📜 古埃及人发明了象形文字、太阳历和莎草纸','🐱 猫在古埃及被视为神圣动物，伤害猫甚至可以被判死刑','🌊 尼罗河全长6650公里，是世界上最长的河流之一'],
+'摩洛哥':['🏘️ 摩洛哥传统庭院住宅"Riad"中心有天井花园','🍵 摩洛哥薄荷茶被称为"摩洛哥威士忌"，倒茶时要从高处倒下起泡','🧵 摩洛哥皮革制品闻名世界，菲斯古城的皮革染坊已有千年历史','🎵 摩洛哥的Gnawa音乐融合了非洲、阿拉伯和柏柏尔文化元素'],
+'约旦':['🏛️ 佩特拉古城从粉红色岩石中雕凿而出，被称为"玫瑰之城"','🌊 死海含盐量约34%，人可以漂浮在水面上看报纸','🍽️ 约旦国菜"Mansaf"是羊肉配酸奶酱和米饭，用手抓着吃','🏜️ 约旦的瓦迪拉姆沙漠是《火星救援》等电影的取景地'],
+'以色列':['🕍 耶路撒冷对犹太教、基督教和伊斯兰教三大宗教都是圣城','📅 安息日(周五日落到周六日落)几乎所有商铺和公共交通都会停运','💡 以色列被称为"创业之国"，人均创业公司数量全球第一','🧂 死海矿物泥是著名的天然美容产品，富含20多种矿物质'],
+'伊朗':['📜 波斯文明有5000多年历史，波斯诗歌(如鲁米)影响深远','🧶 伊朗地毯是国宝级工艺，编织一幅真丝地毯可能需要数年','🌸 诺鲁孜节(波斯新年)在春分日庆祝，已有3000多年历史','🍛 伊朗菜讲究"冷热"食物平衡，藏红花是最常用的香料'],
+'南非':['🌈 南非有11种官方语言，被称为"彩虹之国"','🦁 克鲁格国家公园是世界最好的野生动物观赏地之一','🍷 南非开普敦的葡萄酒产区有300多年历史','💎 南非曾产出世界最大钻石"库里南"(3106克拉)'],
+'肯尼亚':['👥 马赛人穿红色格子布，以跳高舞闻名，至今仍保持游牧传统','🦓 每年7-10月的角马大迁徙被称为"人生必看的50个景观之一"','🏃 肯尼亚是长跑王国，诞生了众多世界马拉松纪录保持者','☕ 肯尼亚AA级咖啡豆是世界精品咖啡的代表'],
+'意大利':['🎭 意大利是文艺复兴发源地，拥有全球最多的世界遗产(59处)','🍦 意大利冰淇淋(Gelato)比美式冰淇淋脂肪含量更低口感更绵密','🎵 歌剧诞生于意大利，威尔第和普契尼是最伟大的歌剧作曲家','☕ 意大利人站着在吧台喝咖啡最便宜，坐下要加收"座位费"'],
+'法国':['🍷 法国葡萄酒产区(波尔多、勃艮第、香槟)享誉全球','🧀 法国有超过1000种奶酪，戴高乐说"治理一个有246种奶酪的国家太难了"','🎨 卢浮宫是世界上最大的艺术博物馆，藏品超过38万件','🥐 法国人每年吃掉约100亿根法棍面包，平均每人每天半根'],
+'英国':['☕ 下午茶传统始于1840年代，先加奶还是先加茶至今有争论','🎭 莎士比亚发明了约1700个英语单词包括"lonely"和"fashionable"','🏰 英国王室是世界上现存最古老的君主制之一','🎸 英国是摇滚乐重镇，Beatles和Queen都来自英国'],
+'德国':['🍺 慕尼黑啤酒节是全球最大民间节庆，每年吸引600万游客','🚗 德国是汽车发源地，奔驰宝马大众奥迪都是德国品牌','🎄 德国圣诞市场传统有600多年历史，热红酒(Glühwein)是标配','🛣️ 德国高速公路约70%路段不限速，但建议时速130km/h'],
+'西班牙':['💃 弗拉明戈是西班牙安达卢西亚地区的灵魂舞蹈','🍽️ Tapas(小吃)文化让西班牙人可以一晚上辗转多家小馆','🏟️ 皇马和巴萨的"国家德比"是全球最受关注的足球比赛之一','😴 西班牙午休(Siesta)传统虽然在大城市式微但南部依然盛行'],
+'俄罗斯':['🩰 俄罗斯芭蕾舞世界顶尖，莫斯科大剧院和马林斯基是圣地','🪆 套娃(Матрёшка)其实起源于日本，被俄罗斯人发扬光大','🚇 莫斯科地铁被誉为"地下宫殿"，很多站台像博物馆','❄️ 西伯利亚的奥伊米亚康是北半球最冷居民点，曾记录-67.7°C'],
+'希腊':['🏛️ 希腊是西方文明发源地，民主制度、哲学和奥运会都起源于此','🫒 希腊人均橄榄油消费量全球第一约每年20升','🏝️ 希腊有约6000个岛屿，其中只有227个有人居住','🧿 希腊人相信"邪眼"(Mati)会带来厄运，蓝色眼睛护身符随处可见'],
+'瑞士':['⌚ 瑞士制表业有500多年历史，百达翡丽和劳力士都是瑞士品牌','🧀 奶酪火锅(Fondue)是瑞士国菜，用面包蘸融化的奶酪吃','🏔️ 少女峰被称为"欧洲之巅"，有欧洲最高的火车站','🍫 瑞士人均巧克力消费量全球第一约每年10公斤'],
+'丹麦':['📚 安徒生是丹麦人，创作了《海的女儿》《丑小鸭》等经典童话','🧱 乐高积木诞生于丹麦比隆镇，"LEGO"来自丹麦语"好好玩"','🚲 哥本哈根超过60%的居民骑自行车通勤，自行车比人多','🇩🇰 丹麦语中的"Hygge"代表温馨舒适的生活哲学'],
+'匈牙利':['♨️ 布达佩斯有"温泉之都"美誉，全城有100多处温泉浴场','🎵 匈牙利作曲家李斯特是史上最伟大的钢琴家之一','🌶️ 匈牙利国菜"古拉什"(Gulyás)是浓郁的牛肉辣椒汤','🍷 托卡伊葡萄酒被称为"酒中之王"，法国路易十四的最爱'],
+'瑞典':['🌌 瑞典北部是看极光的最佳地点之一(9月-3月)','🏆 诺贝尔奖由瑞典化学家阿尔弗雷德·诺贝尔创立','♻️ 瑞典回收率高达99%，甚至从其他国家进口垃圾来发电','🪑 宜家(IKEA)来自瑞典，名字是创始人姓名和家乡的首字母缩写'],
+'荷兰':['🌷 荷兰每年出口约20亿株郁金香球茎，库肯霍夫花园世界闻名','🚲 荷兰有约2300万辆自行车，比人口(1700万)还多','🎨 梵高、伦勃朗和维梅尔都是荷兰画家','🌊 荷兰约1/3国土低于海平面，靠精密的堤坝系统保护'],
+'葡萄牙':['🎵 法朵(Fado)是葡萄牙灵魂音乐，充满"saudade"(乡愁)的情感','🍷 波特酒产自葡萄牙杜罗河谷，在波尔图港口装瓶出口','🔵 葡萄牙建筑大量使用蓝白色瓷砖(Azulejo)源于阿拉伯影响','⚽ C罗是葡萄牙国宝级球星，马德拉岛有其博物馆'],
+'冰岛':['🌋 冰岛有30多座活火山，平均每4-5年喷发一次','♨️ 蓝湖温泉是冰岛最著名的景点，水温约37-40°C富含硅和硫','🐋 冰岛海域是观鲸胜地，可以看到座头鲸蓝鲸等20多种鲸鱼','🐑 冰岛的羊比人还多，冰岛羊肉被称为世界上最纯净的肉类之一'],
+'巴西':['🎉 里约狂欢节是全球最大嘉年华，桑巴学校准备了整整一年','⚽ 巴西是唯一参加过每届世界杯的国家，获得5次冠军','🌳 亚马逊雨林约60%在巴西境内，被称为"地球之肺"','🥩 巴西烤肉(Churrasco)世界闻名，服务员举着烤肉串到桌边切'],
+'墨西哥':['💀 亡灵节(Día de Muertos)是墨西哥最重要的节日，用鲜花和骷髅装饰祭奠逝者','🏛️ 奇琴伊察的库库尔坎金字塔在春分秋分时会出现蛇影奇观','🌮 墨西哥菜被联合国列为人类非物质文化遗产','🌵 龙舌兰酒(Tequila)只能在墨西哥特定地区生产受原产地保护'],
+'加拿大':['🍁 枫叶是加拿大国家象征，国旗上的枫叶有11个角','🏒 冰球是加拿大最受欢迎的运动，几乎每个小镇都有冰球场','🌲 加拿大拥有全球约9%的森林面积，是第二大国家','🗣️ 加拿大以"Sorry"闻名，甚至专门通过了《道歉法》规定道歉不等于认错'],
+'古巴':['🚗 哈瓦那街头有约6万辆上世纪50年代的美国老爷车仍在运行','🎵 古巴的Salsa和Son音乐影响了整个拉丁美洲音乐发展','🥃 古巴朗姆酒(Rum)世界闻名，海明威最爱的莫吉托就诞生于哈瓦那','💃 古巴人热爱音乐和舞蹈，街头随时可能遇到即兴表演'],
+'澳大利亚':['🏄 冲浪是澳大利亚生活方式的核心，邦迪海滩全球闻名','🐨 澳大利亚有约5000万只袋鼠，比人口(约2600万)还多','🪸 大堡礁是世界最大珊瑚礁群从太空都能看到绵延2300公里','☕ 墨尔本的咖啡文化被认为是世界最佳之一'],
+'美国':['🎬 好莱坞是全球电影产业中心，奥斯卡奖是电影界最高荣誉','🍔 美国快餐文化影响了全球饮食，汉堡和薯条成为美国文化符号','🏞️ 美国有63座国家公园，从大峡谷到黄石各有独特景观','🗽 自由女神像是法国1886年赠送的礼物，象征自由和民主'],
+'印度尼西亚':['🏝️ 印尼由17000多个岛屿组成，是全球最大群岛国家','🌋 印尼拥有全球最多的活火山(约130座)，婆罗浮屠是世界最大佛教遗址','🎭 巴厘岛的乌布是艺术文化中心，传统舞蹈和木雕世界闻名','🍛 印尼炒饭(Nasi Goreng)和沙爹(Satay)是最受欢迎的国民美食'],
+'中东':['🕌 伊斯兰教是中东地区主要宗教，清真寺的宣礼塔每天五次召唤祈祷','☕ 阿拉伯咖啡是社交文化核心，用小杯盛装加豆蔻，至少喝三杯才礼貌','🐪 骆驼在阿拉伯文化中地位崇高，赛骆驼是传统运动','🌙 伊斯兰历以月亮运行，斋月(Ramadan)是最重要的宗教节日'],
+'卡塔尔':['🏟️ 卡塔尔举办了2022年FIFA世界杯，是首个中东国家主办世界杯','🏙️ 多哈的天际线现代而壮观，伊斯兰艺术博物馆由贝聿铭设计','🦅 猎鹰训练是卡塔尔传统贵族运动，被列入联合国非遗名录','🌹 卡塔尔玫瑰水(rosewater)和乌德香水(oud)是特色伴手礼'],
+'哥斯达黎加':['🌿 哥斯达黎加拥有全球5%的生物多样性，25%国土是保护区','☕ 哥斯达黎加咖啡品质极高，塔拉苏产区咖啡世界闻名','🦜 国鸟格查尔鸟(Resplendent Quetzal)被誉为世界最美鸟类之一','😊 "Pura Vida"是国民口头禅，意为"纯粹的生活"，可用于问候感谢告别'],
+'奥地利':['🎵 奥地利是音乐之国，莫扎特、施特劳斯和舒伯特都来自这里','☕ 维也纳咖啡馆文化被列入联合国非遗，可以在咖啡馆坐一整天','🏔️ 阿尔卑斯山占奥地利面积约62%，滑雪是国民运动','🍰 萨赫蛋糕(Sachertorte)是维也纳最著名的甜点，已有190年历史'],
+'智利':['🏜️ 阿塔卡马沙漠是世界上最干燥的地方，也是最佳观星地之一','🍷 智利是全球第五大葡萄酒出口国，佳美娜(Carménère)是特色品种','🗿 复活节岛上的摩艾石像(887座)至今仍是未解之谜','🏔️ 巴塔哥尼亚的百内国家公园被评为全球最美国家公园之一'],
+'比利时':['🍫 比利时巧克力世界闻名，Godiva、Neuhaus等品牌都来自比利时','🍺 比利时有超过1500种啤酒，修道院啤酒(Trappist)最为珍贵','🍟 薯条其实起源于比利时(不是法国)，比利时人坚持要double-fried','🎨 比利时是漫画之国，《丁丁历险记》和《蓝精灵》都诞生于此'],
+'阿根廷':['💃 探戈诞生于布宜诺斯艾利斯的贫民区，现已成为联合国非遗','🥩 阿根廷烤肉(Asado)是国家美食灵魂，人均牛肉消费量全球前列','⚽ 马拉多纳和梅西让阿根廷成为足球强国，博卡青年球场是圣地','🏔️ 伊瓜苏瀑布是世界最大瀑布系统之一，有275条瀑布'],
+'秘鲁':['🏛️ 马丘比丘是印加帝国最著名的遗迹，海拔2430米被称为"天空之城"','🥔 秘鲁是马铃薯的发源地，有超过3000种不同品种','🍽️ 秘鲁菜被评为全球最佳美食之一，酸橘汁腌鱼(Ceviche)是国菜','🦙 羊驼(Alpaca)是秘鲁标志性动物，马丘比丘随处可见它们的身影'],
+'爱尔兰':['🍀 三叶草(Shamrock)是爱尔兰国花，圣帕特里克节全球庆祝','🍺 吉尼斯黑啤(Guinness)产自都柏林，酒厂有250多年历史','🎵 爱尔兰传统音乐以小提琴、锡哨和风笛为特色，酒吧常有现场演奏','📚 爱尔兰文学巨匠辈出，叶芝、乔伊斯、王尔德和贝克特都来自这里'],
+'蒙古':['🏇 那达慕大会是蒙古最盛大的节日，包括赛马、摔跤和射箭三项','🏠 蒙古包(Ger)是游牧民族的传统住所，至今仍有大量牧民居住','🐎 蒙古有约300万匹马，比人口(约340万)还多','🥩 蒙古饮食以肉类和奶制品为主，烤全羊和马奶酒(airag)是特色'],
+'阿曼':['🕌 阿曼是中东最安全的国家之一，犯罪率极低','🏜️ 阿曼拥有壮丽的沙漠和峡谷景观，瓦希巴沙漠是露营胜地','☕ 阿曼人热情好客，会请客人喝加了豆蔻的阿曼咖啡和椰枣','🐢 阿曼的海龟保护区是全球最重要的绿海龟产卵地之一'],
+'科威特':['🏙️ 科威特城的天际线以科威特塔群为标志，融合了现代与伊斯兰建筑','🐪 科威特曾是珍珠贸易中心，石油发现前珍珠是主要收入来源','🍽️ 科威特国菜"Machboos"是香料米饭配肉或鱼','☕ 科威特人有diwaniya文化——男性聚会厅，是重要的社交场所'],
+'黎巴嫩':['🏛️ 黎巴嫩曾是"中东的巴黎"，贝鲁特以时尚和夜生活闻名','🌲 黎巴嫩国旗上的雪松是国宝树种，有些树龄超过1000年','🍽️ 黎巴嫩菜(Mezze)以丰富的小碟拼盘著称，鹰嘴豆泥必尝','🎵 黎巴嫩是阿拉伯世界流行音乐和娱乐产业中心'],
+'突尼斯':['🏛️ 突尼斯拥有迦太基古城遗址，曾是地中海最强帝国之一','🏜️ 撒哈拉沙漠占突尼斯面积约40%，是《星球大战》取景地','🍵 突尼斯薄荷茶加松子是日常饮品，随时随地可以喝到','🕌 突尼斯的蓝白小镇(Sidi Bou Said)被誉为世界最美小镇之一'],
+'坦桑尼亚':['🦁 塞伦盖蒂大草原是全球最壮观的动物迁徙观赏地','🏔️ 乞力马扎罗山海拔5895米，是非洲最高峰，可以徒步登顶','🏝️ 桑给巴尔岛有碧蓝海水和石头城，被称为"印度洋上的明珠"','🦒 坦桑尼亚的恩戈罗恩戈罗火山口是世界上最大的完整火山口'],
+'埃塞俄比亚':['☕ 埃塞俄比亚是咖啡的发源地，"Kaffa"地区就是咖啡(coffee)一词的来源','📅 埃塞俄比亚有自己的历法，比公历晚7-8年，现在是2018年','🏃 埃塞俄比亚是长跑之国，诞生了"飞人"贝克勒和迪巴巴等传奇','⛪ 拉利贝拉的岩石教堂群是从整块岩石中雕凿出来的世界奇迹'],
+'加纳':['🍫 加纳是世界第二大可可生产国，巧克力原料的重要产地','🏰 海岸角城堡记录了奴隶贸易的黑暗历史，是重要的反思场所','🎭 加纳的肯特布(Kente)是色彩鲜艳的手工编织布料，是非洲文化象征','⚽ 加纳足球队"黑星"是非洲劲旅，足球是全国最热运动'],
+'塞内加尔':['🎵 塞内加尔的Mbalax音乐融合了非洲节拍和西方流行乐','🌊 达喀尔曾是巴黎-达喀尔拉力赛的终点站(现已停办)','🏝️ 玫瑰湖(Lac Rose)因高盐分和藻类呈粉红色，是自然奇观','🐟 塞内加尔国菜Thieboudienne是鱼配米饭，被称为非洲版海鲜饭'],
+'博茨瓦纳':['🐘 博茨瓦纳拥有全球最多的大象(约13万头)，乔贝国家公园是象群天堂','💎 博茨瓦纳是世界第二大钻石生产国，奥卡万戈三角洲是自然奇迹','🦁 博茨瓦纳的荒野保护区占国土面积约40%，是safari爱好者的天堂','🇧🇼 博茨瓦纳是非洲最稳定和安全的国家之一，被称为"非洲瑞士"'],
+'牙买加':['🎵 牙买加是雷鬼音乐的发源地，鲍勃·马利让这种音乐风靡全球','🏃 博尔特来自牙买加，这个岛国是世界短跑之王','🌿 牙买加的蓝山咖啡是世界最贵咖啡之一，产自蓝山山脉','🍹 朗姆酒和椰子水是牙买加特色饮品，海滩派对文化盛行'],
+'哥伦比亚':['☕ 哥伦比亚咖啡世界闻名，咖啡三角区是体验咖啡文化的最佳地点','💃 萨尔萨舞在卡利市(Cali)发扬光大，卡利被称为"世界萨尔萨之都"','🌈 哥伦比亚是全球生物多样性第二大国，拥有亚马逊雨林和安第斯山脉','🎨 麦德林从"世界最危险城市"转型为创新城市，是城市复兴典范'],
+'厄瓜多尔':['🌋 厄瓜多尔名字来自"赤道"(Ecuador)，赤道纪念碑就在首都基多附近','🐢 加拉帕戈斯群岛是达尔文进化论的灵感来源，有独特的巨型陆龟','🌹 厄瓜多尔是世界最大玫瑰出口国之一，玫瑰品质全球顶级','🏔️ 从热带雨林到安第斯雪山到太平洋海岸，厄瓜多尔地貌极其多样'],
+'新西兰':['🏔️ 新西兰南岛的米尔福德峡湾被称为"世界第八大奇迹"','🐑 新西兰有约2600万只羊，比人口(约520万)多5倍','🎬 《指环王》和《霍比特人》在新西兰取景，霍比屯已成旅游景点','🏉 毛利战舞(Haka)是新西兰橄榄球队赛前仪式，震撼人心'],
+'斐济':['🤙 斐济人打招呼说"Bula"(你好)，笑容和热情全球闻名','🏝️ 斐济由330多个岛屿组成，是世界顶级潜水和冲浪目的地','🍹 斐济传统饮品Kava(卡瓦酒)用胡椒根制成，喝了舌头会发麻','🔥 斐济的走火仪式(Firewalking)已有数百年历史，至今仍在表演'],
+'法属波利尼西亚':['🏝️ 大溪地(Bora Bora)被誉为"太平洋的珍珠"，水上别墅世界闻名','💎 大溪地黑珍珠是世界上最珍贵的珍珠之一，颜色从灰到纯黑','🌺 大溪地花环(Tiare)是迎宾礼仪，每位游客到达都会收到花环','🎨 高更在大溪地创作了大量画作，使这个岛屿名扬世界'],
+'巴布亚新几内亚':['🎭 巴新有约850种语言，是世界上语言最多样的国家','🏝️ 巴新拥有全球10%的珊瑚礁物种，潜水爱好者的天堂','🎨 面具雕刻和身体彩绘是巴新部落文化的核心，每个部落风格不同','🌋 巴新位于太平洋火山带上，有多座活火山和壮观的火山湖']
+};
+const TRAVEL={
+'日本':{visa:'2024年起中国护照免签30天，说走就走',bestTime:['3-4月樱花季、10-11月红叶季','避开8月酷暑和5月黄金周'],packing:['舒适步行鞋（日均2万步）','折叠伞（说下就下的雨）','小毛巾（日本人随身必备）','现金零钱包'],payment:['日元现金为王，小店多只收现金','支付宝在便利店和大商场可用','交通买Suica卡（公交一卡通）'],tips:['插头双扁孔（和中国两孔通用）','Google Maps在日本很好用','万能用语：すみません（打扰了）']},
+'韩国':{visa:'需提前办理C-3短期签证，一般5个工作日，可电子签',bestTime:['4-5月春花、9-10月秋色最佳','避开7-8月梅雨季','12-2月滑雪季也不错'],packing:['转换插头（德标双圆孔）','润唇膏+保湿面霜（空气干燥）','一双好走的鞋'],payment:['韩元，大部分可刷信用卡','支付宝在明洞等旅游区可用','出租车和传统市场备现金'],tips:['下载Naver Map（比Google Maps好用）','T-money卡通用地铁公交便利店','万能用语：감사합니다（谢谢）']},
+'中国':{visa:'中国公民无需签证，外籍游客部分城市144小时过境免签',bestTime:['4-5月、9-10月气候最舒适','避开春节和国庆黄金周','7-8月适合去西北和高原'],packing:['充电宝（高铁飞机都需要）','防晒霜+墨镜','舒适运动鞋','小包装纸巾（部分公厕无免费纸）'],payment:['支付宝/微信覆盖商场到路边摊','现金基本用不上，备少量零钱即可'],tips:['电源国标两孔/三孔（无需转换器）','必装：高德地图、大众点评、滴滴打车','部分景区信号弱，提前下离线地图']},
+'印度':{visa:'需提前办理电子签证（e-Visa），在线申请约3-5天，费用约80美元',bestTime:['10月至次年3月（凉爽干燥）','避开4-6月酷暑（45°C+）','避开7-9月雨季'],packing:['肠胃药+止泻药（必备！）','防蚊液+防晒霜','口罩（大城市灰尘大）','便携净水壶或净水药片','长裤长裙（进寺庙需遮盖）'],payment:['印度卢比，建议到当地换汇','大城市商场可刷卡','小店和tuk-tuk只收现金'],tips:['电源D/M型三圆孔，需万能转换器','打车用Ola或Uber','万能用语：Namaste（合十问候）','注意：只喝瓶装水，路边摊慎用冰块']},
+'斯里兰卡':{visa:'电子签证（ETA），24小时内获批，费用约50美元，也可落地签',bestTime:['西海岸和南部：12月-3月（干季）','东海岸：5-9月','避开5-6月西南季风暴雨'],packing:['防晒霜SPF50+和墨镜','轻便长裤+遮肩上衣（进寺庙必须）','驱蚊喷雾','防水袋（海边和雨季必备）'],payment:['斯里兰卡卢比，机场换汇汇率好','大酒店餐厅可刷卡','小店和tuk-tuk只收现金'],tips:['电源D/G型（三圆孔或英标），带转换器','茶园火车线和海边火车线是最美体验','万能用语：Ayubowan（祝你长寿）']},
+'尼泊尔':{visa:'中国护照免费落地签，加德满都机场现场办，需2张护照照片',bestTime:['10-11月秋季最佳（晴朗看雪山）','3-4月春季杜鹃花也不错','避开6-9月季风季（道路泥泞）'],packing:['登山鞋或防滑徒步鞋（必备）','防晒霜+高海拔墨镜','保暖外套（早晚温差大）','头灯/手电（经常停电）','肠胃药+高反药'],payment:['尼泊尔卢比，带美元到当地换汇','泰米尔区有ATM可取现','大部分消费需现金'],tips:['电源D/M型三圆孔，需转换器','打车记得砍价或要求打表','万能用语：Namaste（合十问候）','徒步推荐ABC或Poon Hill（4-7天）']},
+'泰国':{visa:'中国护照免签30天，说走就走',bestTime:['11月-2月最佳（凉季，干燥舒适）','避开3-5月酷暑（40°C+）','避开7-10月雨季'],packing:['防晒霜+墨镜+遮阳帽','薄长裤（进寺庙必须）','防蚊液','转换插头（部分酒店只有两孔）'],payment:['泰铢，街头和夜市只收现金','大商场和7-11可刷卡','支付宝在部分商场可用'],tips:['电源A/B/C型（两孔通用，三孔需转换器）','Grab打车方便又便宜','万能用语：สวัสดี（萨瓦迪卡/你好）']},
+'越南':{visa:'中国护照免签45天（2023年起）',bestTime:['北部10-4月（凉爽干燥）','南部12-4月（干季）','避开6-8月全国酷暑和台风季'],packing:['轻便雨衣或折叠伞','防蚊液+肠胃药','舒适凉鞋（经常走路）','小面额现金（越南盾面值大）'],payment:['越南盾，街头和小店只收现金','大酒店和餐厅可刷卡','ATM取现方便'],tips:['电源A/C型（两孔通用）','Grab打车是必备APP','过马路秘诀：匀速前进不要停']},
+'印度尼西亚':{visa:'中国护照免签30天（旅游目的）',bestTime:['5-9月干季最佳','避开11-4月雨季（尤其巴厘岛）','7-8月是旅游旺季，提前订酒店'],packing:['防晒霜SPF50+（赤道紫外线强）','驱蚊液+肠胃药','薄外套（商场和餐厅冷气很足）','转换插头（C/F型）'],payment:['印尼盾，建议到当地换汇','大酒店和商场可刷卡','小店和warung只收现金'],tips:['电源C/F型（两圆孔），需转换器','巴厘岛租摩托车是最方便的交通','万能用语：Terima kasih（谢谢）']}
+};
+const MAX_Q=6,SCORE_RIGHT=15,SCORE_WRONG=0,STREAK_BONUS=5;
+let state={round:0,score:0,streak:0,maxStreak:0,correct:0,wrong:0,questions:[],history:[],totalQ:0,currentRegion:''};
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function goHome(){showScreen('startScreen')}
+function renderRegionCards(){
+  const grid=document.getElementById('regionGrid');
+  let html='';
+  for(const[key,r]of Object.entries(REGIONS)){
+    const count=QUESTIONS.filter(q=>q.region===key).length;
+    html+=`<div class="region-card" onclick="startGame('${key}')">
+      <div class="rc-icon">${r.icon}</div>
+      <div class="rc-name">${r.name}</div>
+      <div class="rc-flags">${r.flags}</div>
+      <div class="rc-count">随机抽 ${MAX_Q} 题</div>
+    </div>`;
+  }
+  html+=`<div class="region-card region-all" onclick="startGame('all')">
+    <div class="rc-icon">🌐</div>
+    <div class="rc-name">全部地区</div>
+    <div class="rc-flags">🌍🌏🌎</div>
+    <div class="rc-count">随机抽 ${MAX_Q} 题</div>
+  </div>`;
+  grid.innerHTML=html;
+}
+renderRegionCards();
+function startGame(region){
+  const pool=region==='all'?QUESTIONS:QUESTIONS.filter(q=>q.region===region);
+  const totalQ=Math.min(MAX_Q,pool.length);
+  state={round:0,score:0,streak:0,maxStreak:0,correct:0,wrong:0,questions:shuffle(pool).slice(0,totalQ),history:[],totalQ,currentRegion:region};
+  showScreen('gameScreen');showQuestion();
+}
+function showQuestion(){
+  const q=state.questions[state.round];
+  document.getElementById('roundInfo').textContent=`第 ${state.round+1}/${state.totalQ} 题`;
+  document.getElementById('scoreDisplay').textContent=`🏆 ${state.score}`;
+  updateStreak();
+  document.getElementById('countryFlag').textContent=q.flag;
+  document.getElementById('countryName').textContent=q.country;
+  document.getElementById('behaviorText').textContent=`"${q.behavior}"`;
+  document.getElementById('hintText').textContent=q.hint||'';
+  document.getElementById('situationHint').style.display=q.hint?'flex':'none';
+  document.getElementById('questionCard').className='question-card';
+  document.getElementById('okBtn').disabled=false;document.getElementById('noBtn').disabled=false;
+  document.getElementById('okBtn').className='answer-btn ok-btn';document.getElementById('noBtn').className='answer-btn no-btn';
+  document.getElementById('answerBtns').style.display='flex';
+  document.getElementById('explanationArea').innerHTML='';
+  document.getElementById('nextBtnWrap').style.display='none';
+}
+function updateStreak(){const el=document.getElementById('streakDisplay');if(state.streak>=2){el.textContent=`🔥×${state.streak}`;el.className='streak-display active';setTimeout(()=>el.classList.remove('active'),400)}else{el.textContent='';el.className='streak-display'}}
+function answer(userSaysOk){
+  const q=state.questions[state.round];const isRight=(userSaysOk===q.ok);const card=document.getElementById('questionCard');
+  document.getElementById('okBtn').disabled=true;document.getElementById('noBtn').disabled=true;
+  if(userSaysOk){document.getElementById('okBtn').classList.add('chosen-ok')}else{document.getElementById('noBtn').classList.add('chosen-no')}
+  if(isRight){state.correct++;state.streak++;if(state.streak>state.maxStreak)state.maxStreak=state.streak;const bonus=state.streak>=3?STREAK_BONUS*(state.streak-2):0;state.score+=SCORE_RIGHT+bonus;card.classList.add('correct-bg')}else{state.wrong++;state.streak=0;card.classList.add('wrong-bg')}
+  state.history.push({q,isRight});document.getElementById('scoreDisplay').textContent=`🏆 ${state.score}`;updateStreak();
+  const answerText=q.ok?'✅ 其实可以这样做':'❌ 这样做不行哦';
+  document.getElementById('explanationArea').innerHTML=`<div class="explanation ${isRight?'correct':'wrong'}"><div class="result-label"><span class="icon">${isRight?'🎉':'💡'}</span>${isRight?'答对了！':'答错了～'} ${isRight?'':answerText}</div><div class="fact">${q.fact}</div><div class="learn">💡 ${q.learn}</div></div>`;
+  document.getElementById('nextBtnWrap').style.display='block';
+  document.getElementById('nextBtnWrap').querySelector('.btn').textContent=state.round<state.totalQ-1?'下一题 →':'查看结果 🎉';
+}
+function nextQuestion(){state.round++;if(state.round>=state.totalQ){showFinal();return}showQuestion()}
+function showFinal(){
+  showScreen('finalScreen');
+  const pct=Math.round((state.correct/state.totalQ)*100);
+  let rank='';
+  if(pct>=90)rank='文化旅行家！你对这个地区的文化了如指掌。'
+  else if(pct>=70)rank='资深旅客！大部分文化知识都掌握了，再补补冷门知识就完美了。'
+  else if(pct>=50)rank='好奇背包客！有一些文化盲区，下次旅行前记得做做功课。'
+  else rank='文化小白…建议出发前好好了解一下目的地的风俗习惯。'
+  const regionName=state.currentRegion==='all'?'全部地区':REGIONS[state.currentRegion].name;
+  document.getElementById('finalResult').innerHTML=`${state.correct}<span class="result-unit">/${state.totalQ}</span>`;
+  document.getElementById('finalRegionTag').textContent=regionName;
+  document.getElementById('finalRank').textContent=rank;
+  const countries=[...new Set(state.history.map(h=>h.q.country))];
+  const flags={};state.history.forEach(h=>{flags[h.q.country]=h.q.flag});
+  let r='<div class="culture-title">🌏 这些国家你了解吗？</div>';
+  countries.forEach((c,idx)=>{
+    const facts=CULTURE[c]||[];
+    const picked=shuffle(facts).slice(0,2);
+    r+=`<div class="culture-country"><div class="culture-country-header"><span class="cc-flag">${flags[c]}</span><span class="cc-name">${c}文化风情</span></div>`;
+    picked.forEach(f=>{r+=`<div class="culture-fact"><span class="fact-text">${f}</span></div>`});
+    const travel=TRAVEL[c];
+    if(travel){
+      r+=`<div class="travel-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">🧳 出行清单 <span class="arrow">▾</span></div>`;
+      r+=`<div class="travel-list">`;
+      r+=`<div class="travel-module"><div class="travel-module-title">🛂 签证</div><p class="travel-text">${travel.visa}</p></div>`;
+      r+=`<div class="travel-module"><div class="travel-module-title">📅 最佳时间</div><ul>${travel.bestTime.map(t=>'<li>'+t+'</li>').join('')}</ul></div>`;
+      r+=`<div class="travel-module"><div class="travel-module-title">🎒 行李清单</div><ul>${travel.packing.map(t=>'<li>'+t+'</li>').join('')}</ul></div>`;
+      r+=`<div class="travel-module"><div class="travel-module-title">💰 货币支付</div><ul>${travel.payment.map(t=>'<li>'+t+'</li>').join('')}</ul></div>`;
+      r+=`<div class="travel-module"><div class="travel-module-title">🔌 实用贴士</div><ul>${travel.tips.map(t=>'<li>'+t+'</li>').join('')}</ul></div>`;
+      r+=`</div>`;
+    }
+    r+='</div>';
+  });
+  document.getElementById('cultureArea').innerHTML=r;
+}
+</script>
+</body>
+</html>

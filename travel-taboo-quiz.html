@@ -896,7 +896,7 @@ function renderCountryCards(){
     const sorted=Object.entries(cs).sort((a,b)=>order.indexOf(a[0])-order.indexOf(b[0]));
     html+=`<div class="country-region-block"><div class="country-region-title">${r.icon} ${r.name}（${sorted.length}）</div><div class="country-grid">`;
     sorted.forEach(([cname,info])=>{
-      html+=`<div class="country-card" onclick="startGame('${cname}')"><div class="cc-flag">${info.flag}</div><div class="cc-name">${cname}</div><div class="cc-count">${info.count}题·抽${Math.min(MAX_Q,info.count)}</div></div>`;
+      html+=`<div class="country-card" onclick="startGame('${cname}')"><div class="cc-flag">${info.flag}</div><div class="cc-name">${cname}</div></div>`;
     });
     html+='</div></div>';
   }
